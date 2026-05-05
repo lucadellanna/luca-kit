@@ -52,9 +52,9 @@ version: 0.1.0
 [Body: purpose, steps, decision points, approval gates, scope boundaries]
 
 ## Score and iterate (include this section in every generated skill)
-[Define 2–5 success criteria for the skill's runtime output.
- Score output 0–10 per criterion. If average < 9.5, revise and re-score.
- Stop if score plateaus or after 3 iterations.]
+Generate 2–5 specific success criteria for this skill's runtime output.
+Score output 0–10 per criterion. If average < 9.5, revise and re-score.
+Stop if score plateaus or after 3 iterations.
 ```
 
 Rules for the draft:
@@ -64,6 +64,7 @@ Rules for the draft:
 - State what the skill does NOT cover.
 - No boilerplate, filler, or examples the user didn't ask for.
 - Name the skill directory as kebab-case verb-noun (e.g., `review-invoice`, `onboard-client`).
+- Never write CLI commands, install steps, or configuration syntax you're not certain is correct — flag uncertainty and ask whether to verify or omit.
 
 ## Step 4: Score and iterate this SKILL.md draft
 
@@ -71,7 +72,7 @@ Rate the SKILL.md document you just wrote — not the skill's runtime output —
 
 | Criterion | Score | Gap |
 |-----------|-------|-----|
-| ... | X/10 | [what's missing] |
+| [Criterion Name] | X/10 | [what's missing] |
 
 - If average ≥ 9.5: proceed to Step 5.
 - If average < 9.5: revise the draft to close the lowest-scoring gaps. Re-score. Repeat.
@@ -83,4 +84,4 @@ Do not iterate more than 3 times.
 
 Show the user the final SKILL.md. Ask for explicit approval before writing the file.
 
-On approval: write to `skills/<skill-name>/SKILL.md`.
+On approval: create the directory `skills/<skill-name>/` and write the content to `skills/<skill-name>/SKILL.md`.
