@@ -24,9 +24,9 @@ Before continuing to the next step, ensure you understand the context and purpos
 
 ## Step 2: Define success criteria
 
-Before drafting, agree with the user on 2–5 measurable criteria the finished skill must satisfy. Each criterion is a statement that can be scored 0–10.
+Before drafting, agree with the user on 2–5 measurable criteria for scoring the SKILL.md document quality (Step 4). These are separate from the task-performance criteria that will go inside the generated skill.
 
-Default criteria (adjust based on context):
+Default document-quality criteria (adjust based on context):
 
 | # | Criterion |
 |---|-----------|
@@ -83,4 +83,4 @@ Do not iterate more than 3 times.
 
 Show the user the final SKILL.md. Ask for explicit approval before writing the file.
 
-On approval: write to `skills/<skill-name>/SKILL.md` and remove `skills/.gitkeep` if present.
+On approval: write to `skills/<skill-name>/SKILL.md`.
