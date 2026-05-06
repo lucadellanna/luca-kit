@@ -19,6 +19,12 @@ Requires [Claude Code](https://claude.ai/code).
 /plugin install luca-ops-kit@lucadellanna/luca-ops-kit
 ```
 
+**To uninstall:**
+
+```
+/plugin uninstall luca-ops-kit@lucadellanna/luca-ops-kit
+```
+
 **To enable auto-updates:** Type `/plugin`, press Tab twice to open the Marketplaces tab, select `luca-ops-kit`, then select **Enable updates**.
 
 ### Claude Cowork
