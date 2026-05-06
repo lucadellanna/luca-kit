@@ -6,12 +6,26 @@ Most companies using AI are stuck at the "clever individual prompts" stage: usef
 
 ## Installation
 
-Requires [Claude Code](https://claude.ai/code). Run these two commands in Claude Code:
+Install in Claude Code, Cowork, or both — if you use both apps, follow each procedure separately.
+
+### Claude Code
+
+Requires [Claude Code](https://claude.ai/code).
+
+**To install:** Run these two commands in Claude Code:
 
 ```
 /plugin marketplace add lucadellanna/luca-ops-kit
 /plugin install luca-operating-kit@luca-ops-kit
 ```
+
+**To enable auto-updates:** Type `/plugin`, press Tab twice to open the Marketplaces tab, select `luca-operating-kit`, then select **Enable updates**.
+
+### Claude Cowork
+
+**To install:** Left sidebar → Customize → Plugins → Personal → **+** → Add marketplace → `lucadellanna/luca-ops-kit` → click on it → Install
+
+**To enable auto-updates:** Left sidebar → Customize → Browse Plugins → Personal → luca-ops-kit → **···** → Sync automatically
 
 ## Who uses it
 
