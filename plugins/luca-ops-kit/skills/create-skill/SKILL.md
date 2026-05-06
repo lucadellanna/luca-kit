@@ -58,7 +58,7 @@ version: 0.1.0
 
 [2–5 MECE success criteria go here.]
 
-Spawn a Haiku sub-agent to score each criterion 0–10. If average < 9.5, revise and re-score. Stop after 3 iterations or if the score stops improving. If any criterion remains below 8 after iteration, draft a one-line edit to this SKILL.md to prevent the same failure, show it to the user, and apply on approval.
+Spawn a Haiku sub-agent to score each criterion 0–10. If average < 9.5, revise and re-score. Stop after 3 iterations or if the score stops improving. If any criterion remains below 8 after iteration, draft a concise edit to this SKILL.md to prevent the same failure, show it to the user, and apply on approval.
 
 ## Design decisions
 
@@ -113,7 +113,7 @@ Spawn a Haiku sub-agent to verify the runtime quality of the skill just saved (d
 2. **Efficiency** — No unnecessary questions were asked; the user wasn't asked to make decisions that Claude could make
 3. **Coverage** — the generated skill covers all key steps and decision points from the source material
 
-If any criterion scores below 8, draft a one-line edit to this SKILL.md to prevent the same failure, show it to the user, and apply on approval.
+If any criterion scores below 8, draft a concise edit to this SKILL.md to prevent the same failure, show it to the user, and apply on approval.
 
 ## Design decisions
 

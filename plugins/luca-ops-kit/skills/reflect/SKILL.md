@@ -54,7 +54,7 @@ Criteria:
 4. **Coverage** — no obvious patterns or errors from the conversation were missed
 5. **Accuracy** — each finding is factually grounded: the events, errors, and patterns described actually occurred as stated in the conversation
 
-Use the sub-agent's scores directly. If average < 9.5, revise the findings and re-score. Stop after 3 iterations or if the score stops improving. Do not present findings until the threshold is met or iterations are exhausted.
+Use the sub-agent's scores directly. If average < 9.5, revise the findings and re-score. Stop after 3 iterations or if the score stops improving. Note: a score change of < 0.5 between iterations may be Haiku scoring variance rather than genuine regression — if the changes were substantive, continue rather than stopping on noise. Do not present findings until the threshold is met or iterations are exhausted.
 
 ## Step 4: Present Findings
 
@@ -83,7 +83,7 @@ After acting on choices, spawn a Haiku sub-agent to verify:
 2. **Quality** — findings met the scoring threshold in Step 3 (average ≥ 9.5 or max iterations reached)
 3. **No overreach** — no actions were taken beyond what the user selected
 
-If any criterion scores below 8, draft a one-line edit to this SKILL.md to prevent the same failure, show it to the user, and apply on approval.
+If any criterion scores below 8, draft a concise edit to this SKILL.md to prevent the same failure, show it to the user, and apply on approval.
 
 ## Design decisions
 

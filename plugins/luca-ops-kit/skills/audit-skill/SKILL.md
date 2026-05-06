@@ -54,7 +54,7 @@ Don't filter yet.
 
 Label each item **Act** (high impact, within the skill's scope) or **Skip** (low impact or out of scope). Show only **Act** items, numbered.
 
-Use AskUserQuestion (multiSelect: true) with each Act item as an option, all pre-selected by default. Ask: "Which improvements should I apply?" If Act items exceed 4, split into two consecutive AskUserQuestion calls. Proceed only with the selected items.
+Use AskUserQuestion (multiSelect: true) with each Act item as an option, all pre-selected by default. Ask: "Which improvements should I apply?" If Act items exceed 4, split into two consecutive AskUserQuestion calls. Aggregate all selected items and proceed only with those.
 
 ## Step 5: Apply
 
@@ -85,7 +85,7 @@ Spawn a Haiku sub-agent to verify the audit's own quality on these criteria:
 2. **All confirmed items applied** — no user-confirmed improvement was skipped
 3. **No regressions** — criteria that scored well initially are not worse in the final version
 
-If any criterion scores below 8, draft a one-line edit to this SKILL.md to prevent the same failure, show it to the user, and apply on approval.
+If any criterion scores below 8, draft a concise edit to this SKILL.md to prevent the same failure, show it to the user, and apply on approval.
 
 ## Design decisions
 
