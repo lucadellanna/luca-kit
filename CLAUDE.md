@@ -42,7 +42,7 @@ No commands, agents, or hooks yet — skills only.
 
 ## Principles
 
-- **Plain language.** No jargon. If a term needs explanation, explain it inline.
+- **Plain language.** No jargon. If a term needs explanation, explain it inline. Exception: Claude-native terms used as instructions to Claude (e.g., `AskUserQuestion`, `multiSelect`) are acceptable in SKILL.md files — they are directives for Claude, not content shown to users.
 - **Guided workflows.** Skills walk users through steps. Never dump options without context.
 - **No unvalidated assumptions.** If a skill must assume something about the user's context, state the assumption and ask the user to confirm before proceeding.
 - **Human approval points.** High-stakes outputs require explicit user confirmation before acting.
