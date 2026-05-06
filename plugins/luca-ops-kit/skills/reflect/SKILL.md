@@ -69,7 +69,7 @@ Ask the user what to implement via AskUserQuestion (multiSelect: true) with the 
 
 ## Step 5: Act on Choices
 
-**Memory updates**: State the exact text to be added (one or two lines), then write it to `.context/MEMORY.md` under `## Preferences` or `## Context` (create file/section if needed). Terse entries only — just what Claude needs to know.
+**Memory updates**: State the exact text to be added (one or two lines), then write it to `.claude/memory/MEMORY.md` under `## Preferences` or `## Context` (create file/section if needed). Terse entries only — just what Claude needs to know.
 
 **New skills**: Run `/create-skill` with the proposed name, purpose, and trigger as context.
 
