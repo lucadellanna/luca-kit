@@ -71,7 +71,7 @@ Then ask the user what to implement via AskUserQuestion (multiSelect: true) with
 
 **New skills**: Run `/create-skill` to build the skill interactively. Pass the proposed name, purpose, and trigger as context so the guided flow starts with those already decided.
 
-**Skill improvements**: Read `skills/<name>/SKILL.md`, apply the change directly. One focused edit per finding.
+**Skill improvements**: Read `plugins/luca-operating-kit/skills/<name>/SKILL.md`, apply the change directly. One focused edit per finding.
 
 ## What NOT to Do
 
