@@ -54,7 +54,7 @@ Don't filter yet.
 
 Label each item **Act** (high impact, within the skill's scope) or **Skip** (low impact or out of scope). Show only **Act** items, numbered.
 
-Use AskUserQuestion (multiSelect: true) with each Act item as an option, all pre-selected by default. Ask: "Which improvements should I apply?" If Act items exceed 4, split into two consecutive AskUserQuestion calls. Aggregate all selected items and proceed only with those.
+Use AskUserQuestion (multiSelect: true) with each Act item as an option, all pre-selected by default. Ask: "Which improvements should I apply?" If Act items exceed 4, split them into multiple consecutive AskUserQuestion calls (max 4 items per call). Aggregate all selected items and proceed only with those.
 
 ## Step 5: Apply
 
