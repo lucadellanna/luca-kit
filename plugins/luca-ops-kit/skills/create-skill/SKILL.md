@@ -85,7 +85,7 @@ This step scores the SKILL.md *document quality* against the criteria agreed in 
 Spawn a Haiku sub-agent to score the draft. Pass it:
 1. The full SKILL.md draft text
 2. The agreed criteria and their definitions
-3. The instruction: "Score each criterion 0–10. For each, give a one-sentence rationale and name the specific element that most affected the score. Return a markdown table."
+3. The instruction: "Score each criterion 0–10. If the draft has a ## Design decisions section, score net of documented decisions — do not penalise intentional trade-offs. For each criterion, give a one-sentence rationale and name the specific element that most affected the score. Return a markdown table."
 
 Use the sub-agent's scores directly:
 
