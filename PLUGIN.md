@@ -4,7 +4,7 @@
 
 ```
 /plugin marketplace add lucadellanna/luca-ops-kit
-/plugin install luca-ops-kit
+/plugin install luca-operating-kit@luca-ops-kit
 ```
 
 ## Skills
@@ -34,5 +34,5 @@ To get the latest version, remove and reinstall:
 /plugin uninstall luca-ops-kit
 /plugin marketplace remove lucadellanna-luca-ops-kit
 /plugin marketplace add lucadellanna/luca-ops-kit
-/plugin install luca-ops-kit
+/plugin install luca-operating-kit@luca-ops-kit
 ```

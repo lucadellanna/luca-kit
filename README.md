@@ -10,7 +10,7 @@ Requires [Claude Code](https://claude.ai/code). Run these two commands in Claude
 
 ```
 /plugin marketplace add lucadellanna/luca-ops-kit
-/plugin install luca-ops-kit
+/plugin install luca-operating-kit@luca-ops-kit
 ```
 
 ## Who uses it
