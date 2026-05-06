@@ -84,4 +84,4 @@ Do not iterate more than 3 times.
 
 Show the user the final SKILL.md. Ask for explicit approval before writing the file.
 
-On approval: create the directory `plugins/luca-operating-kit/skills/<skill-name>/` and write the content to `plugins/luca-operating-kit/skills/<skill-name>/SKILL.md`.
+On approval: create the directory `skills/<skill-name>/` and write the content to `skills/<skill-name>/SKILL.md`.
