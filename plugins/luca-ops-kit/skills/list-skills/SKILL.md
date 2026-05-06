@@ -75,12 +75,18 @@ if os.path.isdir(gskills):
 cache = os.path.expanduser('~/.claude/plugins/cache')
 if os.path.isdir(cache):
     for mkt in sorted(os.listdir(cache)):
-        for plugin_dir in sorted(os.listdir(f'{cache}/{mkt}')):
-            versions = sorted(os.listdir(f'{cache}/{mkt}/{plugin_dir}'))
+        mkt_path = f'{cache}/{mkt}'
+        if not os.path.isdir(mkt_path):
+            continue
+        for plugin_dir in sorted(os.listdir(mkt_path)):
+            plugin_path = f'{mkt_path}/{plugin_dir}'
+            if not os.path.isdir(plugin_path):
+                continue
+            versions = sorted(os.listdir(plugin_path))
             if not versions:
                 continue
             latest = versions[-1]
-            base = f'{cache}/{mkt}/{plugin_dir}/{latest}'
+            base = f'{plugin_path}/{latest}'
             pname, pauthor = get_plugin_meta(f'{base}/.claude-plugin/plugin.json')
             sdir = f'{base}/skills'
             if not os.path.isdir(sdir):
