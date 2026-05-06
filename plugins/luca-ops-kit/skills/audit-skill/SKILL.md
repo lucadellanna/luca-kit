@@ -66,7 +66,7 @@ Spawn a fresh Haiku sub-agent to re-score. Pass it the updated skill file conten
 
 - Average ≥ 9.5 → proceed to Step 7.
 - Average < 9.5 and higher than the previous iteration → return to Step 3. Do not re-apply changes already made.
-- No improvement from previous iteration → stop, proceed to Step 7 with the best version reached. Note: a score change of < 0.5 between iterations may be Haiku scoring variance rather than genuine regression — if the changes were substantive, continue rather than stopping on noise.
+- No improvement from previous iteration → stop, proceed to Step 7 with the best version reached. Note: if the score remains stagnant or increases by < 0.5, you may continue for one more iteration if the previous changes were substantive, as this may be Haiku scoring variance rather than a lack of progress.
 
 Maximum 3 total iterations.
 
