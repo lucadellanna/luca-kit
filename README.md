@@ -16,10 +16,10 @@ Requires [Claude Code](https://claude.ai/code).
 
 ```
 /plugin marketplace add lucadellanna/luca-ops-kit
-/plugin install luca-operating-kit@luca-ops-kit
+/plugin install luca-ops-kit@luca-ops-kit
 ```
 
-**To enable auto-updates:** Type `/plugin`, press Tab twice to open the Marketplaces tab, select `luca-operating-kit`, then select **Enable updates**.
+**To enable auto-updates:** Type `/plugin`, press Tab twice to open the Marketplaces tab, select `luca-ops-kit`, then select **Enable updates**.
 
 ### Claude Cowork
 
