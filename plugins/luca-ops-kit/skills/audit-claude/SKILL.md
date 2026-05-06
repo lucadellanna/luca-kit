@@ -1,0 +1,138 @@
+---
+name: audit-claude
+description: Audit local and global CLAUDE.md and MEMORY.md files for conciseness and cross-file redundancy. Lists files by line count, lets user choose which to consider, proposes optimizations, implements on approval, then verifies no meaningful content was lost.
+version: 0.4.0
+---
+
+# Audit Claude
+
+Audit CLAUDE.md and MEMORY.md files for bloat and redundancy. Surface optimization opportunities across all selected files, implement on approval, verify nothing meaningful was lost.
+
+## Step 1: Discover files
+
+Check whether each path exists. Skip those that don't.
+
+| Label | Path |
+|-------|------|
+| Global CLAUDE.md | `~/.claude/CLAUDE.md` |
+| Global memory index | `~/.claude/MEMORY.md` |
+| Global memory files | All `~/.claude/memory/*.md` |
+| Project CLAUDE.md | `./CLAUDE.md` |
+| Project memory index | `./.claude/memory/MEMORY.md` |
+
+For each MEMORY.md found: extract all `[Title](path.md)` links and resolve to absolute paths (expand `~`; relative paths resolve from the MEMORY.md directory). Add each resolved path to the audit list if it falls within `~/.claude/` or the CWD and exists; otherwise note it as "out of scope — skipped" or "linked but missing — skipped".
+
+If no files are found, say "No CLAUDE.md or MEMORY.md files found." and stop.
+
+## Step 2: List files by length
+
+Count the lines in each file. Present a table sorted by line count descending (longest first):
+
+| File | Lines |
+|------|-------|
+| `~/.claude/CLAUDE.md` | 142 |
+| `./CLAUDE.md` | 58 |
+| … | … |
+
+Note any missing linked files below the table.
+
+## Step 3: Ask which to consider
+
+Use `AskUserQuestion` (multiSelect, all files pre-selected, listed in the same descending-length order) with the message:
+
+> "Which files would you like to audit?"
+
+`AskUserQuestion` accepts at most 4 options per call. If there are more than 4 files, split into multiple consecutive calls (e.g., "1 of 2", "2 of 2") and aggregate all selected items before proceeding.
+
+If the user selects none, stop.
+
+## Step 4: Analyze selected files
+
+Spawn two sub-agents **in parallel** — both read the selected files themselves using the paths provided:
+
+**Sub-agent A — Sonnet (structural analysis):**
+
+> You are auditing a set of configuration and memory files for a Claude Code environment. First, read every file at the paths listed below. Then analyze them together and identify:
+>
+> **Within-file opportunities** (per file):
+> - Redundant phrasing or repeated points
+> - Sections that could be expressed more concisely without losing meaning
+>
+> **Cross-file opportunities** (across files):
+> - Content duplicated across files (same rule stated in multiple places)
+> - Content in one file that belongs in another
+> - Opportunities to consolidate or refactor
+>
+> For each opportunity, provide: which file(s) are affected, a short description, and the proposed change (before → after for within-file; describe the move/merge for cross-file). Do not rewrite files wholesale. Surface discrete, targeted changes only.
+>
+> Files to read (absolute paths, one per line):
+> [list of selected absolute paths]
+
+**Sub-agent B — Haiku (micro-compression pass):**
+
+> Read each file at the paths listed below. For each file, identify sentence-level compression opportunities only:
+> - Two sentences that can be merged into one without losing meaning
+> - A verbose phrase that shortens to an equivalent form
+> - A clause that restates what the surrounding sentence already implies
+>
+> For each opportunity: file path, exact before text, exact after text. The "after" must be semantically identical to "before" — shorter, not different. Do not flag structural issues, cross-file redundancy, or anything requiring judgment about whether content is load-bearing.
+>
+> Files to read (absolute paths, one per line):
+> [list of selected absolute paths]
+
+Wait for both sub-agents to complete. Merge their findings before proceeding.
+
+## Step 5: Present and confirm
+
+Show findings in two groups: **Structural** (Sub-agent A) and **Micro-compressions** (Sub-agent B), each grouped by within-file and cross-file where applicable. Then present a compact summary table of all proposed changes (file | type | one-line description) so the user has a single reference when approving. Ask:
+
+> "Shall I implement all of these changes?"
+
+If the user declines, stop.
+
+## Step 6: Implement changes
+
+Before writing any file:
+1. Verify its path is within `~/.claude/` or the current working directory — skip and report any file outside this scope.
+2. Cache its current content to `/tmp/audit-claude-orig-<filename>.md` so the verification step can compare before/after without loading originals into the main context.
+
+Apply all proposed changes. Track which files were modified and the corresponding `/tmp/` cache path for each.
+
+## Step 7: Verify no meaningful content was lost
+
+Spawn a **Haiku sub-agent** with the list of modified file pairs (original cache path + live path) and this prompt:
+
+> For each file pair below, read both the original (cached at the /tmp/ path) and the revised version (at the live path). Report any meaningful content that was removed or altered in a way that changes its intent — rules, constraints, examples, or context that a reader would miss. Ignore purely stylistic changes (rephrasing that preserves meaning, whitespace, formatting).
+>
+> For each file, return either "No meaningful content lost" or a bulleted list of specific losses.
+>
+> File pairs (original_cache_path → live_path):
+> [list of /tmp/audit-claude-orig-<filename>.md → <live path> pairs]
+
+Show the Haiku's report to the user. If any losses are flagged, restore the affected content before closing.
+
+## Self-reflection
+
+Spawn a Haiku sub-agent to score this run on these criteria (0–10 each):
+
+1. **Discovery completeness** — all expected file types were found or correctly noted as absent; missing linked files were reported
+2. **Analysis quality** — optimizations are specific and actionable; cross-file opportunities are identified where they exist
+3. **Safety** — no file was written without user confirmation; scope check was applied
+4. **Verification** — the post-write Haiku check correctly identified (or confirmed absence of) meaningful content loss
+
+Compute the average. If average < 9.5, revise the skill output and re-score (max 3 iterations; stop if the score plateaus). If any criterion remains below 8 after iteration, draft a concise edit to this SKILL.md to prevent the same failure, show it to the user, and apply on approval.
+
+## Design decisions
+
+| Decision | Rationale |
+|----------|-----------|
+| Line count instead of conciseness score | Line count is objective and instantly comparable; a score requires a sub-agent call per file before the user has even chosen what to audit |
+| Single subagent sees all files together | Cross-file redundancy requires joint analysis; sequential per-file scoring misses it |
+| Sonnet for analysis (not Haiku) | Identifying load-bearing content vs. bloat requires judgment; Haiku risks flagging necessary context as redundant |
+| Haiku for post-write verification | Safety check is pattern-matching (find what was removed), not judgment — Haiku is sufficient and cheaper |
+| Single approval for all changes | Reduces friction; the post-write Haiku provides a safety net that makes per-change approval unnecessary |
+| Scope check applied at discovery (Step 1) and enforced again at write (Step 6) | Out-of-scope files are excluded before being read or sent to a sub-agent — the write guard is belt-and-suspenders, not the primary control |
+| Conductor workspace memories excluded from scope | `~/.claude/projects/*/memory/MEMORY.md` spans all past workspaces including closed ones — ephemeral and not load-bearing |
+| Files read by sub-agents, not main context (Steps 4 and 7) | Avoids loading file contents into the main context window; all source material stays in sub-agent contexts, reducing context pollution across long audit runs |
+| Originals cached to `/tmp/` before Step 6 writes | Enables Haiku verification without holding original content in the main context; temp files are cheap and require no cleanup |
+| Parallel Haiku micro-compression pass (Step 4B) | Sonnet gravitates toward structural/cross-file findings and misses sentence-level compression; a dedicated Haiku pass with a narrow prompt catches what Sonnet leaves behind, at no extra latency since both run in parallel |

@@ -16,7 +16,7 @@ Requires [Claude Code](https://claude.ai/code).
 
 ```
 /plugin marketplace add lucadellanna/luca-ops-kit
-/plugin install luca-ops-kit@lucadellanna/luca-ops-kit
+/plugin install luca-ops-kit@luca-ops-kit
 ```
 
 **To uninstall:**
