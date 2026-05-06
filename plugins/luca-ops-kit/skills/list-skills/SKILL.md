@@ -17,7 +17,6 @@ def get_skill_info(path):
     try:
         with open(path, 'r', encoding='utf-8') as f:
             content = f.read()
-        lines = content.splitlines()
         desc = None
         if content.startswith('---'):
             end = content.find('---', 3)
@@ -25,8 +24,8 @@ def get_skill_info(path):
                 m = re.search(r'^description:\s*[">]?\s*(.+)$', content[3:end], re.M)
                 if m:
                     desc = m.group(1).strip().strip('"\'').replace('\t', ' ')
-        return desc, len(lines)
-    except Exception:
+        return desc, len(content.splitlines())
+    except (FileNotFoundError, IOError):
         return None, 0
 
 def get_plugin_meta(path):
@@ -34,71 +33,52 @@ def get_plugin_meta(path):
         with open(path, 'r', encoding='utf-8') as f:
             d = json.load(f)
         return d.get('name', '?').replace('\t', ' '), d.get('author', {}).get('name', '?').replace('\t', ' ')
-    except Exception:
+    except (FileNotFoundError, IOError, json.JSONDecodeError):
         return '?', '?'
+
+def scan_skills(sdir, attribution, rows):
+    if not os.path.isdir(sdir):
+        return
+    for skill in sorted(os.listdir(sdir)):
+        if skill == 'upstream':
+            continue
+        p = os.path.join(sdir, skill, 'SKILL.md')
+        if not os.path.isfile(p):
+            continue
+        desc, lcount = get_skill_info(p)
+        rows.append((skill, attribution, desc or '—', lcount))
 
 rows = []
 
 # 1. Project plugins
-for plugin_dir in sorted(os.listdir('plugins')) if os.path.isdir('plugins') else []:
-    pname, pauthor = get_plugin_meta(f'plugins/{plugin_dir}/.claude-plugin/plugin.json')
-    sdir = f'plugins/{plugin_dir}/skills'
-    if not os.path.isdir(sdir):
-        continue
-    for skill in sorted(os.listdir(sdir)):
-        p = f'{sdir}/{skill}/SKILL.md'
-        if not os.path.isfile(p):
-            continue
-        desc, lcount = get_skill_info(p)
-        rows.append((skill, f'{pname} / {pauthor}', desc or '—', lcount))
+if os.path.isdir('plugins'):
+    for plugin_dir in sorted(os.listdir('plugins')):
+        pname, pauthor = get_plugin_meta(os.path.join('plugins', plugin_dir, '.claude-plugin', 'plugin.json'))
+        scan_skills(os.path.join('plugins', plugin_dir, 'skills'), f'{pname} / {pauthor}', rows)
 
 # 2. Project root skills
-if os.path.isdir('skills'):
-    for skill in sorted(os.listdir('skills')):
-        p = f'skills/{skill}/SKILL.md'
-        if not os.path.isfile(p):
-            continue
-        desc, lcount = get_skill_info(p)
-        rows.append((skill, '(local)', desc or '—', lcount))
+scan_skills('skills', '(local)', rows)
 
 # 3. Global custom skills (~/.claude/skills/)
-gskills = os.path.expanduser('~/.claude/skills')
-if os.path.isdir(gskills):
-    for skill in sorted(os.listdir(gskills)):
-        p = f'{gskills}/{skill}/SKILL.md'
-        if not os.path.isfile(p):
-            continue
-        desc, lcount = get_skill_info(p)
-        rows.append((skill, '(global)', desc or '—', lcount))
+scan_skills(os.path.expanduser('~/.claude/skills'), '(global)', rows)
 
 # 4. Global plugin cache — latest version per plugin only
 cache = os.path.expanduser('~/.claude/plugins/cache')
 if os.path.isdir(cache):
     for mkt in sorted(os.listdir(cache)):
-        mkt_path = f'{cache}/{mkt}'
+        mkt_path = os.path.join(cache, mkt)
         if not os.path.isdir(mkt_path):
             continue
         for plugin_dir in sorted(os.listdir(mkt_path)):
-            plugin_path = f'{mkt_path}/{plugin_dir}'
+            plugin_path = os.path.join(mkt_path, plugin_dir)
             if not os.path.isdir(plugin_path):
                 continue
-            versions = sorted(os.listdir(plugin_path))
+            versions = sorted([d for d in os.listdir(plugin_path) if os.path.isdir(os.path.join(plugin_path, d))])
             if not versions:
                 continue
-            latest = versions[-1]
-            base = f'{plugin_path}/{latest}'
-            pname, pauthor = get_plugin_meta(f'{base}/.claude-plugin/plugin.json')
-            sdir = f'{base}/skills'
-            if not os.path.isdir(sdir):
-                continue
-            for skill in sorted(os.listdir(sdir)):
-                if skill == 'upstream':
-                    continue
-                p = f'{sdir}/{skill}/SKILL.md'
-                if not os.path.isfile(p):
-                    continue
-                desc, lcount = get_skill_info(p)
-                rows.append((skill, f'{pname} / {pauthor}', desc or '—', lcount))
+            base = os.path.join(plugin_path, versions[-1])
+            pname, pauthor = get_plugin_meta(os.path.join(base, '.claude-plugin', 'plugin.json'))
+            scan_skills(os.path.join(base, 'skills'), f'{pname} / {pauthor}', rows)
 
 print(f'TOTAL:{len(rows)}')
 for r in rows:
@@ -140,4 +120,4 @@ Score each 0–10. If any criterion scores below 8, draft a concise edit to this
 | `~/.claude/skills/` via Python `os.listdir` | Glob tool may not reach this path due to sandbox restrictions; Python bypasses this |
 | Frontmatter `description:` over body summary | Canonical one-liner; summarising the body risks paraphrasing |
 | Sort by plugin then name | Groups related skills; pure alpha scatters plugin siblings |
-| No search/filter in v0.1 | Sufficient for current scale; add when user asks |
+| No search/filter in v0.2 | Sufficient for current scale; add when user asks |
