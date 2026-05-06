@@ -4,7 +4,7 @@
 
 ```
 /plugin marketplace add lucadellanna/luca-ops-kit
-/plugin install luca-ops-kit
+/plugin install luca-operating-kit@luca-ops-kit
 ```
 
 ## Skills
@@ -31,8 +31,8 @@ This plugin ships **meta-skills** only — tools for building and governing proc
 To get the latest version, remove and reinstall:
 
 ```
-/plugin uninstall luca-ops-kit
-/plugin marketplace remove lucadellanna-luca-ops-kit
+/plugin uninstall luca-operating-kit
+/plugin marketplace remove luca-ops-kit
 /plugin marketplace add lucadellanna/luca-ops-kit
-/plugin install luca-ops-kit
+/plugin install luca-operating-kit@luca-ops-kit
 ```
