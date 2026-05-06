@@ -13,32 +13,35 @@ Run this Python script via Bash. It scans all four locations and returns one TSV
 ```python
 import os, re, json
 
-def frontmatter(path):
+def get_skill_info(path):
     try:
-        content = open(path).read()
-        if not content.startswith('---'):
-            return None, None
-        end = content.find('---', 3)
-        fm = content[3:end] if end != -1 else ''
-        desc = re.search(r'^description:\s*[">]?\s*(.+)$', fm, re.M)
-        return (re.search(r'^name:\s*(.+)$', fm, re.M) or type('', (), {'group': lambda s,x: None})()).group(1),
-               (desc.group(1).strip().strip('"\'') if desc else None)
-    except:
-        return None, None
+        with open(path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        lines = content.splitlines()
+        desc = None
+        if content.startswith('---'):
+            end = content.find('---', 3)
+            if end != -1:
+                m = re.search(r'^description:\s*[">]?\s*(.+)$', content[3:end], re.M)
+                if m:
+                    desc = m.group(1).strip().strip('"\'').replace('\t', ' ')
+        return desc, len(lines)
+    except Exception:
+        return None, 0
 
-def plugin_meta(plugin_json):
+def get_plugin_meta(path):
     try:
-        d = json.load(open(plugin_json))
-        return d.get('name', '?'), d.get('author', {}).get('name', '?')
-    except:
+        with open(path, 'r', encoding='utf-8') as f:
+            d = json.load(f)
+        return d.get('name', '?').replace('\t', ' '), d.get('author', {}).get('name', '?').replace('\t', ' ')
+    except Exception:
         return '?', '?'
 
 rows = []
 
 # 1. Project plugins
 for plugin_dir in sorted(os.listdir('plugins')) if os.path.isdir('plugins') else []:
-    pjson = f'plugins/{plugin_dir}/.claude-plugin/plugin.json'
-    pname, pauthor = plugin_meta(pjson)
+    pname, pauthor = get_plugin_meta(f'plugins/{plugin_dir}/.claude-plugin/plugin.json')
     sdir = f'plugins/{plugin_dir}/skills'
     if not os.path.isdir(sdir):
         continue
@@ -46,8 +49,8 @@ for plugin_dir in sorted(os.listdir('plugins')) if os.path.isdir('plugins') else
         p = f'{sdir}/{skill}/SKILL.md'
         if not os.path.isfile(p):
             continue
-        _, desc = frontmatter(p)
-        rows.append((skill, f'{pname} / {pauthor}', desc or '—', sum(1 for _ in open(p))))
+        desc, lcount = get_skill_info(p)
+        rows.append((skill, f'{pname} / {pauthor}', desc or '—', lcount))
 
 # 2. Project root skills
 if os.path.isdir('skills'):
@@ -55,8 +58,8 @@ if os.path.isdir('skills'):
         p = f'skills/{skill}/SKILL.md'
         if not os.path.isfile(p):
             continue
-        _, desc = frontmatter(p)
-        rows.append((skill, '(local)', desc or '—', sum(1 for _ in open(p))))
+        desc, lcount = get_skill_info(p)
+        rows.append((skill, '(local)', desc or '—', lcount))
 
 # 3. Global custom skills (~/.claude/skills/)
 gskills = os.path.expanduser('~/.claude/skills')
@@ -65,8 +68,8 @@ if os.path.isdir(gskills):
         p = f'{gskills}/{skill}/SKILL.md'
         if not os.path.isfile(p):
             continue
-        _, desc = frontmatter(p)
-        rows.append((skill, '(global)', desc or '—', sum(1 for _ in open(p))))
+        desc, lcount = get_skill_info(p)
+        rows.append((skill, '(global)', desc or '—', lcount))
 
 # 4. Global plugin cache — latest version per plugin only
 cache = os.path.expanduser('~/.claude/plugins/cache')
@@ -74,10 +77,12 @@ if os.path.isdir(cache):
     for mkt in sorted(os.listdir(cache)):
         for plugin_dir in sorted(os.listdir(f'{cache}/{mkt}')):
             versions = sorted(os.listdir(f'{cache}/{mkt}/{plugin_dir}'))
+            if not versions:
+                continue
             latest = versions[-1]
-            pjson = f'{cache}/{mkt}/{plugin_dir}/{latest}/.claude-plugin/plugin.json'
-            pname, pauthor = plugin_meta(pjson)
-            sdir = f'{cache}/{mkt}/{plugin_dir}/{latest}/skills'
+            base = f'{cache}/{mkt}/{plugin_dir}/{latest}'
+            pname, pauthor = get_plugin_meta(f'{base}/.claude-plugin/plugin.json')
+            sdir = f'{base}/skills'
             if not os.path.isdir(sdir):
                 continue
             for skill in sorted(os.listdir(sdir)):
@@ -86,12 +91,12 @@ if os.path.isdir(cache):
                 p = f'{sdir}/{skill}/SKILL.md'
                 if not os.path.isfile(p):
                     continue
-                _, desc = frontmatter(p)
-                rows.append((skill, f'{pname} / {pauthor}', desc or '—', sum(1 for _ in open(p))))
+                desc, lcount = get_skill_info(p)
+                rows.append((skill, f'{pname} / {pauthor}', desc or '—', lcount))
 
 print(f'TOTAL:{len(rows)}')
 for r in rows:
-    print('\t'.join([r[0], r[1], r[2][:100], str(r[3])]))
+    print('\t'.join([str(r[0]), str(r[1]), str(r[2])[:100], str(r[3])]))
 ```
 
 Note the `TOTAL:N` line — used in self-reflection.
