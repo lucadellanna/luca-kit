@@ -1,0 +1,26 @@
+{
+  "name": "lucadellanna-luca-ops-kit",
+  "owner": {
+    "name": "lucadellanna"
+  },
+  "plugins": [
+    {
+      "name": "luca-ops-kit",
+      "source": "./",
+      "description": "Lightweight AI operating kit for non-technical companies. Guided meta-skills for turning business procedures, SOPs, and operating knowledge into reusable Claude workflows.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Luca Dellanna",
+        "email": "luca@luca-dellanna.com"
+      },
+      "license": "LicenseRef-Commercial",
+      "keywords": [
+        "operations",
+        "skills",
+        "sops",
+        "business-processes",
+        "knowledge-management"
+      ]
+    }
+  ]
+}
