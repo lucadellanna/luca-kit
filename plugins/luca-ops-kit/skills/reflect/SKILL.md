@@ -54,7 +54,7 @@ Criteria:
 4. **Coverage** — no obvious patterns or errors from the conversation were missed
 5. **Accuracy** — each finding is factually grounded: the events, errors, and patterns described actually occurred as stated in the conversation
 
-Use the sub-agent's scores directly. If average < 9.5, revise the findings and re-score. Stop after 3 iterations or if the score stops improving. Note: a score change of < 0.5 between iterations may be Haiku scoring variance rather than genuine regression — if the changes were substantive, continue rather than stopping on noise. Do not present findings until the threshold is met or iterations are exhausted.
+Use the sub-agent's scores directly. If average < 9.5, revise the findings and re-score. Stop after 3 iterations or if the score stops improving. Note: if the score remains stagnant or increases by < 0.5, you may continue for one more iteration if the previous changes were substantive, as this may be Haiku scoring variance rather than a lack of progress. Do not present findings until the threshold is met or iterations are exhausted.
 
 ## Step 4: Present Findings
 
