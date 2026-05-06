@@ -4,6 +4,15 @@ A meta-workflow toolkit for Claude that helps non-technical organizations turn r
 
 Most companies using AI are stuck at the "clever individual prompts" stage: useful experiments, inconsistent execution, little reuse, no lasting memory. luca-ops-kit provides the guided workflows to make good procedures explicit and reusable — so know-how doesn't stay trapped in individual heads or chat histories.
 
+## Installation
+
+Requires [Claude Code](https://claude.ai/code). Run these two commands in Claude Code:
+
+```
+/plugin marketplace add lucadellanna/luca-ops-kit
+/plugin install luca-ops-kit
+```
+
 ## Who uses it
 
 | Role | What they do with it |
