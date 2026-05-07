@@ -25,7 +25,7 @@ Users are non-technical staff inside partner companies. Skills must use plain la
 
 ## Skill categories
 
-All skills in this plugin are meta-skills. When adding a new skill, confirm it fits the meta layer: it should help users build, govern, or improve procedures — not encode a specific business procedure itself.
+All skills in this plugin are meta-skills. When adding a skill, confirm it fits the meta layer: build, govern, or improve procedures — not encode a specific business procedure.
 
 **Meta-skill triggers:** always explicit by name (e.g., `/create-skill`, `/reflect`). Never task-context triggered. Audience: anyone wanting to build or improve the team's skill library.
 
