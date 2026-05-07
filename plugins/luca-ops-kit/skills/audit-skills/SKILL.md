@@ -10,7 +10,7 @@ Scan all installed skills for overlaps, then run a quality audit on a rotating s
 
 ## Step 1 — Collect skill data
 
-Invoke list-skills with `mode: raw` in the opening message. Capture the TSV rows: `(skill_name, attribution, description, line_count, path)`. `path` is the absolute path to the skill's `SKILL.md` and is the unique identifier used throughout this skill.
+Invoke list-skills with `mode: raw` in the opening message. The output begins with a `TOTAL:N` header line (e.g. `TOTAL:5`); skip it. Parse each remaining line as a TSV row: `(skill_name, attribution, description, line_count, path)`. `path` is the absolute path to the skill's `SKILL.md` and is the unique identifier used throughout this skill.
 
 If zero rows returned: tell the user "No skills found. Check that skills are installed under `skills/`, `plugins/`, or `~/.claude/`." Stop.
 
@@ -39,7 +39,9 @@ Find the starting path:
 - If `next_audit_path` is not in the sorted list (skill deleted): find the first path alphabetically greater; if none exist, wrap to the first path.
 - Otherwise: start from `next_audit_path`.
 
-Pick the next `min(batch_size, total_skills)` paths starting from the starting path. Wrap back to the beginning if needed. No path appears twice in the same selection.
+Let `start_index` = the 0-based index of the starting path in the sorted list.
+
+Pick the next `min(batch_size, total_skills)` paths starting from `start_index`. Wrap back to the beginning if needed. No path appears twice in the same selection.
 
 Compute the new `next_audit_path` (to save after Step 5): the path at position `(start_index + batch_size) % total_skills` in the sorted list. If `start_index + min(batch_size, total_skills) >= total_skills`, set a wrap flag. Defer the wrap notification to Step 6.
 
@@ -52,7 +54,6 @@ State file structure:
 }
 ```
 
-This file tracks local rotation progress and should not be committed. Add it to `.gitignore` if your project does not already exclude it.
 
 ## Step 4 — Confirm with user
 

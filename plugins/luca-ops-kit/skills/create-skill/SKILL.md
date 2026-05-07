@@ -121,7 +121,7 @@ Apply any fixes to the draft before proceeding. If the sub-agent is unavailable,
 
 ## Step 7: Audit the new skill
 
-Open an `audit-skill` session and provide the path `skills/<skill-name>/SKILL.md` in the opening message. If `audit-skill` is unavailable, note "audit-skill not found — skipping quality audit." and continue to Self-reflection.
+Open an `audit-skill` session and provide the absolute path to the saved skill file in the opening message. Resolve it first: run `realpath skills/<skill-name>/SKILL.md` via Bash and use that output. If `audit-skill` is unavailable, note "audit-skill not found; skipping quality audit." and continue to Self-reflection.
 
 ## Self-reflection
 
