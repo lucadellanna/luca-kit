@@ -28,23 +28,25 @@ If overlaps found, present:
 
 If none found: print "No overlapping skills detected — no action needed." Then continue.
 
-## Step 3 — Load and reconcile round-robin state
+## Step 3 — Load round-robin state
 
 Read `.claude/audit-skills-state.json`. If missing or malformed (JSON parse error): create it fresh and notify the user: "State file was reset due to a read error."
 
-Reconcile against saved `skills_order` (a list of paths):
-- Remember which path sits at the current cursor position in the saved list.
-- Build the new list: all paths from Step 1, sorted alphabetically (new paths are inserted in their sorted position; deleted paths are removed).
-- Find that remembered path in the new list and resume from there. If it was deleted, move forward one step at a time, wrapping from the last entry back to the first if needed, until a surviving path is found.
-- If the list is empty: tell the user "No skills remain to audit." Stop.
+Get the sorted list of all paths from Step 1. If empty: tell the user "No skills remain to audit." Stop.
 
-Pick the next `min(batch_size, total_skills)` paths starting from the current position, ensuring no path appears twice in the same selection. Wrapping occurs when the selection reaches the end of the list and restarts from the beginning. Defer the wrap notification to Step 6.
+Find the starting path:
+- If `next_audit_path` is null: start from the first path in the sorted list.
+- If `next_audit_path` is not in the sorted list (skill deleted): find the first path alphabetically greater; if none exist, wrap to the first path.
+- Otherwise: start from `next_audit_path`.
+
+Pick the next `min(batch_size, total_skills)` paths starting from the starting path. Wrap back to the beginning if needed. No path appears twice in the same selection.
+
+Compute the new `next_audit_path` (to save after Step 5): the path at position `(start_index + batch_size) % total_skills` in the sorted list. If this position is less than `start_index`, set a wrap flag. Defer the wrap notification to Step 6.
 
 State file structure:
 ```json
 {
-  "skills_order": ["/abs/path/to/skill-a/SKILL.md", "/abs/path/to/skill-b/SKILL.md"],
-  "cursor": 2,
+  "next_audit_path": "/abs/path/to/skill-a/SKILL.md",
   "last_run_date": "2026-05-07",
   "batch_size": 3
 }
@@ -70,8 +72,7 @@ For each confirmed skill:
 4. Present the result before moving to the next skill.
 
 After all confirmed skills are processed:
-- Advance cursor by `batch_size` (the planned window, regardless of how many were confirmed — skipped skills stay in rotation and reappear on the next pass).
-- Apply `mod total_skills` to wrap correctly.
+- Set `next_audit_path` to the value computed in Step 3.
 - Set `last_run_date` to today.
 - Write the state file.
 
@@ -79,8 +80,8 @@ After all confirmed skills are processed:
 
 1. **Overlaps:** If Step 2 found overlaps, print "See overlap analysis above." If none, print "No overlapping skills detected — no action needed."
 2. **Audit results:** one row per audited skill — skill name, initial score, final score.
-3. **Progress:** "You've covered X of Y skills this cycle. Next run will pick up at `<skill_name>`."
-4. **Wrap (if applicable):** If the cursor wrapped during this run: "You've now reviewed every skill at least once. Starting a new full cycle."
+3. **Progress:** "Next run will pick up at `<skill_name>` (skill X of Y)." where X = 1-based index of the new `next_audit_path` in the sorted list and Y = total skills.
+4. **Wrap (if applicable):** If the wrap flag was set in Step 3: "You've now reviewed every skill at least once. Starting a new full cycle."
 
 ## Self-reflection
 
@@ -89,7 +90,7 @@ If no skills were audited (all deselected or all skipped due to errors), note "N
 Otherwise, spawn a Haiku sub-agent. Pass it the Step 6 summary, the final state file contents, and the list of confirmed vs. skipped skills. Score each criterion 0–10. If average < 9.5, revise and re-score (max 3 iterations; stop if score stops improving). If any criterion remains below 8 after iteration, draft a concise edit to this SKILL.md, show it to the user, and apply on approval.
 
 1. **Overlap quality** — both same-name and description overlap types were checked; flagged pairs are genuinely similar; no obvious overlaps were missed
-2. **Round-robin integrity** — cursor advanced by `batch_size`, anchored by path after reconciliation, state file written correctly
+2. **Round-robin integrity** — `next_audit_path` advances by `batch_size`, resolved correctly when the prior path was deleted, state file written correctly
 3. **Delegation fidelity** — each confirmed skill went through the full `audit-skill` 7-step flow with its path passed in the opening message
 4. **User control** — no skill was audited without explicit user confirmation in Step 4
 5. **Token efficiency** — Step 2 runs inline (no sub-agent); no unnecessary back-and-forth; batch size kept small relative to session budget
@@ -103,8 +104,8 @@ Otherwise, spawn a Haiku sub-agent. Pass it the Step 6 summary, the final state 
 | Overlap detection runs every session | The skill library can change between runs; re-scanning is cheap relative to missing a new duplicate |
 | No sub-agent for Step 2 (overlap scan) | ~76 TSV rows and lightweight semantic judgment; dispatching a sub-agent adds latency with no quality gain |
 | Semantic judgment for description overlap, not string similarity | Skill descriptions are short and human-authored; Claude's semantic read is more reliable than word-overlap heuristics at this scale |
-| Cursor advances by `batch_size`, not by confirmed count | Keeps cycle progress predictable; skipped skills return in the next rotation. Advancing by confirmed count would re-present already-audited skills when the cursor wraps |
-| Cursor anchored by path, not index | Index-based cursor breaks when skills are deleted before the cursor; path-based anchoring is unique across scopes (unlike names, which can duplicate) and stable across list changes. Caveat: paths for cached plugin skills change on version bumps — the cursor advances to the next surviving path in that case |
+| `next_audit_path` advances by `batch_size`, not by confirmed count | Keeps cycle progress predictable; skipped skills return in the next rotation. Advancing by confirmed count would re-present already-audited skills when the cursor wraps |
+| State stores only `next_audit_path`, not `skills_order` + cursor | `skills_order` is redundant (list-skills always returns the current list); storing the full list creates a synchronization problem. A single path is the minimal stable anchor: unique across scopes, unambiguous after reconciliation |
 | Wrap message deferred to Step 6 | Firing it in Step 3 (before confirmation) would tell the user "cycle complete" before they've reviewed anything this session |
 | `audit-skill` invoked as a sequential interactive session | `audit-skill` calls `AskUserQuestion` for improvement approvals — silently batching would violate the human-approval principle |
 | Default batch size = 3 | Enough progress per session; small enough not to exhaust token budget on auditing alone |

@@ -84,7 +84,7 @@ if os.path.isdir(cache):
 
 print(f'TOTAL:{len(rows)}')
 for r in rows:
-    print('\t'.join([str(r[0]), str(r[1]), str(r[2]), str(r[3]), str(r[4])]))
+    print('\t'.join([str(r[0]), str(r[1]), str(r[2]).replace('\n', ' '), str(r[3]), str(r[4])]))
 ```
 
 Note the `TOTAL:N` line — used in self-reflection.
