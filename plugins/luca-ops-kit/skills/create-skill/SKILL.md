@@ -113,6 +113,7 @@ Spawn a `feature-dev:code-reviewer` sub-agent. Pass it the full SKILL.md text an
 > (g) Inter-process output headers: if the skill consumes output from another skill or script, does it account for header/metadata lines that are not data rows?
 > (h) Relative paths passed between skills: any path handed to another skill as data must be absolute; flag any that aren't.
 > (i) Duplicate instructions: the same rule or fact stated in two places; flag so one can be removed to prevent drift.
+> (j) Approval gate ordering: steps that write files, send messages, or perform irreversible external actions must appear after all automated review and correction steps, not before.
 >
 > For each issue found, quote the offending text and propose a minimal fix. If no issues are found, say so explicitly.
 

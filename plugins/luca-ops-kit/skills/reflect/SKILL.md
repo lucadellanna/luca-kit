@@ -27,6 +27,8 @@ Scan these four areas:
 - **Errors and corrections** — Claude mistakes, user pushback (explicit: "no, I meant..."; implicit: rephrasing, abandoning a line); positive signals too (accepted, praised, built on)
 - **Workflow patterns** — repeated sequences, tool chains, procedures done more than twice in a similar way
 - **Knowledge gaps** — things Claude got wrong, had to look up, or where the user supplied domain knowledge Claude lacked
+- **External reviewer patterns**: did any automated reviewer (Gemini, sub-agent) flag the same issue category 2+ times? Each recurring catch is a candidate for a new checklist item or class-level rule
+- **User workflow**: steps the user took repeatedly or awkwardly that a skill, shortcut, or process change could streamline; opportunities the user might not notice themselves
 
 ## Step 2: Classify Findings
 
