@@ -16,7 +16,7 @@ This skill uses Haiku for information gathering and scoring.
 
 Use Read to attempt to open `~/.claude/memory/work-context.md` (global path, not project-relative). If the file does not exist, Read will return an error — treat that as "no file exists".
 
-**If the file exists:** Read it fully. Extract and hold all current field values in memory (including the `last_updated` date from the YAML frontmatter, and both Company and Role sections with any additional fields). Show the user a brief plain-language summary (company name, role title, last updated date). Then ask:
+**If the file exists:** Read it fully. Extract and hold all current field values in memory (including the `last_updated` date from the YAML frontmatter, and both Company and Role sections with any additional fields). Show the user a brief plain-language summary (company name, role title, last updated date). Then ask using AskUserQuestion (open text):
 
 > "I found your existing work context, last updated on [DATE]. Which part would you like to update: your company info, your role info, or both? (Say 'keep' to leave everything as is.)"
 
@@ -67,7 +67,7 @@ Same extraction rules as Step 2, including the catch-all for notable differentia
 
 Collect every field that is still blank **in the sections that were just updated** (Steps 2 and/or 3). Do not include carried-forward fields from skipped sections; those are already populated from the existing file.
 
-If any fields are blank, batch them into a single follow-up question. Do not ask more than one follow-up question. Example:
+If any fields are blank, batch them into a single follow-up question using AskUserQuestion (open text). Do not ask more than one follow-up question. Example:
 
 > "Just a couple of things I couldn't catch from your answers: [list the missing fields as plain questions, e.g., 'What decisions can you make independently at work?' or 'Roughly how many people work at your company?']"
 
@@ -95,7 +95,7 @@ Role
   [Additional fields, if any]
 ```
 
-Ask:
+Ask using AskUserQuestion (open text):
 
 > "Does this look right? Reply with any corrections, or just say yes to save it."
 
@@ -105,7 +105,7 @@ Do not write any file until the user explicitly confirms.
 
 ## Step 6: Write
 
-Write the following file at `~/.claude/memory/work-context.md` (global path, outside the project or git repo, survives Conductor workspace rotation), using today's date for the `last_updated` field:
+Ensure `~/.claude/memory/` exists (use Bash to create it if missing: `mkdir -p ~/.claude/memory`). Then use Write to save the following file at `~/.claude/memory/work-context.md` (global path, outside the project or git repo, survives Conductor workspace rotation), using today's date for the `last_updated` field:
 
 ```markdown
 ---
