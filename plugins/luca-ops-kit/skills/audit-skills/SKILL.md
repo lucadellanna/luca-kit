@@ -30,7 +30,7 @@ If none found: print "No overlapping skills detected — no action needed." Then
 
 ## Step 3 — Load round-robin state
 
-Read `.claude/audit-skills-state.json`. If missing or malformed (JSON parse error): create it fresh and notify the user: "State file was reset due to a read error."
+Read `.claude/audit-skills-state.json`. If missing or malformed (JSON parse error): create it fresh with `{"next_audit_path": null, "last_run_date": null, "batch_size": 3}` and notify the user: "State file was reset due to a read error."
 
 Get the sorted list of all paths from Step 1. If empty: tell the user "No skills remain to audit." Stop.
 
@@ -41,7 +41,7 @@ Find the starting path:
 
 Pick the next `min(batch_size, total_skills)` paths starting from the starting path. Wrap back to the beginning if needed. No path appears twice in the same selection.
 
-Compute the new `next_audit_path` (to save after Step 5): the path at position `(start_index + batch_size) % total_skills` in the sorted list. If this position is less than `start_index`, set a wrap flag. Defer the wrap notification to Step 6.
+Compute the new `next_audit_path` (to save after Step 5): the path at position `(start_index + batch_size) % total_skills` in the sorted list. If `start_index + min(batch_size, total_skills) >= total_skills`, set a wrap flag. Defer the wrap notification to Step 6.
 
 State file structure:
 ```json
@@ -60,7 +60,7 @@ Use `AskUserQuestion` (multiSelect: true, all pre-selected):
 
 > "I'm going to fully review these [N] skills. That usually takes a few minutes each. Ready to continue, or would you like to skip any?"
 
-List the skills by name (display only). Internally track each selection by its path from the TSV. Proceed only with confirmed paths. If the user deselects all skills, skip Step 5 and go directly to Step 6.
+List the skills by name. If any two entries share the same name, display as `name (attribution)` to distinguish them. Internally track each selection by its path from the TSV. Proceed only with confirmed paths. If the user deselects all skills, skip Step 5 and go directly to Step 6.
 
 ## Step 5 — Audit each confirmed skill
 
@@ -72,9 +72,8 @@ For each confirmed skill:
 4. Present the result before moving to the next skill.
 
 After all confirmed skills are processed:
-- Set `next_audit_path` to the value computed in Step 3.
-- Set `last_run_date` to today.
-- Write the state file.
+- If at least one skill was successfully audited: set `next_audit_path` to the value computed in Step 3, set `last_run_date` to today, and write the state file.
+- If every confirmed skill was skipped due to errors: note "No audits completed; rotation not advanced." Do not write the state file.
 
 ## Step 6 — Summary
 
