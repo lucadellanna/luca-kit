@@ -19,7 +19,7 @@ If zero rows returned: tell the user "No skills found. Check that skills are ins
 Scan the TSV inline (no sub-agent needed; lightweight check). Identify:
 
 - **Same-name overlap:** skill name appears in 2+ attributions (e.g. `audit-skill` in both `(global)` and a plugin). Likely a duplicate or version conflict.
-- **Description overlap:** pairs whose one-line descriptions suggest the same function (semantic judgment (short, human-authored strings are well-suited to this)).
+- **Description overlap:** pairs whose one-line descriptions suggest the same function (semantic judgment; short, human-authored strings are well-suited to this).
 
 If overlaps found, present:
 
@@ -30,7 +30,7 @@ If none found: print "No overlapping skills detected; no action needed." Then co
 
 ## Step 3: Load round-robin state
 
-Read `.claude/audit-skills-state.json` (add this file to `.gitignore` if not already present; it tracks local rotation progress and should not be committed). If missing: create it fresh with `{"next_audit_path": null, "last_run_date": null, "batch_size": 3}`. If malformed (JSON parse error): recreate it fresh and notify the user: "State file was reset due to a read error."
+Read `.claude/audit-skills-state.json` (this file is already excluded via `.gitignore`; it tracks local rotation progress and should not be committed). If missing: create it fresh with `{"next_audit_path": null, "last_run_date": null, "batch_size": 3}`. If malformed (JSON parse error): recreate it fresh and notify the user: "State file was reset due to a read error."
 
 Get the sorted list of all paths from Step 1. If empty: tell the user "No skills remain to audit." Stop.
 
@@ -43,7 +43,7 @@ Let `total_skills` = the number of paths in the sorted list. Let `start_index` =
 
 Pick the next `min(batch_size, total_skills)` paths starting from `start_index`. Wrap back to the beginning if needed. No path appears twice in the same selection.
 
-Compute the new `next_audit_path` (to save after Step 5): the path at position `(start_index + batch_size) % total_skills` in the sorted list. If `start_index + min(batch_size, total_skills) >= total_skills`, set a wrap flag. Defer the wrap notification to Step 6.
+Compute the new `next_audit_path` (to save after Step 5): the path at position `(start_index + min(batch_size, total_skills)) % total_skills` in the sorted list. If `start_index > 0 AND start_index + min(batch_size, total_skills) >= total_skills`, set a wrap flag. Defer the wrap notification to Step 6.
 
 State file structure:
 ```json
@@ -68,19 +68,19 @@ List the skills by name. If any two entries share the same name, display as `nam
 For each confirmed skill:
 
 1. Use the `path` column from the TSV row directly. If the file does not exist at that path, note "Could not find SKILL.md for `<skill-name>`; skipping." and move to the next skill.
-2. Open an `audit-skill` session and provide the path in the opening message; this satisfies `audit-skill`'s Step 1 condition so it proceeds without prompting. If `audit-skill` is unavailable, note "audit-skill not found; skipping `<skill-name>`." and move to the next skill.
+2. Invoke `audit-skill` and provide the path in the opening message; this satisfies `audit-skill`'s Step 1 condition so it proceeds without prompting. If `audit-skill` is unavailable, note "audit-skill not found; skipping `<skill-name>`." and move to the next skill.
 3. Run `audit-skill` Steps 1–7 in full. The user will be prompted for improvement choices within each audit.
 4. Present the result before moving to the next skill.
 
 After all confirmed skills are processed:
-- If at least one skill was successfully audited: set `next_audit_path` to the value computed in Step 3, set `last_run_date` to the current date (run `date +%Y-%m-%d` via Bash), and write the state file.
+- If at least one skill was successfully audited: update the state object with the `next_audit_path` computed in Step 3 and the current date (run `date +%Y-%m-%d` via Bash), then write the full state file (preserving `batch_size`).
 - If every confirmed skill was skipped due to errors: note "No audits completed; rotation not advanced." Do not write the state file.
 
 ## Step 6: Summary
 
 1. **Overlaps:** If Step 2 found overlaps, print "See overlap analysis above." If none, print "No overlapping skills detected; no action needed."
 2. **Audit results:** one row per audited skill: skill name, initial score, final score.
-3. **Progress:** "Next run will pick up at `<skill_name>` (skill X of Y)." where `skill_name` = parent directory name of `next_audit_path`, X = 1-based index of `next_audit_path` in the sorted list, and Y = `total_skills`.
+3. **Progress:** "Next run will pick up at `<skill_name>` (skill X of Y)." where `skill_name` = the `skill_name` field from the TSV row whose path matches `next_audit_path` (fall back to the parent directory name of `next_audit_path` if not found), X = 1-based index of `next_audit_path` in the sorted list, and Y = `total_skills`.
 4. **Wrap (if applicable):** If the wrap flag was set in Step 3: "You've now reviewed every skill at least once. Starting a new full cycle."
 
 ## Self-reflection
