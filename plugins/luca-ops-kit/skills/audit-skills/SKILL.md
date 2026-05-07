@@ -38,7 +38,7 @@ Reconcile against saved `skills_order` (a list of paths):
 - Find that remembered path in the new list and resume from there. If it was deleted, move forward one step at a time, wrapping from the last entry back to the first if needed, until a surviving path is found.
 - If the list is empty: tell the user "No skills remain to audit." Stop.
 
-Pick the next `batch_size` paths starting from the current position. Wrapping occurs when the selection reaches the end of the list and restarts from the beginning. Defer the wrap notification to Step 6.
+Pick the next `min(batch_size, total_skills)` paths starting from the current position, ensuring no path appears twice in the same selection. Wrapping occurs when the selection reaches the end of the list and restarts from the beginning. Defer the wrap notification to Step 6.
 
 State file structure:
 ```json
@@ -101,9 +101,9 @@ Otherwise, spawn a Haiku sub-agent. Pass it the Step 6 summary, the final state 
 |----------|-----------|
 | Invoke list-skills in raw mode rather than embedding its script | Single source of truth for the data-collection script; raw mode is the DRY interface for skills that need structured data |
 | Overlap detection runs every session | The skill library can change between runs; re-scanning is cheap relative to missing a new duplicate |
-| No sub-agent for Step 2 (overlap scan) | ~76 TSV rows and lightweight semantic judgment — dispatching a sub-agent adds latency with no quality gain |
+| No sub-agent for Step 2 (overlap scan) | ~76 TSV rows and lightweight semantic judgment; dispatching a sub-agent adds latency with no quality gain |
 | Semantic judgment for description overlap, not string similarity | Skill descriptions are short and human-authored; Claude's semantic read is more reliable than word-overlap heuristics at this scale |
-| Cursor advances by `batch_size`, not by confirmed count | Skipped skills stay in rotation and reappear naturally; advancing by confirmed count would silently drop skips |
+| Cursor advances by `batch_size`, not by confirmed count | Keeps cycle progress predictable; skipped skills return in the next rotation. Advancing by confirmed count would re-present already-audited skills when the cursor wraps |
 | Cursor anchored by path, not index | Index-based cursor breaks when skills are deleted before the cursor; path-based anchoring is unique across scopes (unlike names, which can duplicate) and stable across list changes. Caveat: paths for cached plugin skills change on version bumps — the cursor advances to the next surviving path in that case |
 | Wrap message deferred to Step 6 | Firing it in Step 3 (before confirmation) would tell the user "cycle complete" before they've reviewed anything this session |
 | `audit-skill` invoked as a sequential interactive session | `audit-skill` calls `AskUserQuestion` for improvement approvals — silently batching would violate the human-approval principle |
