@@ -18,7 +18,7 @@ Check whether each path exists. Skip those that don't.
 | Global memory index | `~/.claude/MEMORY.md` |
 | Global memory files | All `~/.claude/memory/*.md` |
 | Project CLAUDE.md | `./CLAUDE.md` |
-| Project memory index | `./.claude/memory/MEMORY.md` |
+| Project memory index | `./MEMORY.md`, `./.claude/MEMORY.md`, `./.claude/memory/MEMORY.md` |
 
 For each MEMORY.md found: extract all Markdown links (inline and reference-style), strip any `#fragment` suffixes, and resolve to absolute paths (expand `~`; relative paths resolve from the MEMORY.md directory). Add each resolved path to the audit list if it falls within `~/.claude/` or the CWD and exists; otherwise note it as "out of scope — skipped" or "linked but missing — skipped". De-duplicate the final list (combining table-pattern files and link-extracted files).
 
