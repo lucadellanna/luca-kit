@@ -32,12 +32,10 @@ If none found: print "No overlapping skills detected — no action needed." Then
 
 Read `.claude/audit-skills-state.json`. If missing or malformed (JSON parse error): create it fresh and notify the user: "State file was reset due to a read error."
 
-Build the current skill list: all skill names from Step 1, sorted alphabetically.
-
 Reconcile against saved `skills_order` (a list of paths):
 - Remember which path sits at the current cursor position in the saved list.
-- Build the new list: all paths from Step 1, sorted alphabetically. Add paths not in the saved list at the end; drop paths that no longer exist.
-- Find that remembered path in the new list and resume from there. If it was deleted, move forward one step at a time — wrapping from the last entry back to the first if needed — until a surviving path is found.
+- Build the new list: all paths from Step 1, sorted alphabetically (new paths are inserted in their sorted position; deleted paths are removed).
+- Find that remembered path in the new list and resume from there. If it was deleted, move forward one step at a time, wrapping from the last entry back to the first if needed, until a surviving path is found.
 - If the list is empty: tell the user "No skills remain to audit." Stop.
 
 Pick the next `batch_size` paths starting from the current position. Wrapping occurs when the selection reaches the end of the list and restarts from the beginning. Defer the wrap notification to Step 6.
@@ -52,7 +50,7 @@ State file structure:
 }
 ```
 
-Note on first creation: this file may or may not be git-tracked depending on your project's `.gitignore` — check before assuming it will be shared across machines.
+Note on first creation: this file may or may not be git-tracked depending on your project's `.gitignore`; check before assuming it will be shared across machines.
 
 ## Step 4 — Confirm with user
 
