@@ -20,7 +20,7 @@ Check whether each path exists. Skip those that don't.
 | Project CLAUDE.md | `./CLAUDE.md` |
 | Project memory index | `./.claude/memory/MEMORY.md` |
 
-For each MEMORY.md found: extract all `[Title](path.md)` links, strip any `#fragment` suffixes, and resolve to absolute paths (expand `~`; relative paths resolve from the MEMORY.md directory). Add each resolved path to the audit list if it falls within `~/.claude/` or the CWD and exists; otherwise note it as "out of scope — skipped" or "linked but missing — skipped". De-duplicate the final list of absolute paths.
+For each MEMORY.md found: extract all Markdown links (inline and reference-style), strip any `#fragment` suffixes, and resolve to absolute paths (expand `~`; relative paths resolve from the MEMORY.md directory). Add each resolved path to the audit list if it falls within `~/.claude/` or the CWD and exists; otherwise note it as "out of scope — skipped" or "linked but missing — skipped". De-duplicate the final list (combining table-pattern files and link-extracted files).
 
 If no files are found, say "No CLAUDE.md or MEMORY.md files found." and stop.
 
@@ -109,7 +109,7 @@ Spawn a **Haiku sub-agent** with the list of modified file pairs (original cache
 > File pairs (original_cache_path → live_path):
 > [list of /tmp/audit-claude-orig-<md5_of_path>.md → <live path> pairs]
 
-Show the Haiku's report to the user. If any losses are flagged, ask for confirmation before restoring each affected file from its cached original in `/tmp/`.
+Show the Haiku's report to the user. If any losses are flagged, ask for confirmation before restoring each affected file from its cached original in `/tmp/`. Once the audit and any restoration are complete, delete all `/tmp/audit-claude-orig-*.md` cache files created during this run.
 
 ## Self-reflection
 
@@ -141,4 +141,5 @@ Maximum 3 total iterations. If any criterion remains below 8 after iteration, dr
 | Conductor workspace memories excluded from scope | `~/.claude/projects/*/memory/MEMORY.md` spans all past workspaces including closed ones — ephemeral and not load-bearing |
 | Files read by sub-agents, not main context (Steps 4 and 7) | Avoids loading file contents into the main context window; all source material stays in sub-agent contexts, reducing context pollution across long audit runs |
 | Originals cached to `/tmp/` with MD5-hashed filenames before Step 6 writes | Enables Haiku verification without holding original content in the main context; MD5 of the full path is collision-free across files that share a basename (e.g. `~/.claude/CLAUDE.md` vs `./CLAUDE.md`) |
+| POSIX tools assumed (`/tmp/`, md5/md5sum) | Claude Code runs on macOS and Linux; Windows is out of scope for this skill |
 | Parallel Haiku micro-compression pass (Step 4B) | Sonnet gravitates toward structural/cross-file findings and misses sentence-level compression; a dedicated Haiku pass with a narrow prompt catches what Sonnet leaves behind, at no extra latency since both run in parallel |
