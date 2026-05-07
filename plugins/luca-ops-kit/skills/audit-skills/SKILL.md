@@ -47,7 +47,7 @@ State file structure:
 ```json
 {
   "next_audit_path": "/abs/path/to/skill-a/SKILL.md",
-  "last_run_date": "2026-05-07",
+  "last_run_date": "2024-01-01",
   "batch_size": 3
 }
 ```

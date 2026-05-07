@@ -48,7 +48,7 @@ def scan_skills(sdir, attribution, rows):
         if not os.path.isfile(p):
             continue
         desc, lcount = get_skill_info(p)
-        rows.append((skill, attribution, desc or '—', lcount, p))
+        rows.append((skill, attribution, desc or '—', lcount, os.path.abspath(p)))
 
 rows = []
 
