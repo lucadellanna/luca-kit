@@ -99,13 +99,7 @@ Use the sub-agent's scores directly:
 
 Do not iterate more than 3 times.
 
-## Step 5: Confirm and save
-
-Show the user the final SKILL.md. Ask for explicit approval before writing the file.
-
-On approval: create the directory `skills/<skill-name>/` and write the content to `skills/<skill-name>/SKILL.md`.
-
-## Step 6: Code-level correctness review
+## Step 5: Code-level correctness review
 
 Spawn a `feature-dev:code-reviewer` sub-agent. Pass it the full SKILL.md text and this prompt:
 
@@ -123,6 +117,12 @@ Spawn a `feature-dev:code-reviewer` sub-agent. Pass it the full SKILL.md text an
 > For each issue found, quote the offending text and propose a minimal fix. If no issues are found, say so explicitly.
 
 Apply any fixes to the draft before proceeding. If the sub-agent is unavailable, skip and note "code-reviewer not available — skipping correctness check."
+
+## Step 6: Confirm and save
+
+Show the user the final SKILL.md. Ask for explicit approval before writing the file.
+
+On approval: create the directory `skills/<skill-name>/` and write the content to `skills/<skill-name>/SKILL.md`.
 
 ## Step 7: Audit the new skill
 
@@ -144,5 +144,5 @@ If any criterion scores below 8, draft a concise edit to this SKILL.md to preven
 |----------|-----------|
 | 6 default criteria in Step 2 (exceeds the 2–5 guideline) | Defaults are a menu, not a mandate — users confirm and trim to 2–5 in the Step 2 conversation; a richer starting menu produces better criteria choices than a shorter one |
 | Haiku sub-agent for scoring in Step 4 | CLAUDE.md-mandated pattern — reduces confirmation bias; apparent overhead is intentional |
-| code-reviewer runs before audit-skill (Step 6) | Catches injection, boundary, redundant-state, and contradiction bugs that prose-level review misses; placed after save so the reviewer reads the exact file that will be used |
+| code-reviewer runs before save (Step 5) | Catches injection, boundary, redundant-state, and contradiction bugs that prose-level review misses; placed before save so the user approves the technically verified version |
 | audit-skill runs after save (Step 7) | Skills start life with a quality score rather than waiting for a future audit-skills rotation; co-installed as part of the same plugin so almost always available |

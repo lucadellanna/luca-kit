@@ -30,7 +30,7 @@ If none found: print "No overlapping skills detected — no action needed." Then
 
 ## Step 3 — Load round-robin state
 
-Read `.claude/audit-skills-state.json` (add this file to `.gitignore` if not already present; it tracks local rotation progress and should not be committed). If missing or malformed (JSON parse error): create it fresh with `{"next_audit_path": null, "last_run_date": null, "batch_size": 3}` and notify the user: "State file was reset due to a read error."
+Read `.claude/audit-skills-state.json` (add this file to `.gitignore` if not already present; it tracks local rotation progress and should not be committed). If missing: create it fresh with `{"next_audit_path": null, "last_run_date": null, "batch_size": 3}`. If malformed (JSON parse error): recreate it fresh and notify the user: "State file was reset due to a read error."
 
 Get the sorted list of all paths from Step 1. If empty: tell the user "No skills remain to audit." Stop.
 
