@@ -105,7 +105,7 @@ Do not write any file until the user explicitly confirms.
 
 ## Step 6: Write
 
-Write the following file at `~/.claude/memory/work-context.md` (global path, outside the project or git repo, survives Conductor workspace rotation):
+Write the following file at `~/.claude/memory/work-context.md` (global path, outside the project or git repo, survives Conductor workspace rotation), using today's date for the `last_updated` field:
 
 ```markdown
 ---
@@ -119,6 +119,7 @@ last_updated: YYYY-MM-DD
 **Industry:** …
 **Size:** …
 **Customers:** …
+[Append any additional Company fields here as **Field Name:** Value]
 
 ## Role
 **Name:** …
