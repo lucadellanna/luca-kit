@@ -1,7 +1,7 @@
 ---
 name: audit-claude
 description: Audit local and global CLAUDE.md and MEMORY.md files for conciseness and cross-file redundancy. Lists files by line count, lets user choose which to consider, proposes optimizations, implements on approval, then verifies no meaningful content was lost.
-version: 0.4.0
+version: 0.4.1
 ---
 
 # Audit Claude
@@ -94,7 +94,7 @@ If the user declines, stop.
 
 Before writing any file:
 1. Verify its path is within `~/.claude/` or the current working directory — skip and report any file outside this scope.
-2. Cache its current content to `/tmp/audit-claude-orig-<filename>.md` so the verification step can compare before/after without loading originals into the main context.
+2. Cache its current content to `/tmp/audit-claude-orig-<sanitized_path>.md` (replace `/`, `~`, and spaces in the full path with `_`) so the verification step can compare before/after without loading originals into the main context. This avoids collisions when multiple files share the same basename (e.g. `~/.claude/CLAUDE.md` and `./CLAUDE.md`).
 
 Apply all proposed changes. Track which files were modified and the corresponding `/tmp/` cache path for each.
 
@@ -107,9 +107,9 @@ Spawn a **Haiku sub-agent** with the list of modified file pairs (original cache
 > For each file, return either "No meaningful content lost" or a bulleted list of specific losses.
 >
 > File pairs (original_cache_path → live_path):
-> [list of /tmp/audit-claude-orig-<filename>.md → <live path> pairs]
+> [list of /tmp/audit-claude-orig-<sanitized_path>.md → <live path> pairs]
 
-Show the Haiku's report to the user. If any losses are flagged, restore the affected content before closing.
+Show the Haiku's report to the user. If any losses are flagged, restore the affected content from the cached originals in `/tmp/` before closing.
 
 ## Self-reflection
 
