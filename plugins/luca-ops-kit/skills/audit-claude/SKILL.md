@@ -63,7 +63,7 @@ Spawn two sub-agents **in parallel** — both read the selected files themselves
 > - Content in one file that belongs in another
 > - Opportunities to consolidate or refactor
 >
-> For each opportunity, provide: which file(s) are affected, a short description, and the proposed change (before → after for within-file; describe the move/merge for cross-file). Do not rewrite files wholesale. Surface discrete, targeted changes only.
+> For each opportunity, provide: which file(s) are affected, a short description, and the proposed change. For within-file changes, provide a unique before snippet and the after snippet. For cross-file moves/merges, provide the exact text to be removed from the source file and the exact text (including surrounding context for placement) to be added to the destination file. Do not rewrite files wholesale. Surface discrete, targeted changes only.
 >
 > Files to read (absolute paths, one per line):
 > [list of selected absolute paths]
@@ -94,7 +94,7 @@ If the user declines, stop.
 
 Before writing any file:
 1. Verify its path is within `~/.claude/` or the current working directory — skip and report any file outside this scope.
-2. Cache its current content to `/tmp/audit-claude-orig-<hash>.md` where `<hash>` is a unique hex digest of the full absolute path (use `md5` on macOS or `md5sum` on Linux — take only the hex portion). MD5 of distinct paths never collides, avoiding the basename collision between e.g. `~/.claude/CLAUDE.md` and `./CLAUDE.md`.
+2. Cache its current content to `/tmp/audit-claude-orig-<hash>.md` where `<hash>` is a unique hex digest of the full absolute path string (e.g., pipe the path string to `md5` on macOS or `md5sum` on Linux — take only the hex portion). MD5 of distinct paths never collides, avoiding the basename collision between e.g. `~/.claude/CLAUDE.md` and `./CLAUDE.md`.
 
 Apply all proposed changes. Track which files were modified and the corresponding `/tmp/` cache path for each.
 
