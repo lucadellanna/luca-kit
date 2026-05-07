@@ -1,7 +1,7 @@
 ---
 name: audit-claude
 description: Audit local and global CLAUDE.md and MEMORY.md files for conciseness and cross-file redundancy. Lists files by line count, lets user choose which to consider, proposes optimizations, implements on approval, then verifies no meaningful content was lost.
-version: 0.4.1
+version: 0.4.2
 ---
 
 # Audit Claude
@@ -20,7 +20,7 @@ Check whether each path exists. Skip those that don't.
 | Project CLAUDE.md | `./CLAUDE.md` |
 | Project memory index | `./.claude/memory/MEMORY.md` |
 
-For each MEMORY.md found: extract all `[Title](path.md)` links and resolve to absolute paths (expand `~`; relative paths resolve from the MEMORY.md directory). Add each resolved path to the audit list if it falls within `~/.claude/` or the CWD and exists; otherwise note it as "out of scope — skipped" or "linked but missing — skipped".
+For each MEMORY.md found: extract all `[Title](path.md)` links, strip any `#fragment` suffixes, and resolve to absolute paths (expand `~`; relative paths resolve from the MEMORY.md directory). Add each resolved path to the audit list if it falls within `~/.claude/` or the CWD and exists; otherwise note it as "out of scope — skipped" or "linked but missing — skipped".
 
 If no files are found, say "No CLAUDE.md or MEMORY.md files found." and stop.
 
@@ -94,7 +94,7 @@ If the user declines, stop.
 
 Before writing any file:
 1. Verify its path is within `~/.claude/` or the current working directory — skip and report any file outside this scope.
-2. Cache its current content to `/tmp/audit-claude-orig-<sanitized_path>.md` (replace `/`, `~`, and spaces in the full path with `_`) so the verification step can compare before/after without loading originals into the main context. This avoids collisions when multiple files share the same basename (e.g. `~/.claude/CLAUDE.md` and `./CLAUDE.md`).
+2. Cache its current content to `/tmp/audit-claude-orig-<md5>.md` where `<md5>` is the MD5 hash of the full absolute path (`echo -n "<path>" | md5`). MD5 of distinct paths never collides, avoiding the basename collision between e.g. `~/.claude/CLAUDE.md` and `./CLAUDE.md`.
 
 Apply all proposed changes. Track which files were modified and the corresponding `/tmp/` cache path for each.
 
@@ -107,7 +107,7 @@ Spawn a **Haiku sub-agent** with the list of modified file pairs (original cache
 > For each file, return either "No meaningful content lost" or a bulleted list of specific losses.
 >
 > File pairs (original_cache_path → live_path):
-> [list of /tmp/audit-claude-orig-<sanitized_path>.md → <live path> pairs]
+> [list of /tmp/audit-claude-orig-<md5_of_path>.md → <live path> pairs]
 
 Show the Haiku's report to the user. If any losses are flagged, restore the affected content from the cached originals in `/tmp/` before closing.
 
@@ -134,5 +134,5 @@ Compute the average. If average < 9.5, revise the skill output and re-score (max
 | Scope check applied at discovery (Step 1) and enforced again at write (Step 6) | Out-of-scope files are excluded before being read or sent to a sub-agent — the write guard is belt-and-suspenders, not the primary control |
 | Conductor workspace memories excluded from scope | `~/.claude/projects/*/memory/MEMORY.md` spans all past workspaces including closed ones — ephemeral and not load-bearing |
 | Files read by sub-agents, not main context (Steps 4 and 7) | Avoids loading file contents into the main context window; all source material stays in sub-agent contexts, reducing context pollution across long audit runs |
-| Originals cached to `/tmp/` before Step 6 writes | Enables Haiku verification without holding original content in the main context; temp files are cheap and require no cleanup |
+| Originals cached to `/tmp/` with MD5-hashed filenames before Step 6 writes | Enables Haiku verification without holding original content in the main context; MD5 of the full path is collision-free across files that share a basename (e.g. `~/.claude/CLAUDE.md` vs `./CLAUDE.md`) |
 | Parallel Haiku micro-compression pass (Step 4B) | Sonnet gravitates toward structural/cross-file findings and misses sentence-level compression; a dedicated Haiku pass with a narrow prompt catches what Sonnet leaves behind, at no extra latency since both run in parallel |
