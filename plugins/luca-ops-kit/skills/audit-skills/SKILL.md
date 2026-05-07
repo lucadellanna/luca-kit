@@ -52,7 +52,7 @@ State file structure:
 }
 ```
 
-Note on first creation: this file may or may not be git-tracked depending on your project's `.gitignore`; check before assuming it will be shared across machines.
+This file tracks local rotation progress and should not be committed. Add it to `.gitignore` if your project does not already exclude it.
 
 ## Step 4 — Confirm with user
 
