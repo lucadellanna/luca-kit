@@ -105,6 +105,10 @@ Show the user the final SKILL.md. Ask for explicit approval before writing the f
 
 On approval: create the directory `skills/<skill-name>/` and write the content to `skills/<skill-name>/SKILL.md`.
 
+## Step 6: Audit the new skill
+
+Open an `audit-skill` session and provide the path `skills/<skill-name>/SKILL.md` in the opening message. If `audit-skill` is unavailable, note "audit-skill not found — skipping quality audit." and continue to Self-reflection.
+
 ## Self-reflection
 
 Spawn a Haiku sub-agent to verify the runtime quality of the skill just saved (distinct from the document quality checked in Step 4):
@@ -121,3 +125,4 @@ If any criterion scores below 8, draft a concise edit to this SKILL.md to preven
 |----------|-----------|
 | 6 default criteria in Step 2 (exceeds the 2–5 guideline) | Defaults are a menu, not a mandate — users confirm and trim to 2–5 in the Step 2 conversation; a richer starting menu produces better criteria choices than a shorter one |
 | Haiku sub-agent for scoring in Step 4 | CLAUDE.md-mandated pattern — reduces confirmation bias; apparent overhead is intentional |
+| audit-skill runs after save (Step 6) | Skills start life with a quality score rather than waiting for a future audit-skills rotation; co-installed as part of the same plugin so almost always available |

@@ -80,7 +80,7 @@ Ask the user what to implement via AskUserQuestion (multiSelect: true) with the 
 After acting on choices, spawn a Haiku sub-agent to verify:
 
 1. **Impact** — if any actions were selected: at least one was successfully applied. Auto-pass if the user declined all proposed actions or only insights were surfaced.
-2. **Quality** — findings met the scoring threshold in Step 3 (average ≥ 9.5 or max iterations reached)
+2. **Quality** — findings passed the Step 3 gate: average ≥ 9.5 was achieved, OR all 3 iterations were completed. Reaching max iterations is a passing condition, not a failure.
 3. **No overreach** — no actions were taken beyond what the user selected
 
 If any criterion scores below 8, draft a concise edit to this SKILL.md to prevent the same failure, show it to the user, and apply on approval.

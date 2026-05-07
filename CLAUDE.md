@@ -50,3 +50,8 @@ No commands, agents, or hooks yet — skills only.
 - **Token efficiency.** Minimize token use. Short sentences, no redundant context, no verbose output formatting.
 - **Self-reflection.** Every skill includes a `## Self-reflection` section: 2–5 MECE success criteria scored 0–10 by a Haiku sub-agent. If average < 9.5, revise and re-score (max 3 iterations; stop if score plateaus). If any criterion remains below 8 after iteration, draft a concise edit to this SKILL.md to prevent the same failure, show it to the user, and apply on approval.
 - **Scoring is net of design decisions.** Every skill may include a `## Design decisions` section documenting intentional trade-offs. Scoring sub-agents must treat documented decisions as accepted — do not penalise them. When an audit raises a concern that is deliberately accepted (not overlooked), add it to `## Design decisions` rather than leaving it as an open gap.
+
+## Inter-skill patterns
+
+- **Raw-mode data contract.** When a skill produces output another skill may need to consume as structured data, add a `mode: raw` clause at the top of the skill body: if `mode: raw` is passed in the opening message, return TSV/JSON and skip rendering. Never embed another skill's script inline; invoke in raw mode instead.
+- **Complex skill review.** Before writing the first line of a complex skill (multi-step orchestration, state management, inter-skill delegation), run two independent Sonnet review passes on the plan; each reviewer starts with no conversation context. This reliably surfaces issues that in-context review misses.

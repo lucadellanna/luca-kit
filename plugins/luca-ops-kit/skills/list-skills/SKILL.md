@@ -6,6 +6,8 @@ version: 0.2.0
 
 # List Skills
 
+**Raw mode** — If another skill invokes this one and passes `mode: raw` in the opening message, run Step 1 only and return the TSV rows as-is. Skip Step 2 (table rendering). Raw mode exists so other skills can reuse the data collection script without parsing a rendered table.
+
 ## Step 1: Collect all skill data
 
 Run this Python script via Bash. It scans all four locations and returns one TSV row per skill.
@@ -46,7 +48,7 @@ def scan_skills(sdir, attribution, rows):
         if not os.path.isfile(p):
             continue
         desc, lcount = get_skill_info(p)
-        rows.append((skill, attribution, desc or '—', lcount))
+        rows.append((skill, attribution, desc or '—', lcount, p))
 
 rows = []
 
@@ -82,7 +84,7 @@ if os.path.isdir(cache):
 
 print(f'TOTAL:{len(rows)}')
 for r in rows:
-    print('\t'.join([str(r[0]), str(r[1]), str(r[2])[:100], str(r[3])]))
+    print('\t'.join([str(r[0]), str(r[1]), str(r[2])[:100], str(r[3]), str(r[4])]))
 ```
 
 Note the `TOTAL:N` line — used in self-reflection.
@@ -121,3 +123,4 @@ Score each 0–10. If any criterion scores below 8, draft a concise edit to this
 | Frontmatter `description:` over body summary | Canonical one-liner; summarising the body risks paraphrasing |
 | Sort by plugin then name | Groups related skills; pure alpha scatters plugin siblings |
 | No search/filter in v0.2 | Sufficient for current scale; add when user asks |
+| Raw mode exits after Step 1 | Skills that consume structured data don't need the rendered table; raw mode keeps list-skills DRY while supporting both use cases |
