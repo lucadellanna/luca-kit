@@ -30,7 +30,7 @@ If none found: print "No overlapping skills detected — no action needed." Then
 
 ## Step 3 — Load round-robin state
 
-Read `.claude/audit-skills-state.json`. If missing or malformed (JSON parse error): create it fresh with `{"next_audit_path": null, "last_run_date": null, "batch_size": 3}` and notify the user: "State file was reset due to a read error."
+Read `.claude/audit-skills-state.json` (add this file to `.gitignore` if not already present; it tracks local rotation progress and should not be committed). If missing or malformed (JSON parse error): create it fresh with `{"next_audit_path": null, "last_run_date": null, "batch_size": 3}` and notify the user: "State file was reset due to a read error."
 
 Get the sorted list of all paths from Step 1. If empty: tell the user "No skills remain to audit." Stop.
 
@@ -72,7 +72,7 @@ For each confirmed skill:
 4. Present the result before moving to the next skill.
 
 After all confirmed skills are processed:
-- If at least one skill was successfully audited: set `next_audit_path` to the value computed in Step 3, set `last_run_date` to today, and write the state file.
+- If at least one skill was successfully audited: set `next_audit_path` to the value computed in Step 3, set `last_run_date` to the current date (run `date +%Y-%m-%d` via Bash), and write the state file.
 - If every confirmed skill was skipped due to errors: note "No audits completed; rotation not advanced." Do not write the state file.
 
 ## Step 6 — Summary
