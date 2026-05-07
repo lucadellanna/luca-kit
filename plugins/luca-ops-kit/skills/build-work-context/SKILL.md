@@ -14,7 +14,7 @@ This skill uses Haiku for information gathering and scoring.
 
 ## Step 1: Welcome and check for existing context
 
-Check whether `~/.claude/memory/work-context.md` exists (global path, not project-relative).
+Use Read to attempt to open `~/.claude/memory/work-context.md` (global path, not project-relative). If the file does not exist, Read will return an error — treat that as "no file exists".
 
 **If the file exists:** Read it fully. Extract and hold all current field values in memory (both Company and Role sections, including any additional fields). Show the user a brief plain-language summary (company name, role title, last updated date). Then ask:
 
@@ -41,7 +41,7 @@ Extract the following fields from their answer:
 - **Name**: the company's name
 - **What it does**: 1–2 sentence description
 - **Industry**: sector or field
-- **Size**: approximate headcount (use a band: 1–10, 11–50, 51–200, 201–1 000, 1 000+)
+- **Size**: approximate headcount (use a band: 1–10, 11–50, 51–200, 201–1000, 1000+)
 - **Customers**: who the company serves (e.g., B2B, mid-market retailers; or B2C, working parents)
 
 Also extract any other notable differentiators not covered above (e.g., location, languages, certifications, notable expertise) and include them as additional fields.
@@ -148,7 +148,7 @@ Score the following 5 MECE criteria 0–10:
 
 | Criterion | What to check |
 |-----------|---------------|
-| Completeness | No user-provided field is blank; no field was populated without user input |
+| Completeness | Every field the user supplied is captured (none dropped); no field is filled in without user input (none hallucinated) |
 | Accuracy | Extracted values match verbatim answers: no changed meaning, no hallucinated details |
 | Human approval respected | File was not written before user confirmed in Step 5 |
 | Index updated | MEMORY.md has a pointer to `work-context.md` |
@@ -172,3 +172,6 @@ If average < 9.5, revise and re-score (max 3 iterations; stop if score does not 
 | Index pointer in `~/.claude/MEMORY.md` | Global MEMORY.md is loaded in all projects and all Conductor instances; the only index that satisfies the cross-workspace availability requirement |
 | `last_updated` date in frontmatter | Context goes stale; the date makes staleness visible without opening the file |
 | Do not collect: projects, KPIs, tech stack, team roster, competitive info | Too volatile or too sensitive; belongs in project-level context, not a persistent work profile |
+| `last_updated` uses date from session context, not a system call | Claude Code provides `currentDate` in every session via system prompt; no tool call needed. The `YYYY-MM-DD` placeholder in the template is replaced at runtime with that value. |
+| MEMORY.md update logic handles three cases explicitly | File exists with section, file exists without section, file doesn't exist. Three cases are necessary; simplifying to "append" would create duplicate entries on re-runs. |
+| Self-modification in Self-reflection is intentional | Drafting a skill edit on scoring failure is the standard luca-ops-kit quality loop, applied in all skills. Changes require user approval before writing; no silent self-modification occurs. |
