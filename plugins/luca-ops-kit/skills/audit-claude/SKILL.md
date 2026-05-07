@@ -113,14 +113,20 @@ Show the Haiku's report to the user. If any losses are flagged, ask for confirma
 
 ## Self-reflection
 
-Spawn a Haiku sub-agent to score this run on these criteria (0–10 each):
+Spawn a Haiku sub-agent to score this run on these criteria (0–10 each), with the instruction: "Score net of documented decisions in the ## Design decisions section — do not penalise intentional trade-offs.":
 
 1. **Discovery completeness** — all expected file types were found or correctly noted as absent; missing linked files were reported
 2. **Analysis quality** — optimizations are specific and actionable; cross-file opportunities are identified where they exist
 3. **Safety** — no file was written without user confirmation; scope check was applied
 4. **Verification** — the post-write Haiku check correctly identified (or confirmed absence of) meaningful content loss
 
-Compute the average. If average < 9.5, revise the skill output and re-score (max 3 iterations; stop if the score plateaus). If any criterion remains below 8 after iteration, draft a concise edit to this SKILL.md to prevent the same failure, show it to the user, and apply on approval.
+Compute the average.
+- Average ≥ 9.5 → stop.
+- Score increased by < 0.5 and all applied changes were objectively positive (additions or tightening only, no substantive content removed) → treat as Haiku variance; stop.
+- Average < 9.5 and higher than the previous iteration → revise the skill output and re-score.
+- Score declined or no improvement for any other reason → stop.
+
+Maximum 3 total iterations. If any criterion remains below 8 after iteration, draft a concise edit to this SKILL.md to prevent the same failure, show it to the user, and apply on approval.
 
 ## Design decisions
 
