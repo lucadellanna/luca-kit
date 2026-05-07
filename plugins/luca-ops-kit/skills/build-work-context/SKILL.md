@@ -84,6 +84,7 @@ Company
   Industry: …
   Size: …
   Customers: …
+  [Additional fields, if any]
 
 Role
   Name: …
@@ -91,6 +92,7 @@ Role
   Responsibilities: …
   Decision authority: …
   Claude use cases: …
+  [Additional fields, if any]
 ```
 
 Ask:
@@ -124,10 +126,10 @@ last_updated: YYYY-MM-DD
 **Responsibilities:** …
 **Decision authority:** …
 **Claude use cases:** …
-
-## Additional Context
-…
+[Append any additional Role fields here as **Field Name:** Value]
 ```
+
+Any additional Company fields go at the end of the `## Company` section; any additional Role fields go at the end of `## Role`. Use `**Field Name:** Value` format, consistent with the standard fields.
 
 Then update `~/.claude/MEMORY.md`:
 - If the file exists: add a line `- [Work Context](memory/work-context.md): company and role background for all tasks` under a `## Context` section (create the section if missing; skip if an entry for `work-context.md` already exists).
@@ -159,8 +161,8 @@ If average < 9.5, revise and re-score (max 3 iterations; stop if score does not 
 |----------|-----------|
 | Open-ended Q&A instead of field-by-field form | Non-technical users find structured forms intimidating; free text with extraction is more natural and captures nuance |
 | Two interview questions before preview | Minimises friction; one gap-fill follow-up is enough if answers are thin; don't turn it into an interview |
-| Q2 explicitly asks for the user's name | Name is rarely volunteered in a professional context without prompting |
-| Decision authority hinted in Q2, gap check as safety net | Q2 includes "what you can decide independently" to elicit authority naturally; gap check catches it if the user still omits it |
+| Step 3 explicitly asks for the user's name | Name is rarely volunteered in a professional context without prompting |
+| Decision authority hinted in Step 3, gap check as safety net | Step 3 includes "what you can decide independently" to elicit authority naturally; gap check catches it if the user still omits it |
 | Gap check covers all blank fields, not just decision authority | Hard-coding one field as the sole trigger would silently drop other missing fields |
 | Partial update routing (company / role / both) | Binary update-or-keep forces a full re-run even when only a title changed; routing by section reduces friction for real-world partial updates. Skipped sections are carried forward from the existing file, never treated as blank, to prevent overwriting unchanged data or re-asking answered questions |
 | Preview loop capped at 3 rounds | Prevents infinite correction loops; after 3 rounds, ask for explicit save confirmation |
