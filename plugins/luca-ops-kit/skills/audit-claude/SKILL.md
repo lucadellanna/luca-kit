@@ -10,7 +10,7 @@ Audit CLAUDE.md and MEMORY.md files for bloat and redundancy. Surface optimizati
 
 ## Step 1: Discover files
 
-Check whether each path exists. Skip those that don't.
+Use Read to check whether each path exists (Read returns an error for non-existent files). Skip those that don't.
 
 | Label | Path |
 |-------|------|

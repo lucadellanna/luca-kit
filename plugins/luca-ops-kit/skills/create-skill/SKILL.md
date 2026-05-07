@@ -41,7 +41,7 @@ Default document-quality criteria (adjust based on context):
 | 7 | Instruction explicitness — every action names the specific tool to use and the expected outcome, not just the goal (e.g., "Use Read to open X; if not found, proceed to Y" rather than "Check if X exists") |
 | 8 | Design decision coverage — every intentional trade-off or non-obvious constraint has a row in `## Design decisions`; a reviewer seeing the skill cold should not flag an intentional choice as a gap |
 
-Present defaults. Ask the user to confirm, modify, or add criteria. Move on once agreed.
+Present defaults. Use AskUserQuestion (open text) to ask the user to confirm, modify, or add criteria. Move on once agreed.
 
 ## Step 3: Draft the skill
 
@@ -103,7 +103,7 @@ Do not iterate more than 3 times.
 
 ## Step 5: Confirm and save
 
-Show the user the final SKILL.md. Ask for explicit approval before writing the file.
+Show the user the final SKILL.md. Use AskUserQuestion (open text) to ask for explicit approval before writing the file.
 
 On approval: create the directory `skills/<skill-name>/` and write the content to `skills/<skill-name>/SKILL.md`.
 
