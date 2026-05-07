@@ -38,6 +38,8 @@ Default document-quality criteria (adjust based on context):
 | 4 | Conciseness — the skill document itself is lean: no unnecessary words, steps, or sentences |
 | 5 | Runtime efficiency — when run, the skill uses the appropriate model tier (Haiku for simple/fast steps, Sonnet for balanced work, Opus for complex reasoning), spawns sub-agents where they improve quality or speed and avoids them otherwise, and minimises unnecessary back-and-forth or verbose outputs |
 | 6 | Self-reflection quality — the generated skill's `## Self-reflection` section has 2–5 criteria that are appropriate (relevant to the skill's purpose) and MECE (no overlap between criteria; together they fully capture "good output") |
+| 7 | Instruction explicitness — every action names the specific tool to use and the expected outcome, not just the goal (e.g., "Use Read to open X; if not found, proceed to Y" rather than "Check if X exists") |
+| 8 | Design decision coverage — every intentional trade-off or non-obvious constraint has a row in `## Design decisions`; a reviewer seeing the skill cold should not flag an intentional choice as a gap |
 
 Present defaults. Ask the user to confirm, modify, or add criteria. Move on once agreed.
 
