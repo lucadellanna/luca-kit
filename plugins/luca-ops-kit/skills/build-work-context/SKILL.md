@@ -132,9 +132,9 @@ last_updated: YYYY-MM-DD
 
 Any additional Company fields go at the end of the `## Company` section; any additional Role fields go at the end of `## Role`. Use `**Field Name:** Value` format, consistent with the standard fields.
 
-Then update `~/.claude/MEMORY.md`:
-- If the file exists: add a line `- [Work Context](memory/work-context.md): company and role background for all tasks` under a `## Context` section (create the section at the end of the file if missing; skip if an entry for `work-context.md` already exists).
-- If the file does not exist: create it with a `## Context` header and that single entry line.
+Then update `~/.claude/MEMORY.md`. Use Read to check if the file exists and its current content:
+- If the file exists: use Write to add a line `- [Work Context](memory/work-context.md): company and role background for all tasks` under a `## Context` section (create the section at the end of the file if missing; skip if an entry for `work-context.md` already exists).
+- If the file does not exist: use Write to create it with a `## Context` header and that single entry line.
 
 Confirm to the user: "Saved. Claude will now use this context automatically in every future session."
 
