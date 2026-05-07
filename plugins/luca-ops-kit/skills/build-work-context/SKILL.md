@@ -14,7 +14,7 @@ This skill uses Haiku for information gathering and scoring.
 
 ## Step 1: Welcome and check for existing context
 
-Use Read to attempt to open `~/.claude/memory/work-context.md` (global path, not project-relative). If the file does not exist, Read will return an error — treat that as "no file exists".
+Use Read to attempt to open `~/.claude/memory/work-context.md` (global path, not project-relative). If the file does not exist, Read will return an error; treat that as "no file exists".
 
 **If the file exists:** Read it fully. Extract and hold all current field values in memory (including the `last_updated` date from the YAML frontmatter, and both Company and Role sections with any additional fields). Show the user a brief plain-language summary (company name, role title, last updated date). Then ask using AskUserQuestion (open text):
 
@@ -143,6 +143,7 @@ Confirm to the user: "Saved. Claude will now use this context automatically in e
 Spawn a Haiku sub-agent. Pass it:
 1. The user's verbatim answers from Steps 2–4
 2. The full content of the written `~/.claude/memory/work-context.md`
+3. The instruction: "Score each criterion 0–10. Score net of documented decisions in the ## Design decisions section; do not penalise intentional trade-offs. For each criterion, give a one-sentence rationale. Return a markdown table, no preamble."
 
 Score the following 5 MECE criteria 0–10:
 
@@ -154,7 +155,7 @@ Score the following 5 MECE criteria 0–10:
 | Index updated | MEMORY.md has a pointer to `work-context.md` |
 | Token efficiency | Gap check skipped when all fields present; partial-update routing skipped unselected steps |
 
-If average < 9.5, revise the output and re-score (max 3 iterations; stop if score does not improve). If any criterion remains below 8 after iteration, draft a concise edit to this SKILL.md to prevent the same failure, show it to the user, and apply on approval.
+If average < 9.5, revise the output and re-score (max 3 iterations; stop if score does not improve). If any criterion remains below 8 after iteration, draft a concise edit to this SKILL.md to prevent the same failure, show it to the user, and use Edit to apply it on approval.
 
 ## Design decisions
 
@@ -175,3 +176,4 @@ If average < 9.5, revise the output and re-score (max 3 iterations; stop if scor
 | `last_updated` uses date from session context, not a system call | Claude Code provides `currentDate` in every session via system prompt; no tool call needed. The `YYYY-MM-DD` placeholder in the template is replaced at runtime with that value. |
 | MEMORY.md update logic handles three cases explicitly | File exists with section, file exists without section, file doesn't exist. Three cases are necessary; simplifying to "append" would create duplicate entries on re-runs. |
 | Self-modification in Self-reflection is intentional | Drafting a skill edit on scoring failure is the standard luca-ops-kit quality loop, applied in all skills. Changes require user approval before writing; no silent self-modification occurs. |
+| POSIX tools assumed (`mkdir -p`, `~` expansion) | Claude Code runs on macOS and Linux; Windows is out of scope for this skill |
