@@ -155,7 +155,7 @@ Score the following 5 MECE criteria 0–10:
 | Index updated | MEMORY.md has a pointer to `work-context.md` |
 | Token efficiency | Gap check skipped when all fields present; partial-update routing skipped unselected steps |
 
-If average < 9.5, revise the output and re-score (max 3 iterations; stop if score does not improve). If any criterion remains below 8 after iteration, draft a concise edit to this SKILL.md to prevent the same failure, show it to the user, and use Edit to apply it on approval.
+If any criterion scores below 8, draft a concise edit to this SKILL.md to prevent the same failure, show it to the user, and use Edit to apply it on approval.
 
 ## Design decisions
 
@@ -177,3 +177,4 @@ If average < 9.5, revise the output and re-score (max 3 iterations; stop if scor
 | MEMORY.md update logic handles three cases explicitly | File exists with section, file exists without section, file doesn't exist. Three cases are necessary; simplifying to "append" would create duplicate entries on re-runs. |
 | Self-modification in Self-reflection is intentional | Drafting a skill edit on scoring failure is the standard luca-ops-kit quality loop, applied in all skills. Changes require user approval before writing; no silent self-modification occurs. |
 | POSIX tools assumed (`mkdir -p`, `~` expansion) | Claude Code runs on macOS and Linux; Windows is out of scope for this skill |
+| Self-reflection runs after write, not before | Step 5 preview is the human quality gate for extraction accuracy; the self-reflection is retrospective skill improvement, not data correction. Moving scoring before write would add latency to the user-facing flow without adding safety beyond what Step 5 already provides. |
