@@ -80,7 +80,7 @@ Spawn two sub-agents **in parallel** — both read the selected files themselves
 > Files to read (absolute paths, one per line):
 > [list of selected absolute paths]
 
-Wait for both sub-agents to complete. Merge their findings, reconciling any overlapping or conflicting suggestions (e.g., if a structural change moves a sentence, verify any micro-compression targeting that sentence still applies to the new location) before proceeding.
+Wait for both sub-agents to complete. Merge their findings: if a structural change from Sub-agent A moves or rewrites a sentence that Sub-agent B targets for micro-compression, prioritize the structural change and discard the conflicting micro-compression. If both can apply independently, keep both.
 
 ## Step 5: Present and confirm
 
@@ -109,7 +109,7 @@ Spawn a **Haiku sub-agent** with the list of modified file pairs (original cache
 > File pairs (original_cache_path → live_path):
 > [list of /tmp/audit-claude-orig-<md5_of_path>.md → <live path> pairs]
 
-Show the Haiku's report to the user. If any losses are flagged, restore the affected content from the cached originals in `/tmp/` before closing.
+Show the Haiku's report to the user. If any losses are flagged, ask for confirmation before restoring each affected file from its cached original in `/tmp/`.
 
 ## Self-reflection
 
