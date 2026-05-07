@@ -52,7 +52,7 @@ If the answer is thin, disorganised, or voice-transcribed (filler words, run-on 
 
 Ask the user (AskUserQuestion, open text):
 
-> "Describe your role: your name, your title, what you're mainly responsible for, and what kinds of tasks you want Claude to help you with."
+> "Describe your role: your name, your title, what you're mainly responsible for (including what you can decide independently), and what kinds of tasks you want Claude to help you with."
 
 Extract the following fields:
 - **Name**: the user's personal name
@@ -124,11 +124,14 @@ last_updated: YYYY-MM-DD
 **Responsibilities:** …
 **Decision authority:** …
 **Claude use cases:** …
+
+## Additional Context
+…
 ```
 
 Then update `~/.claude/MEMORY.md`:
-- If the file exists: add a line `- [Work Context](memory/work-context.md): company and role background for all tasks` (skip if an entry for `work-context.md` already exists).
-- If the file does not exist: create it with that single entry line.
+- If the file exists: add a line `- [Work Context](memory/work-context.md): company and role background for all tasks` under a `## Context` section (create the section if missing; skip if an entry for `work-context.md` already exists).
+- If the file does not exist: create it with a `## Context` header and that single entry line.
 
 Confirm to the user: "Saved. Claude will now use this context automatically in every future session."
 
@@ -157,7 +160,7 @@ If average < 9.5, revise and re-score (max 3 iterations; stop if score does not 
 | Open-ended Q&A instead of field-by-field form | Non-technical users find structured forms intimidating; free text with extraction is more natural and captures nuance |
 | Two interview questions before preview | Minimises friction; one gap-fill follow-up is enough if answers are thin; don't turn it into an interview |
 | Q2 explicitly asks for the user's name | Name is rarely volunteered in a professional context without prompting |
-| Decision authority in gap check, not a required question | Most users won't mention it unprompted; asking only when missing avoids unnecessary friction |
+| Decision authority hinted in Q2, gap check as safety net | Q2 includes "what you can decide independently" to elicit authority naturally; gap check catches it if the user still omits it |
 | Gap check covers all blank fields, not just decision authority | Hard-coding one field as the sole trigger would silently drop other missing fields |
 | Partial update routing (company / role / both) | Binary update-or-keep forces a full re-run even when only a title changed; routing by section reduces friction for real-world partial updates. Skipped sections are carried forward from the existing file, never treated as blank, to prevent overwriting unchanged data or re-asking answered questions |
 | Preview loop capped at 3 rounds | Prevents infinite correction loops; after 3 rounds, ask for explicit save confirmation |
