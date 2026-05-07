@@ -62,7 +62,7 @@ Use AskUserQuestion (multiSelect: true) with each Act item as an option, all pre
 
 ## Step 5: Apply
 
-State each planned edit in one line, then apply it.
+State each planned edit in one line, then use Edit to apply it.
 
 ## Step 6: Re-score and iterate
 

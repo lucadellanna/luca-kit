@@ -14,8 +14,8 @@ Steps 1–2 use Haiku (information gathering). Step 3 uses Sonnet (drafting).
 
 Determine what the user has:
 
-- **Source material provided** (SOP, procedure doc, checklist, wiki page, pasted text): Read it. Summarize the task it describes in 2–3 sentences. Ask the user to confirm or correct.
-- **No source material**: Ask these questions (first one alone, then the remaining two together once the purpose is clear):
+- **Source material provided** (SOP, procedure doc, checklist, wiki page, pasted text): Read it. Summarize the task it describes in 2–3 sentences. Use AskUserQuestion (open text) to ask the user to confirm or correct.
+- **No source material**: Use AskUserQuestion (open text) for each of these questions (ask the first one alone, then the remaining two together once the purpose is clear):
   1. What recurring task should this skill handle?
   2. What does a good result look like?
   3. What should the skill never do?
@@ -105,7 +105,7 @@ Do not iterate more than 3 times.
 
 Show the user the final SKILL.md. Use AskUserQuestion (open text) to ask for explicit approval before writing the file.
 
-On approval: create the directory `skills/<skill-name>/` and write the content to `skills/<skill-name>/SKILL.md`.
+On approval: use Bash to create the directory `skills/<skill-name>/`, then use Write to save the content to `skills/<skill-name>/SKILL.md`.
 
 ## Self-reflection
 

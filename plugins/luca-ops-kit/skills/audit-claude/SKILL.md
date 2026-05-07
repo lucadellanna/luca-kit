@@ -84,7 +84,7 @@ Wait for both sub-agents to complete. Merge their findings: if a structural chan
 
 ## Step 5: Present and confirm
 
-Show findings in two groups: **Structural** (Sub-agent A) and **Micro-compressions** (Sub-agent B), each grouped by within-file and cross-file where applicable. Then present a compact summary table of all proposed changes (file | type | one-line description) so the user has a single reference when approving. Ask:
+Show findings in two groups: **Structural** (Sub-agent A) and **Micro-compressions** (Sub-agent B), each grouped by within-file and cross-file where applicable. Then present a compact summary table of all proposed changes (file | type | one-line description) so the user has a single reference when approving. Use AskUserQuestion (open text):
 
 > "Shall I implement all of these changes?"
 
@@ -109,7 +109,7 @@ Spawn a **Haiku sub-agent** with the list of modified file pairs (original cache
 > File pairs (original_cache_path → live_path):
 > [list of /tmp/audit-claude-orig-<md5_of_path>.md → <live path> pairs]
 
-Show the Haiku's report to the user. If any losses are flagged, ask for confirmation before restoring each affected file from its cached original in `/tmp/`. Once the audit and any restoration are complete, delete the specific cache files tracked in Step 6.
+Show the Haiku's report to the user. If any losses are flagged, use AskUserQuestion (open text) for confirmation before restoring each affected file from its cached original in `/tmp/`. Once the audit and any restoration are complete, delete the specific cache files tracked in Step 6.
 
 ## Self-reflection
 
