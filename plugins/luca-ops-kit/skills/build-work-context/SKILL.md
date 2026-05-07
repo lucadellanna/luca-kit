@@ -99,13 +99,13 @@ Ask using AskUserQuestion (open text):
 
 > "Does this look right? Reply with any corrections, or just say yes to save it."
 
-If the user provides corrections, update the block and show it again. Repeat until the user says yes, or until 3 correction rounds have passed. At that point ask: "Shall I save this version?" If the user says no, stop without writing any files.
+If the user provides corrections, update the block and show it again. Repeat until the user says yes, or until 3 correction rounds have passed. At that point use AskUserQuestion (open text) to ask: "Shall I save this version?" If the user says no, stop without writing any files.
 
 Do not write any file until the user explicitly confirms.
 
 ## Step 6: Write
 
-Ensure `~/.claude/memory/` exists (use Bash to create it if missing: `mkdir -p ~/.claude/memory`). Then use Write to save the following file at `~/.claude/memory/work-context.md` (global path, outside the project or git repo, survives Conductor workspace rotation), using today's date for the `last_updated` field:
+Use Bash to run `mkdir -p ~/.claude/memory` to ensure the directory exists. Then use Write to save the following file at `~/.claude/memory/work-context.md` (global path, outside the project or git repo, survives Conductor workspace rotation), using today's date for the `last_updated` field:
 
 ```markdown
 ---
@@ -132,7 +132,7 @@ last_updated: YYYY-MM-DD
 
 Any additional Company fields go at the end of the `## Company` section; any additional Role fields go at the end of `## Role`. Use `**Field Name:** Value` format, consistent with the standard fields.
 
-Then update `~/.claude/MEMORY.md`. Use Read to check if the file exists and its current content:
+Then update `~/.claude/MEMORY.md`. Use Read to check if the file exists and its current content (Read returns an error if the file is missing):
 - If the file exists: use Write to add a line `- [Work Context](memory/work-context.md): company and role background for all tasks` under a `## Context` section (create the section at the end of the file if missing; skip if an entry for `work-context.md` already exists).
 - If the file does not exist: use Write to create it with a `## Context` header and that single entry line.
 
@@ -154,7 +154,7 @@ Score the following 5 MECE criteria 0–10:
 | Index updated | MEMORY.md has a pointer to `work-context.md` |
 | Token efficiency | Gap check skipped when all fields present; partial-update routing skipped unselected steps |
 
-If average < 9.5, revise and re-score (max 3 iterations; stop if score does not improve). If any criterion remains below 8 after iteration, draft a concise edit to this SKILL.md to prevent the same failure, show it to the user, and apply on approval.
+If average < 9.5, revise the output and re-score (max 3 iterations; stop if score does not improve). If any criterion remains below 8 after iteration, draft a concise edit to this SKILL.md to prevent the same failure, show it to the user, and apply on approval.
 
 ## Design decisions
 

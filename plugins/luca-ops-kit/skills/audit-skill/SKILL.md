@@ -66,7 +66,7 @@ State each planned edit in one line, then use Edit to apply it.
 
 ## Step 6: Re-score and iterate
 
-Spawn a fresh Sonnet sub-agent to re-score. Pass it the updated skill file content and the scoring criteria from the **Scoring criteria** section above, with the instruction: "If the skill has a ## Design decisions section, score net of documented decisions — do not penalise intentional trade-offs."
+Spawn a fresh Sonnet sub-agent to re-score. Pass it the updated skill file content and the scoring criteria from the **Scoring criteria** section above, with the instruction: "Score each criterion 0–10. If the skill has a ## Design decisions section, score net of documented decisions — do not penalise intentional trade-offs. For each criterion, give a one-sentence rationale and name the specific line or gap that most affected the score. Return a markdown table — no preamble."
 
 - Average ≥ 9.5 → proceed to Step 7.
 - Score increased by < 0.5 and all applied changes were objectively positive (additions or tightening only, no substantive content removed) → treat as scoring variance; stop and proceed to Step 7 with the current version.
