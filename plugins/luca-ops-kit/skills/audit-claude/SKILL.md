@@ -1,7 +1,7 @@
 ---
 name: audit-claude
 description: Audit local and global CLAUDE.md and MEMORY.md files for conciseness and cross-file redundancy. Lists files by line count, lets user choose which to consider, proposes optimizations, implements on approval, then verifies no meaningful content was lost.
-version: 0.4.2
+version: 0.4.3
 ---
 
 # Audit Claude
@@ -80,7 +80,7 @@ Spawn two sub-agents **in parallel** — both read the selected files themselves
 > Files to read (absolute paths, one per line):
 > [list of selected absolute paths]
 
-Wait for both sub-agents to complete. Merge their findings before proceeding.
+Wait for both sub-agents to complete. Merge their findings, reconciling any overlapping or conflicting suggestions (e.g., if a structural change moves a sentence, verify any micro-compression targeting that sentence still applies to the new location) before proceeding.
 
 ## Step 5: Present and confirm
 
@@ -94,7 +94,7 @@ If the user declines, stop.
 
 Before writing any file:
 1. Verify its path is within `~/.claude/` or the current working directory — skip and report any file outside this scope.
-2. Cache its current content to `/tmp/audit-claude-orig-<md5>.md` where `<md5>` is the MD5 hash of the full absolute path (`echo -n "<path>" | md5`). MD5 of distinct paths never collides, avoiding the basename collision between e.g. `~/.claude/CLAUDE.md` and `./CLAUDE.md`.
+2. Cache its current content to `/tmp/audit-claude-orig-<hash>.md` where `<hash>` is a unique hex digest of the full absolute path (use `md5` on macOS or `md5sum` on Linux — take only the hex portion). MD5 of distinct paths never collides, avoiding the basename collision between e.g. `~/.claude/CLAUDE.md` and `./CLAUDE.md`.
 
 Apply all proposed changes. Track which files were modified and the corresponding `/tmp/` cache path for each.
 

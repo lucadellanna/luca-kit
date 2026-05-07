@@ -65,7 +65,7 @@ State each planned edit in one line, then apply it.
 Spawn a fresh Haiku sub-agent to re-score. Pass it the updated skill file content and the scoring criteria from the **Scoring criteria** section above, with the instruction: "If the skill has a ## Design decisions section, score net of documented decisions — do not penalise intentional trade-offs."
 
 - Average ≥ 9.5 → proceed to Step 7.
-- Score increased by < 0.5 and all applied changes were objectively positive (additions or tightening only, no content removed) → treat as Haiku variance; stop and proceed to Step 7 with the current version.
+- Score increased by < 0.5 and all applied changes were objectively positive (additions or tightening only, no substantive content removed) → treat as Haiku variance; stop and proceed to Step 7 with the current version.
 - Average < 9.5 and higher than the previous iteration → return to Step 3. Do not re-apply changes already made.
 - Score declined or no improvement for any other reason → stop, proceed to Step 7 with the best version reached.
 
