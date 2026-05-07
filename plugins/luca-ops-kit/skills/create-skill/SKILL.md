@@ -110,10 +110,15 @@ On approval: create the directory `skills/<skill-name>/` and write the content t
 Spawn a `feature-dev:code-reviewer` sub-agent. Pass it the full SKILL.md text and this prompt:
 
 > Treat this SKILL.md as executable code. Check:
-> (a) Data format fields — are any TSV/JSON fields susceptible to delimiter or newline injection that would corrupt a consuming skill?
-> (b) Algorithm edge cases at boundaries — empty list, total items < batch size, deleted item at cursor position.
-> (c) Redundant state — variables or flags that are set but never used, or derived values that are recomputed unnecessarily.
-> (d) Logical contradictions — sentences within the same step that give conflicting instructions.
+> (a) Data format fields: are any TSV/JSON fields susceptible to delimiter or newline injection that would corrupt a consuming skill?
+> (b) Algorithm edge cases at boundaries: empty list, total items < batch size, deleted item at cursor position.
+> (c) Redundant state: variables or flags that are set but never used, or derived values that are recomputed unnecessarily.
+> (d) Logical contradictions: sentences within the same step that give conflicting instructions.
+> (e) Implicit formats: any reference to "today", "current date", or "now" without specifying the exact format or the bash command to produce it (e.g. `date +%Y-%m-%d`).
+> (f) Undefined variables: any variable used in a formula or condition that is not explicitly defined earlier in the same step.
+> (g) Inter-process output headers: if the skill consumes output from another skill or script, does it account for header/metadata lines that are not data rows?
+> (h) Relative paths passed between skills: any path handed to another skill as data must be absolute; flag any that aren't.
+> (i) Duplicate instructions: the same rule or fact stated in two places; flag so one can be removed to prevent drift.
 >
 > For each issue found, quote the offending text and propose a minimal fix. If no issues are found, say so explicitly.
 
