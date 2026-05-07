@@ -109,7 +109,7 @@ Spawn a **Haiku sub-agent** with the list of modified file pairs (original cache
 > File pairs (original_cache_path → live_path):
 > [list of /tmp/audit-claude-orig-<md5_of_path>.md → <live path> pairs]
 
-Show the Haiku's report to the user. If any losses are flagged, ask for confirmation before restoring each affected file from its cached original in `/tmp/`. Once the audit and any restoration are complete, delete all `/tmp/audit-claude-orig-*.md` cache files created during this run.
+Show the Haiku's report to the user. If any losses are flagged, ask for confirmation before restoring each affected file from its cached original in `/tmp/`. Once the audit and any restoration are complete, delete the specific cache files tracked in Step 6.
 
 ## Self-reflection
 
