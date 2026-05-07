@@ -23,10 +23,10 @@ Otherwise, review the full conversation. For each noteworthy item, capture: what
 
 Scan these four areas:
 
-- **Tasks completed** — what was asked for, what was delivered, whether accepted or revised
-- **Errors and corrections** — Claude mistakes, user pushback (explicit: "no, I meant..."; implicit: rephrasing, abandoning a line); positive signals too (accepted, praised, built on)
-- **Workflow patterns** — repeated sequences, tool chains, procedures done more than twice in a similar way
-- **Knowledge gaps** — things Claude got wrong, had to look up, or where the user supplied domain knowledge Claude lacked
+- **Tasks completed**: what was asked for, what was delivered, whether accepted or revised
+- **Errors and corrections**: Claude mistakes, user pushback (explicit: "no, I meant..."; implicit: rephrasing, abandoning a line); positive signals too (accepted, praised, built on)
+- **Workflow patterns**: repeated sequences, tool chains, procedures done more than twice in a similar way
+- **Knowledge gaps**: things Claude got wrong, had to look up, or where the user supplied domain knowledge Claude lacked
 - **External reviewer patterns**: did any automated reviewer (Gemini, sub-agent) flag the same issue category 2+ times? Each recurring catch is a candidate for a new checklist item or class-level rule
 - **User workflow**: steps the user took repeatedly or awkwardly that a skill, shortcut, or process change could streamline; opportunities the user might not notice themselves
 
@@ -50,11 +50,11 @@ Spawn a Haiku sub-agent to score the current findings. Pass it:
 3. The instruction: "Score each criterion 0–10. For each, give a one-sentence rationale. Return a markdown table."
 
 Criteria:
-1. **Precision** — each finding is scoped correctly: not too broad ("Claude made mistakes") nor too narrow (a single-message detail that doesn't generalise)
-2. **Non-triviality** — no generic observations that apply to any conversation
-3. **Concreteness** — every actionable finding names a specific next step that can be executed immediately
-4. **Coverage** — no obvious patterns or errors from the conversation were missed
-5. **Accuracy** — each finding is factually grounded: the events, errors, and patterns described actually occurred as stated in the conversation
+1. **Precision**: each finding is scoped correctly: not too broad ("Claude made mistakes") nor too narrow (a single-message detail that doesn't generalise)
+2. **Non-triviality**: no generic observations that apply to any conversation
+3. **Concreteness**: every actionable finding names a specific next step that can be executed immediately
+4. **Coverage**: no obvious patterns or errors from the conversation were missed
+5. **Accuracy**: each finding is factually grounded: the events, errors, and patterns described actually occurred as stated in the conversation
 
 Use the sub-agent's scores directly. If average < 9.5, revise the findings and re-score. Stop after 3 iterations or if the score stops improving. Note: if the score remains stagnant or increases by < 0.5, you may continue for one more iteration if the previous changes were substantive, as this may be Haiku scoring variance rather than a lack of progress. Do not present findings until the threshold is met or iterations are exhausted.
 
@@ -71,7 +71,7 @@ Ask the user what to implement via AskUserQuestion (multiSelect: true) with the 
 
 ## Step 5: Act on Choices
 
-**Memory updates**: State the exact text to be added (one or two lines), then write it to `.claude/memory/MEMORY.md` under `## Preferences` or `## Context` (create file/section if needed). Terse entries only — just what Claude needs to know.
+**Memory updates**: State the exact text to be added (one or two lines), then write it to `.claude/memory/MEMORY.md` under `## Preferences` or `## Context` (create file/section if needed). Terse entries only; just what Claude needs to know.
 
 **New skills**: Run `/create-skill` with the proposed name, purpose, and trigger as context.
 
@@ -81,9 +81,9 @@ Ask the user what to implement via AskUserQuestion (multiSelect: true) with the 
 
 After acting on choices, spawn a Haiku sub-agent to verify:
 
-1. **Impact** — if any actions were selected: at least one was successfully applied. Auto-pass if the user declined all proposed actions or only insights were surfaced.
-2. **Quality** — findings passed the Step 3 gate: average ≥ 9.5 was achieved, OR all 3 iterations were completed. Reaching max iterations is a passing condition, not a failure.
-3. **No overreach** — no actions were taken beyond what the user selected
+1. **Impact**: if any actions were selected: at least one was successfully applied. Auto-pass if the user declined all proposed actions or only insights were surfaced.
+2. **Quality**: findings passed the Step 3 gate: average ≥ 9.5 was achieved, OR all 3 iterations were completed. Reaching max iterations is a passing condition, not a failure.
+3. **No overreach**: no actions were taken beyond what the user selected
 
 If any criterion scores below 8, draft a concise edit to this SKILL.md to prevent the same failure, show it to the user, and apply on approval.
 
@@ -91,4 +91,4 @@ If any criterion scores below 8, draft a concise edit to this SKILL.md to preven
 
 | Decision | Rationale |
 |----------|-----------|
-| Haiku sub-agent for findings scoring (Step 3) | CLAUDE.md-mandated pattern — reduces confirmation bias and is cheaper than inline scoring; apparent token overhead is intentional |
+| Haiku sub-agent for findings scoring (Step 3) | CLAUDE.md-mandated pattern; reduces confirmation bias and is cheaper than inline scoring; apparent token overhead is intentional |
