@@ -16,7 +16,7 @@ This skill uses Haiku for information gathering and scoring.
 
 Use Read to attempt to open `~/.claude/memory/work-context.md` (global path, not project-relative). If the file does not exist, Read will return an error — treat that as "no file exists".
 
-**If the file exists:** Read it fully. Extract and hold all current field values in memory (both Company and Role sections, including any additional fields). Show the user a brief plain-language summary (company name, role title, last updated date). Then ask:
+**If the file exists:** Read it fully. Extract and hold all current field values in memory (including the `last_updated` date from the YAML frontmatter, and both Company and Role sections with any additional fields). Show the user a brief plain-language summary (company name, role title, last updated date). Then ask:
 
 > "I found your existing work context, last updated on [DATE]. Which part would you like to update: your company info, your role info, or both? (Say 'keep' to leave everything as is.)"
 
@@ -99,7 +99,7 @@ Ask:
 
 > "Does this look right? Reply with any corrections, or just say yes to save it."
 
-If the user provides corrections, update the block and show it again. Repeat until the user says yes, or until 3 correction rounds have passed. At that point ask: "Shall I save this version?"
+If the user provides corrections, update the block and show it again. Repeat until the user says yes, or until 3 correction rounds have passed. At that point ask: "Shall I save this version?" If the user says no, stop without writing any files.
 
 Do not write any file until the user explicitly confirms.
 
@@ -133,7 +133,7 @@ last_updated: YYYY-MM-DD
 Any additional Company fields go at the end of the `## Company` section; any additional Role fields go at the end of `## Role`. Use `**Field Name:** Value` format, consistent with the standard fields.
 
 Then update `~/.claude/MEMORY.md`:
-- If the file exists: add a line `- [Work Context](memory/work-context.md): company and role background for all tasks` under a `## Context` section (create the section if missing; skip if an entry for `work-context.md` already exists).
+- If the file exists: add a line `- [Work Context](memory/work-context.md): company and role background for all tasks` under a `## Context` section (create the section at the end of the file if missing; skip if an entry for `work-context.md` already exists).
 - If the file does not exist: create it with a `## Context` header and that single entry line.
 
 Confirm to the user: "Saved. Claude will now use this context automatically in every future session."
