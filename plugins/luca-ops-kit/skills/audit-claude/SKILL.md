@@ -20,7 +20,7 @@ Check whether each path exists. Skip those that don't.
 | Project CLAUDE.md | `./CLAUDE.md` |
 | Project memory index | `./.claude/memory/MEMORY.md` |
 
-For each MEMORY.md found: extract all `[Title](path.md)` links, strip any `#fragment` suffixes, and resolve to absolute paths (expand `~`; relative paths resolve from the MEMORY.md directory). Add each resolved path to the audit list if it falls within `~/.claude/` or the CWD and exists; otherwise note it as "out of scope — skipped" or "linked but missing — skipped".
+For each MEMORY.md found: extract all `[Title](path.md)` links, strip any `#fragment` suffixes, and resolve to absolute paths (expand `~`; relative paths resolve from the MEMORY.md directory). Add each resolved path to the audit list if it falls within `~/.claude/` or the CWD and exists; otherwise note it as "out of scope — skipped" or "linked but missing — skipped". De-duplicate the final list of absolute paths.
 
 If no files are found, say "No CLAUDE.md or MEMORY.md files found." and stop.
 
@@ -63,7 +63,7 @@ Spawn two sub-agents **in parallel** — both read the selected files themselves
 > - Content in one file that belongs in another
 > - Opportunities to consolidate or refactor
 >
-> For each opportunity, provide: which file(s) are affected, a short description, and the proposed change. For within-file changes, provide a unique before snippet and the after snippet. For cross-file moves/merges, provide the exact text to be removed from the source file and the exact text (including surrounding context for placement) to be added to the destination file. Do not rewrite files wholesale. Surface discrete, targeted changes only.
+> For each opportunity, provide: which file(s) are affected, a short description, and the proposed change. For all changes (within-file or cross-file), provide a unique before snippet and the corresponding after snippet (or indicate the snippet should be removed). For additions, provide the exact text and surrounding context for placement. Do not rewrite files wholesale. Surface discrete, targeted changes only.
 >
 > Files to read (absolute paths, one per line):
 > [list of selected absolute paths]
@@ -94,7 +94,7 @@ If the user declines, stop.
 
 Before writing any file:
 1. Verify its path is within `~/.claude/` or the current working directory — skip and report any file outside this scope.
-2. Cache its current content to `/tmp/audit-claude-orig-<hash>.md` where `<hash>` is a unique hex digest of the full absolute path string (e.g., pipe the path string to `md5` on macOS or `md5sum` on Linux — take only the hex portion). MD5 of distinct paths never collides, avoiding the basename collision between e.g. `~/.claude/CLAUDE.md` and `./CLAUDE.md`.
+2. Cache its current content to `/tmp/audit-claude-orig-<hash>.md` where `<hash>` is a unique hex digest of the full absolute path string (e.g., using `md5`, `md5sum`, or a similar hashing utility — take only the hex portion). MD5 of distinct paths never collides, avoiding the basename collision between e.g. `~/.claude/CLAUDE.md` and `./CLAUDE.md`.
 
 Apply all proposed changes. Track which files were modified and the corresponding `/tmp/` cache path for each.
 
