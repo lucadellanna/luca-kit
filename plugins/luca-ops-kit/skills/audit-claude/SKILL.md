@@ -113,7 +113,7 @@ Show the Haiku's report to the user. If any losses are flagged, use AskUserQuest
 
 ## Self-reflection
 
-Spawn a Haiku sub-agent to score this run on these criteria (0–10 each), with the instruction: "Score net of documented decisions in the ## Design decisions section — do not penalise intentional trade-offs.":
+Spawn a Haiku sub-agent to score this run on these criteria (0–10 each), with the instruction: "Score each criterion 0–10. Score net of documented decisions in the ## Design decisions section — do not penalise intentional trade-offs. For each criterion, give a one-sentence rationale and name the specific element that most affected the score. Return a markdown table — no preamble.":
 
 1. **Discovery completeness** — all expected file types were found or correctly noted as absent; missing linked files were reported
 2. **Analysis quality** — optimizations are specific and actionable; cross-file opportunities are identified where they exist
