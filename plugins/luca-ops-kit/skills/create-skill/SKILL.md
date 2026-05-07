@@ -6,7 +6,7 @@ version: 0.1.0
 
 # Create Operational Skill
 
-You help non-technical users turn business knowledge into a reusable Claude skill (a SKILL.md file). Speak plainly. No developer jargon.
+You help non-technical users turn business knowledge into a reusable Claude skill (a SKILL.md file). Speak plainly; no developer jargon.
 
 Steps 1–2 use Haiku (information gathering). Step 3 uses Sonnet (drafting).
 
@@ -14,8 +14,8 @@ Steps 1–2 use Haiku (information gathering). Step 3 uses Sonnet (drafting).
 
 Determine what the user has:
 
-- **Source material provided** (SOP, procedure doc, checklist, wiki page, pasted text): Read it. Summarize the task it describes in 2–3 sentences. Ask the user to confirm or correct.
-- **No source material**: Ask these questions (first one alone, then the remaining two together once the purpose is clear):
+- **Source material provided** (SOP, procedure doc, checklist, wiki page, pasted text): Read it. Summarize the task it describes in 2–3 sentences. Use AskUserQuestion (open text) to ask the user to confirm or correct.
+- **No source material**: Use AskUserQuestion (open text) for each of these questions (ask the first one alone, then the remaining two together once the purpose is clear):
   1. What recurring task should this skill handle?
   2. What does a good result look like?
   3. What should the skill never do?
@@ -35,11 +35,13 @@ Default document-quality criteria (adjust based on context):
 | 1 | Clarity: a new employee could use this without asking questions |
 | 2 | Completeness: all essential steps and decision points are covered |
 | 3 | Safety: approval points and scope limits are explicit where stakes are non-trivial |
-| 4 | Conciseness: skill document is lean with no unnecessary words, steps, or sentences |
+| 4 | Conciseness: the skill document itself is lean; no unnecessary words, steps, or sentences |
 | 5 | Runtime efficiency: when run, the skill uses the appropriate model tier (Haiku for simple/fast steps, Sonnet for balanced work, Opus for complex reasoning), spawns sub-agents where they improve quality or speed and avoids them otherwise, and minimises unnecessary back-and-forth or verbose outputs |
 | 6 | Self-reflection quality: the generated skill's `## Self-reflection` section has 2–5 criteria that are appropriate (relevant to the skill's purpose) and MECE (no overlap between criteria; together they fully capture "good output") |
+| 7 | Instruction explicitness: every action names the specific tool to use and the expected outcome, not just the goal (e.g., "Use Read to open X; if not found, proceed to Y" rather than "Check if X exists") |
+| 8 | Design decision coverage: every intentional trade-off or non-obvious constraint has a row in `## Design decisions`; a reviewer seeing the skill cold should not flag an intentional choice as a gap |
 
-Present defaults. Ask the user to confirm, modify, or add criteria. Move on once agreed.
+Present defaults. Use AskUserQuestion (open text) to ask the user to confirm, modify, or add criteria. Move on once agreed.
 
 ## Step 3: Draft the skill
 
@@ -58,7 +60,7 @@ version: 0.1.0
 
 [2–5 MECE success criteria go here.]
 
-Spawn a Haiku sub-agent to score each criterion 0–10. If average < 9.5, revise and re-score. Stop after 3 iterations or if the score stops improving. If any criterion remains below 8 after iteration, draft a concise edit to this SKILL.md to prevent the same failure, show it to the user, and apply on approval.
+Spawn a Haiku sub-agent to score each criterion 0–10. If average < 9.5, revise the output and re-score. Stop after 3 iterations or if the score stops improving. If any criterion remains below 8 after iteration, draft a concise edit to this SKILL.md to prevent the same failure, show it to the user, and use Edit to apply it on approval.
 
 ## Design decisions
 
@@ -82,10 +84,10 @@ Rules for the draft:
 
 This step scores the SKILL.md *document quality* against the criteria agreed in Step 2. The generated skill's *runtime quality* is evaluated separately in `## Self-reflection` at the end.
 
-Spawn a Haiku sub-agent to score the draft. Pass it:
+Spawn a Sonnet sub-agent to score the draft. Pass it:
 1. The full SKILL.md draft text
 2. The agreed criteria and their definitions
-3. The instruction: "Score each criterion 0–10. If the draft has a ## Design decisions section, score net of documented decisions; do not penalise intentional trade-offs. For each criterion, give a one-sentence rationale and name the specific element that most affected the score. Return a markdown table."
+3. The instruction: "Score each criterion 0–10. If the draft has a ## Design decisions section, score net of documented decisions; do not penalise intentional trade-offs. For each criterion, give a one-sentence rationale and name the specific element that most affected the score. Return a markdown table, no preamble."
 
 Use the sub-agent's scores directly:
 
@@ -94,7 +96,7 @@ Use the sub-agent's scores directly:
 | [Criterion Name] | X/10 | [what's missing] |
 
 - If average ≥ 9.5: proceed to Step 5.
-- If average < 9.5: revise the draft to close the lowest-scoring gaps. Re-score. Repeat.
+- If average < 9.5: revise the draft to close the lowest-scoring gaps. Spawn a fresh Sonnet sub-agent passing the revised draft, the agreed criteria, and the same instruction string from above. Repeat.
 - If the average did not improve from the previous iteration: stop iterating, proceed to Step 5 with the best version.
 
 Do not iterate more than 3 times.
@@ -121,9 +123,9 @@ Apply any fixes to the draft before proceeding. If the sub-agent is unavailable,
 
 ## Step 6: Confirm and save
 
-Show the user the final SKILL.md. Ask for explicit approval before writing the file.
+Show the user the final SKILL.md. Use AskUserQuestion (open text) to ask for explicit approval before writing the file.
 
-On approval: create the directory `skills/<skill-name>/` and write the content to `skills/<skill-name>/SKILL.md`.
+On approval: use Bash to create the directory `skills/<skill-name>/`, then use Write to save the content to `skills/<skill-name>/SKILL.md`.
 
 ## Step 7: Audit the new skill
 
@@ -131,19 +133,20 @@ Open an `audit-skill` session and provide the absolute path to the saved skill f
 
 ## Self-reflection
 
-Spawn a Haiku sub-agent to verify the runtime quality of the skill just saved (distinct from the document quality checked in Step 4):
+Spawn a Haiku sub-agent to verify the runtime quality of the skill just saved (distinct from the document quality checked in Step 4). Pass it the generated SKILL.md content and the source material from Step 1, with the instruction: "Score each criterion 0–10. For each, give a one-sentence rationale. Return a markdown table, no preamble."
 
-1. **Usefulness**: The generated skill would let a new user complete the task without asking for help
-2. **Efficiency**: No unnecessary questions were asked; the user wasn't asked to make decisions that Claude could make
+1. **Usefulness**: the generated skill would let a new user complete the task without asking for help
+2. **Efficiency**: no unnecessary questions were asked; the user wasn't asked to make decisions that Claude could make
 3. **Coverage**: the generated skill covers all key steps and decision points from the source material
 
-If any criterion scores below 8, draft a concise edit to this SKILL.md to prevent the same failure, show it to the user, and apply on approval.
+If any criterion scores below 8, draft a concise edit to this SKILL.md to prevent the same failure, show it to the user, and use Edit to apply it on approval.
 
 ## Design decisions
 
 | Decision | Rationale |
 |----------|-----------|
-| 6 default criteria in Step 2 (exceeds the 2–5 guideline) | Defaults are a menu, not a mandate; users confirm and trim to 2–5 in the Step 2 conversation; a richer starting menu produces better criteria choices than a shorter one |
-| Haiku sub-agent for scoring in Step 4 | CLAUDE.md-mandated pattern; reduces confirmation bias; apparent overhead is intentional |
+| 8 default criteria in Step 2 (exceeds the 2–5 guideline) | Defaults are a menu, not a mandate; users confirm and trim to 2–5 in the Step 2 conversation; a richer starting menu produces better criteria choices than a shorter one |
+| Sonnet (not Haiku) for scoring sub-agents | Step 2 criteria include instruction explicitness and design decision coverage, which require simulating execution paths; Haiku misses subtle precision gaps in these areas |
+| Self-reflection is one-shot (no average loop) | The self-reflection checks runtime quality of the generated skill, not the document quality of create-skill itself; document quality is iterated in Step 4; a second loop would conflate the two checks |
 | code-reviewer runs before save (Step 5) | Catches injection, boundary, redundant-state, and contradiction bugs that prose-level review misses; placed before save so the user approves the technically verified version |
 | audit-skill runs after save (Step 7) | Skills start life with a quality score rather than waiting for a future audit-skills rotation; co-installed as part of the same plugin so almost always available |

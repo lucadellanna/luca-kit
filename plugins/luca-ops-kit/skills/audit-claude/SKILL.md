@@ -10,7 +10,7 @@ Audit CLAUDE.md and MEMORY.md files for bloat and redundancy. Surface optimizati
 
 ## Step 1: Discover files
 
-Check whether each path exists. Skip those that don't.
+Use Read to check whether each path exists (Read returns an error for non-existent files). Skip those that don't.
 
 | Label | Path |
 |-------|------|
@@ -84,7 +84,7 @@ Wait for both sub-agents to complete. Merge their findings: if a structural chan
 
 ## Step 5: Present and confirm
 
-Show findings in two groups: **Structural** (Sub-agent A) and **Micro-compressions** (Sub-agent B), each grouped by within-file and cross-file where applicable. Then present a compact summary table of all proposed changes (file | type | one-line description) so the user has a single reference when approving. Ask:
+Show findings in two groups: **Structural** (Sub-agent A) and **Micro-compressions** (Sub-agent B), each grouped by within-file and cross-file where applicable. Then present a compact summary table of all proposed changes (file | type | one-line description) so the user has a single reference when approving. Use AskUserQuestion (open text):
 
 > "Shall I implement all of these changes?"
 
@@ -109,11 +109,11 @@ Spawn a **Haiku sub-agent** with the list of modified file pairs (original cache
 > File pairs (original_cache_path → live_path):
 > [list of /tmp/audit-claude-orig-<md5_of_path>.md → <live path> pairs]
 
-Show the Haiku's report to the user. If any losses are flagged, ask for confirmation before restoring each affected file from its cached original in `/tmp/`. Once the audit and any restoration are complete, delete the specific cache files tracked in Step 6.
+Show the Haiku's report to the user. If any losses are flagged, use AskUserQuestion (open text) for confirmation before using Write to restore each affected file from its cached original in `/tmp/`. Once the audit and any restoration are complete, use Bash to delete the specific cache files tracked in Step 6.
 
 ## Self-reflection
 
-Spawn a Haiku sub-agent to score this run on these criteria (0–10 each), with the instruction: "Score net of documented decisions in the ## Design decisions section; do not penalise intentional trade-offs.":
+Spawn a Haiku sub-agent to score this run on these criteria (0–10 each), with the instruction: "Score each criterion 0–10. Score net of documented decisions in the ## Design decisions section; do not penalise intentional trade-offs. For each criterion, give a one-sentence rationale and name the specific element that most affected the score. Return a markdown table; no preamble.":
 
 1. **Discovery completeness**: all expected file types were found or correctly noted as absent; missing linked files were reported
 2. **Analysis quality**: optimizations are specific and actionable; cross-file opportunities are identified where they exist
@@ -122,7 +122,7 @@ Spawn a Haiku sub-agent to score this run on these criteria (0–10 each), with 
 
 Compute the average.
 - Average ≥ 9.5 → stop.
-- Score increased by < 0.5 and all applied changes were objectively positive (additions or tightening only, no substantive content removed) → treat as Haiku variance; stop.
+- Score increased by < 0.5 and all applied changes were objectively positive (additions or tightening only, no substantive content removed) → treat as scoring variance; stop.
 - Average < 9.5 and higher than the previous iteration → revise the skill output and re-score.
 - Score declined or no improvement for any other reason → stop.
 
