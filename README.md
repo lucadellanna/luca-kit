@@ -62,4 +62,4 @@ The plugin ships **meta-skills** — structured workflows for building, auditing
 
 ## License
 
-Commercial — licensed to holding companies and their portfolio companies. Contact [luca@luca-dellanna.com](mailto:luca@luca-dellanna.com) to purchase a license.
+Source-available, not open-source. You may inspect the repository and use it for personal evaluation. Commercial, client-facing, team, or organizational use requires a paid license. Contact [Luca@Luca-Dellanna.com](mailto:Luca@Luca-Dellanna.com) for more information.
