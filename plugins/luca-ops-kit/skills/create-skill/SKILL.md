@@ -96,7 +96,7 @@ Use the sub-agent's scores directly:
 | [Criterion Name] | X/10 | [what's missing] |
 
 - If average ≥ 9.5: proceed to Step 5.
-- If average < 9.5: revise the draft to close the lowest-scoring gaps. Spawn a fresh Haiku sub-agent passing the revised draft, the agreed criteria, and the same instruction string from above. Repeat.
+- If average < 9.5: revise the draft to close the lowest-scoring gaps. Spawn a fresh Sonnet sub-agent passing the revised draft, the agreed criteria, and the same instruction string from above. Repeat.
 - If the average did not improve from the previous iteration: stop iterating, proceed to Step 5 with the best version.
 
 Do not iterate more than 3 times.
@@ -122,5 +122,5 @@ If any criterion scores below 8, draft a concise edit to this SKILL.md to preven
 | Decision | Rationale |
 |----------|-----------|
 | 8 default criteria in Step 2 (exceeds the 2–5 guideline) | Defaults are a menu, not a mandate; users confirm and trim to 2–5 in the Step 2 conversation. A richer starting menu produces better criteria choices than a shorter one. |
-| Sonnet sub-agent for scoring in Step 4 | Step 2 criteria include instruction explicitness and design decision coverage, which require simulating execution paths; Haiku misses subtle precision gaps in these areas. |
+| Sonnet (not Haiku) for scoring sub-agents | Step 2 criteria include instruction explicitness and design decision coverage, which require simulating execution paths; Haiku misses subtle precision gaps in these areas. |
 | Self-reflection is one-shot (no average loop) | The self-reflection checks runtime quality of the generated skill, not the document quality of create-skill itself. Document quality is iterated in Step 4. A second loop would conflate the two checks. |
