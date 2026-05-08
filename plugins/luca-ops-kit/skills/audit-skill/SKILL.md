@@ -86,9 +86,9 @@ Present:
 
 Spawn a Haiku sub-agent to verify the audit's own quality on these criteria:
 
-1. **Score improved**: the audited skill's final average is higher than its initial score, OR the initial score was already ≥ 9.5, OR the user declined all proposed improvements
+1. **Score improved**: the audited skill's final average is higher than its initial score, OR the initial score was already ≥ 9.5, OR the user declined all proposed improvements, OR all user-confirmed improvements were applied and the score stagnated (genuine edits that don't move the score are not audit failures)
 2. **All confirmed items applied**: no user-confirmed improvement was skipped
-3. **No regressions**: criteria that scored well initially are not worse in the final version
+3. **No regressions**: criteria that scored well initially are not worse in the final version; re-scoring variance of < 0.5 points on an unedited criterion does not count as a regression
 
 If any criterion scores below 8, draft a concise edit to this SKILL.md to prevent the same failure, show it to the user, and apply on approval.
 
