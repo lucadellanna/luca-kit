@@ -41,14 +41,14 @@ jq -rn --arg since "$SINCE" \
   'inputs as $e | select($e.date >= $since) | $e.findings[] |
   [(input_filename | split("/")[-1] | rtrimstr(".jsonl")), .text] | @tsv' \
   ~/.claude/reflect-logs/*.jsonl 2>/dev/null \
-  | sort | uniq -c | sort -rn | head -50
+  | sort | uniq -c | sort -rn | awk '$1 >= 2' | head -50
 
 # Skill improvement targets with source repo
 jq -rn --arg since "$SINCE" \
   'inputs as $e | select($e.date >= $since) | $e.findings[] | select(.type=="skill_improvement") |
   [(input_filename | split("/")[-1] | rtrimstr(".jsonl")), .skill] | @tsv' \
   ~/.claude/reflect-logs/*.jsonl 2>/dev/null \
-  | sort | uniq -c | sort -rn
+  | sort | uniq -c | sort -rn | awk '$1 >= 2'
 
 # Memory targets with source repo (contradiction candidates)
 jq -rn --arg since "$SINCE" \
