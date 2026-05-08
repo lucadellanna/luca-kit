@@ -132,7 +132,7 @@ if origin:
     slug = '__'.join(clean.replace(':', '/').split('/')[-2:])
 else:
     top = run(['git', 'rev-parse', '--show-toplevel'])
-    slug = os.path.basename(top) if top else 'no-repo'
+    slug = os.path.basename(top) or 'no-repo' if top else 'no-repo'
 slug = ''.join(c if c.isalnum() or c in '-_' else '-' for c in slug)
 
 branch = run(['git', 'branch', '--show-current']) or run(['git', 'rev-parse', '--short', 'HEAD']) or 'unknown'

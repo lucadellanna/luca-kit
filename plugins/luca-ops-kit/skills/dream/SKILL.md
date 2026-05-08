@@ -36,12 +36,19 @@ For `all` projects: pre-aggregate via Bash before loading into context (raw mult
 ```bash
 SINCE=$(python3 -c "import datetime; print((datetime.date.today() - datetime.timedelta(days=90)).isoformat())")
 
-# Top recurring finding texts with source repo
+# Top recurring finding texts with source repo (within-repo recurrence)
 jq -rn --arg since "$SINCE" \
   'inputs as $e | select($e.schema == 1 and $e.date >= $since) | $e.findings[] |
   [(input_filename | split("/")[-1] | rtrimstr(".jsonl")), .text] | @tsv' \
   ~/.claude/reflect-logs/*.jsonl 2>/dev/null \
   | sort | uniq -c | sort -rn | awk '$1 >= 2' | head -50
+
+# Cross-project patterns: same finding text appearing in ≥2 repos
+jq -rn --arg since "$SINCE" \
+  'inputs as $e | select($e.schema == 1 and $e.date >= $since) | $e.findings[] |
+  [(input_filename | split("/")[-1] | rtrimstr(".jsonl")), .text] | @tsv' \
+  ~/.claude/reflect-logs/*.jsonl 2>/dev/null \
+  | sort -u | cut -f2- | sort | uniq -c | sort -rn | awk '$1 >= 2' | head -20
 
 # Skill improvement targets with source repo
 jq -rn --arg since "$SINCE" \
