@@ -36,6 +36,10 @@ No commands, agents, or hooks yet: skills only.
 
 Authoring patterns, project structure notes, and quality gates (this file) stay in the root `CLAUDE.md` and are never duplicated into the plugin runtime manifest.
 
+## Task tracking
+
+Use the TaskCreate/TaskUpdate/TaskList tools extensively for all multi-step work in this repo. Create a task for each discrete step before starting it, mark it `in_progress` when beginning, and `completed` immediately when done. Do not batch completions. This applies to skill authoring, audits, reviews, and any sequence of 3 or more actions.
+
 ## Inter-skill patterns (authoring)
 
 These apply when writing or editing skills, not at user runtime. They are enforced by authoring tools (`/create-skill`, `/audit-skill`) and do not need to be loaded in every user session.
