@@ -137,7 +137,7 @@ try:
                 hooks_list = entry.get("hooks", [])
                 if not isinstance(hooks_list, list):
                     hooks_list = []
-                remaining = [h for h in hooks_list if isinstance(h, dict) and script_name not in h.get("command", "")]
+                remaining = [h for h in hooks_list if isinstance(h, dict) and script_name not in (h.get("command") or "")]
                 if len(remaining) != len(hooks_list):
                     changed = True
                     if remaining:

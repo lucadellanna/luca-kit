@@ -146,7 +146,8 @@ try:
     with open(path) as f:
         for line in f:
             try:
-                if not allow_dup and json.loads(line).get('date') == today:
+                obj = json.loads(line)
+                if not allow_dup and isinstance(obj, dict) and obj.get('date') == today:
                     print('DUPLICATE_DATE')
                     sys.exit(0)
                 count += 1

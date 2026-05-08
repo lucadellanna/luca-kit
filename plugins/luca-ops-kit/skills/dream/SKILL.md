@@ -42,28 +42,28 @@ SINCE=$(python3 -c "import datetime; print((datetime.date.today() - datetime.tim
 # Top recurring finding texts with source repo (within-repo recurrence)
 jq -rn --arg since "$SINCE" \
   'inputs as $e | select($e.schema == 1 and $e.date >= $since) | $e.findings[] |
-  [(input_filename | split("/")[-1] | rtrimstr(".jsonl")), .text] | @tsv' \
+  [(input_filename | split("/")[-1] | rtrimstr(".jsonl")), (.text // "")] | @tsv' \
   ~/.claude/reflect-logs/*.jsonl 2>/dev/null \
   | sort | uniq -c | sort -rn | awk '$1 >= 2' | head -50
 
 # Cross-project patterns: same finding text appearing in ≥2 repos
 jq -rn --arg since "$SINCE" \
   'inputs as $e | select($e.schema == 1 and $e.date >= $since) | $e.findings[] |
-  [(input_filename | split("/")[-1] | rtrimstr(".jsonl")), .text] | @tsv' \
+  [(input_filename | split("/")[-1] | rtrimstr(".jsonl")), (.text // "")] | @tsv' \
   ~/.claude/reflect-logs/*.jsonl 2>/dev/null \
   | sort -u | cut -f2- | sort | uniq -c | sort -rn | awk '$1 >= 2' | head -20
 
 # Skill improvement targets with source repo
 jq -rn --arg since "$SINCE" \
   'inputs as $e | select($e.schema == 1 and $e.date >= $since) | $e.findings[] | select(.type=="skill_improvement") |
-  [(input_filename | split("/")[-1] | rtrimstr(".jsonl")), .skill] | @tsv' \
+  [(input_filename | split("/")[-1] | rtrimstr(".jsonl")), (.skill // "")] | @tsv' \
   ~/.claude/reflect-logs/*.jsonl 2>/dev/null \
   | sort | uniq -c | sort -rn | awk '$1 >= 2'
 
 # Memory targets with source repo (contradiction candidates)
 jq -rn --arg since "$SINCE" \
   'inputs as $e | select($e.schema == 1 and $e.date >= $since) | $e.findings[] | select(.type=="memory") |
-  [(input_filename | split("/")[-1] | rtrimstr(".jsonl")), .memory_target] | @tsv' \
+  [(input_filename | split("/")[-1] | rtrimstr(".jsonl")), (.memory_target // "")] | @tsv' \
   ~/.claude/reflect-logs/*.jsonl 2>/dev/null \
   | sort | uniq -c | sort -rn | awk '$1 > 1'
 ```

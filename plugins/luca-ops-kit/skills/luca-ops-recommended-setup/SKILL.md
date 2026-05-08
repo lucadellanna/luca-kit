@@ -211,7 +211,7 @@ try:
             hooks_val = entry.get("hooks", [])
             if not isinstance(hooks_val, list):
                 continue
-            if any(isinstance(h, dict) and script_name in h.get("command", "") for h in hooks_val):
+            if any(isinstance(h, dict) and script_name in (h.get("command") or "") for h in hooks_val):
                 already = True
                 break
         if not already:
