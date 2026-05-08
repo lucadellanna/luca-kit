@@ -139,13 +139,14 @@ branch = run(['git', 'branch', '--show-current']) or run(['git', 'rev-parse', '-
 path = os.path.expanduser(f"~/.claude/reflect-logs/{slug}.jsonl")
 os.makedirs(os.path.dirname(path), exist_ok=True)
 today = str(datetime.date.today())
+allow_dup = os.environ.get('ALLOW_DUPLICATE')
 count = 0
 try:
     with open(path) as f:
         for line in f:
             count += 1
             try:
-                if json.loads(line).get('date') == today:
+                if not allow_dup and json.loads(line).get('date') == today:
                     print('DUPLICATE_DATE')
                     sys.exit(0)
             except json.JSONDecodeError:
@@ -184,7 +185,7 @@ if count >= 10 and count % 10 == 0:
     print(f"NUDGE:{count}")
 ```
 
-If the script prints `DUPLICATE_DATE`: ask "You've already logged a reflection today. Add a second entry, or skip?" (default: skip). If the user chooses to add a second entry, re-run the script with the date-check block removed.
+If the script prints `DUPLICATE_DATE`: ask "You've already logged a reflection today. Add a second entry, or skip?" (default: skip). If the user chooses to add a second entry, re-run with `ALLOW_DUPLICATE=1 python3 -c '...'`.
 
 If the script prints `NUDGE:<count>`, append to end of output:
 > "You've completed `<count>` /reflect sessions; a good moment to run /dream, which spots patterns across sessions and consolidates memory. (Don't have /dream yet? It's part of the luca-ops-kit plugin.)"

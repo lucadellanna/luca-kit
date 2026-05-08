@@ -32,27 +32,32 @@ cat ~/.claude/reflect-logs/<slug>.jsonl
 ```
 Filter to entries within the date range using Python or `jq`.
 
-For `all` projects: pre-aggregate via Bash before loading into context (raw multi-repo logs overflow context):
+For `all` projects: pre-aggregate via Bash before loading into context (raw multi-repo logs overflow context). Substitute the number of days from the user's date range for `DAYS` (default: 90):
 ```bash
+SINCE=$(python3 -c "import datetime; print((datetime.date.today() - datetime.timedelta(days=DAYS)).isoformat())")
+
 # Top recurring finding texts with source repo
-jq -rn 'inputs as $e | $e.findings[] |
+jq -rn --arg since "$SINCE" \
+  'inputs as $e | select($e.date >= $since) | $e.findings[] |
   [(input_filename | split("/")[-1] | rtrimstr(".jsonl")), .text] | @tsv' \
   ~/.claude/reflect-logs/*.jsonl 2>/dev/null \
   | sort | uniq -c | sort -rn | head -50
 
 # Skill improvement targets with source repo
-jq -rn 'inputs as $e | $e.findings[] | select(.type=="skill_improvement") |
+jq -rn --arg since "$SINCE" \
+  'inputs as $e | select($e.date >= $since) | $e.findings[] | select(.type=="skill_improvement") |
   [(input_filename | split("/")[-1] | rtrimstr(".jsonl")), .skill] | @tsv' \
   ~/.claude/reflect-logs/*.jsonl 2>/dev/null \
   | sort | uniq -c | sort -rn
 
 # Memory targets with source repo (contradiction candidates)
-jq -rn 'inputs as $e | $e.findings[] | select(.type=="memory") |
+jq -rn --arg since "$SINCE" \
+  'inputs as $e | select($e.date >= $since) | $e.findings[] | select(.type=="memory") |
   [(input_filename | split("/")[-1] | rtrimstr(".jsonl")), .memory_target] | @tsv' \
   ~/.claude/reflect-logs/*.jsonl 2>/dev/null \
   | sort | uniq -c | sort -rn | awk '$1 > 1'
 ```
-Load full entries only for repos where pre-aggregation shows signal (≥3 matching findings, matching the Step 2 detection threshold). Skip entries with unknown `schema` values; report a count of skipped entries if any.
+Load full entries only for repos where pre-aggregation shows signal (≥2 matching findings, covering the lowest Step 2 detection threshold). Skip entries with unknown `schema` values; report a count of skipped entries if any.
 
 **Load memory files:**
 - Project memory: `<repo-root>/.claude/memory/*.md`
