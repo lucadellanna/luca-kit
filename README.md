@@ -2,11 +2,11 @@
 
 A meta-workflow toolkit for Claude that helps non-technical organizations turn recurring tasks, SOPs, wiki pages, and managerial know-how into reusable Claude Skills.
 
-Most companies using AI are stuck at the "clever individual prompts" stage: useful experiments, inconsistent execution, little reuse, no lasting memory. luca-ops-kit provides the guided workflows to make good procedures explicit and reusable — so know-how doesn't stay trapped in individual heads or chat histories.
+Most companies using AI are stuck at the "clever individual prompts" stage: useful experiments, inconsistent execution, little reuse, no lasting memory. luca-ops-kit provides the guided workflows to make good procedures explicit and reusable, so know-how doesn't stay trapped in individual heads or chat histories.
 
 ## Installation
 
-Install in Claude Code, Cowork, or both — if you use both apps, follow each procedure separately.
+Install in Claude Code, Cowork, or both; if you use both apps, follow each procedure separately.
 
 ### Claude Code
 
@@ -45,7 +45,7 @@ Requires [Claude Code](https://claude.ai/code).
 
 ## How it works
 
-The plugin ships **meta-skills** — structured workflows for building, auditing, and improving procedures. Domain skills (the actual business procedures for your industry) are curated and added by your holding company.
+The plugin ships **meta-skills**: structured workflows for building, auditing, and improving procedures. Domain skills (the actual business procedures for your industry) are curated and added by your holding company.
 
 | Layer | Who provides it | What it contains |
 |-------|----------------|-----------------|
@@ -62,4 +62,4 @@ The plugin ships **meta-skills** — structured workflows for building, auditing
 
 ## License
 
-Commercial — licensed to holding companies and their portfolio companies. Contact [luca@luca-dellanna.com](mailto:luca@luca-dellanna.com) to purchase a license.
+Source-available, not open-source. You may inspect the repository and use it for personal evaluation. Commercial, client-facing, team, or organizational use requires a paid license. Contact [Luca@Luca-Dellanna.com](mailto:Luca@Luca-Dellanna.com) for more information.

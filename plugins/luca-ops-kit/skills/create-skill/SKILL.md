@@ -101,11 +101,35 @@ Use the sub-agent's scores directly:
 
 Do not iterate more than 3 times.
 
-## Step 5: Confirm and save
+## Step 5: Code-level correctness review
+
+Spawn a `feature-dev:code-reviewer` sub-agent. Pass it the full SKILL.md text and this prompt:
+
+> Treat this SKILL.md as executable code. Check:
+> (a) Data format fields: are any TSV/JSON fields susceptible to delimiter or newline injection that would corrupt a consuming skill?
+> (b) Algorithm edge cases at boundaries: empty list, total items < batch size, deleted item at cursor position.
+> (c) Redundant state: variables or flags that are set but never used, or derived values that are recomputed unnecessarily.
+> (d) Logical contradictions: sentences within the same step that give conflicting instructions.
+> (e) Implicit formats: any reference to "today", "current date", or "now" without specifying the exact format or the bash command to produce it (e.g. `date +%Y-%m-%d`).
+> (f) Undefined variables: any variable used in a formula or condition that is not explicitly defined earlier in the same step.
+> (g) Inter-process output headers: if the skill consumes output from another skill or script, does it account for header/metadata lines that are not data rows?
+> (h) Relative paths passed between skills: any path handed to another skill as data must be absolute; flag any that aren't.
+> (i) Duplicate instructions: the same rule or fact stated in two places; flag so one can be removed to prevent drift.
+> (j) Approval gate ordering: steps that write files, send messages, or perform irreversible external actions must appear after all automated review and correction steps, not before.
+>
+> For each issue found, quote the offending text and propose a minimal fix. If no issues are found, say so explicitly.
+
+Apply any fixes to the draft before proceeding. If the sub-agent is unavailable, skip and note "code-reviewer not available; skipping correctness check."
+
+## Step 6: Confirm and save
 
 Show the user the final SKILL.md. Use AskUserQuestion (open text) to ask for explicit approval before writing the file.
 
 On approval: use Bash to create the directory `skills/<skill-name>/`, then use Write to save the content to `skills/<skill-name>/SKILL.md`.
+
+## Step 7: Audit the new skill
+
+Open an `audit-skill` session and provide the absolute path to the saved skill file in the opening message. Resolve it first: run `realpath skills/<skill-name>/SKILL.md` via Bash and use that output. If `audit-skill` is unavailable, note "audit-skill not found; skipping quality audit." and continue to Self-reflection.
 
 ## Self-reflection
 
@@ -121,6 +145,8 @@ If any criterion scores below 8, draft a concise edit to this SKILL.md to preven
 
 | Decision | Rationale |
 |----------|-----------|
-| 8 default criteria in Step 2 (exceeds the 2–5 guideline) | Defaults are a menu, not a mandate; users confirm and trim to 2–5 in the Step 2 conversation. A richer starting menu produces better criteria choices than a shorter one. |
-| Sonnet (not Haiku) for scoring sub-agents | Step 2 criteria include instruction explicitness and design decision coverage, which require simulating execution paths; Haiku misses subtle precision gaps in these areas. |
-| Self-reflection is one-shot (no average loop) | The self-reflection checks runtime quality of the generated skill, not the document quality of create-skill itself. Document quality is iterated in Step 4. A second loop would conflate the two checks. |
+| 8 default criteria in Step 2 (exceeds the 2–5 guideline) | Defaults are a menu, not a mandate; users confirm and trim to 2–5 in the Step 2 conversation; a richer starting menu produces better criteria choices than a shorter one |
+| Sonnet (not Haiku) for scoring sub-agents | Step 2 criteria include instruction explicitness and design decision coverage, which require simulating execution paths; Haiku misses subtle precision gaps in these areas |
+| Self-reflection is one-shot (no average loop) | The self-reflection checks runtime quality of the generated skill, not the document quality of create-skill itself; document quality is iterated in Step 4; a second loop would conflate the two checks |
+| code-reviewer runs before save (Step 5) | Catches injection, boundary, redundant-state, and contradiction bugs that prose-level review misses; placed before save so the user approves the technically verified version |
+| audit-skill runs after save (Step 7) | Skills start life with a quality score rather than waiting for a future audit-skills rotation; co-installed as part of the same plugin so almost always available |
