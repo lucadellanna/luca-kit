@@ -108,7 +108,8 @@ Runs after Step 5. Run only if `~/.claude/reflect-logs/.enabled` exists.
 
 **Derive repo slug** using Python (all subprocess calls ignore errors):
 ```
-1. git remote get-url origin  →  parse "org/repo", strip .git  →  "org__repo"
+1. git remote get-url origin  →  normalize colons to slashes, strip .git,
+   take last 2 path components, join with "__"  →  "org__repo"
 2. Fallback: basename of git rev-parse --show-toplevel
 3. Fallback: "no-repo"
 Sanitize: replace chars outside [a-zA-Z0-9_-] with "-"
@@ -123,7 +124,7 @@ def run(cmd): return subprocess.run(cmd, capture_output=True, text=True).stdout.
 
 origin = run(['git', 'remote', 'get-url', 'origin'])
 if origin:
-    slug = origin.split(':')[-1].replace('.git','').replace('/','__').lstrip('/')
+    slug = '__'.join(origin.rstrip('/').replace('.git','').replace(':','/').split('/')[-2:])
 else:
     top = run(['git', 'rev-parse', '--show-toplevel'])
     slug = os.path.basename(top) if top else 'no-repo'
@@ -135,7 +136,7 @@ entry = {
     "schema": 1,
     "date": str(datetime.date.today()),
     "branch": branch,
-    "workspace": "/".join(os.getcwd().split("/")[-2:]),
+    "workspace": "/".join(os.path.normpath(os.getcwd()).split(os.sep)[-2:]),
     "findings": [
         # One object per finding from Step 2 (all findings, not just acted-on):
         # { "id": 1,                             # sequential integer within this entry
@@ -158,7 +159,8 @@ entry = {
 path = os.path.expanduser(f"~/.claude/reflect-logs/{slug}.jsonl")
 os.makedirs(os.path.dirname(path), exist_ok=True)
 try:
-    count = sum(1 for _ in open(path)) + 1
+    with open(path) as f:
+        count = sum(1 for _ in f) + 1
 except FileNotFoundError:
     count = 1
 with open(path, 'a') as f:
