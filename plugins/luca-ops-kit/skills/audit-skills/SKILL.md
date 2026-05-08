@@ -43,7 +43,7 @@ Let `total_skills` = the number of paths in the sorted list. Let `start_index` =
 
 Pick the next `min(batch_size, total_skills)` paths starting from `start_index`. Wrap back to the beginning if needed. No path appears twice in the same selection.
 
-Compute the new `next_audit_path` (to save after Step 5): the path at position `(start_index + min(batch_size, total_skills)) % total_skills` in the sorted list. If `start_index > 0 AND start_index + min(batch_size, total_skills) >= total_skills`, set a wrap flag. Defer the wrap notification to Step 6.
+Compute the new `next_audit_path` (to save after Step 5): the path at position `(start_index + min(batch_size, total_skills)) % total_skills` in the sorted list. If `start_index + min(batch_size, total_skills) >= total_skills`, set a wrap flag. Defer the wrap notification to Step 6.
 
 State file structure:
 ```json
@@ -110,4 +110,5 @@ Otherwise, spawn a Haiku sub-agent. Pass it the Step 6 summary, the final state 
 | `audit-skill` invoked as a sequential interactive session | `audit-skill` calls `AskUserQuestion` for improvement approvals; silently batching would violate the human-approval principle |
 | Default batch size = 3 | Enough progress per session; small enough not to exhaust token budget on auditing alone |
 | State file at `.claude/audit-skills-state.json` | Project-local; `.claude/` is the established container for project-level Claude metadata |
+| Wrap flag fires even when `start_index = 0` | When `batch_size >= total_skills`, every session covers all skills; `start_index` is always 0 but the cycle genuinely completes each run. Guarding with `start_index > 0` would permanently silence the message for small libraries. |
 | 6 self-reflection criteria (exceeds project norm of 2–5) | All 6 are genuinely distinct and collectively exhaustive for this multi-step orchestration skill; merging any two would lose precision |
