@@ -193,6 +193,9 @@ try:
                 s = json.load(f)
         except FileNotFoundError:
             s = {"hooks": {"UserPromptSubmit": []}}
+        except json.JSONDecodeError:
+            print("~/.claude/settings.json contains invalid JSON -- cannot modify it safely. Inspect the file and try again.")
+            raise SystemExit(1)
         upsub = s.setdefault("hooks", {}).setdefault("UserPromptSubmit", [])
         already = any(
             script_name in h.get("command", "")
@@ -204,17 +207,25 @@ try:
                 "hooks": [{"type": "command", "command": f"bash ~/.claude/hooks/{script_name}"}]
             })
             tmp = path + ".tmp"
-            with open(tmp, "w") as tf:
-                json.dump(s, tf, indent=2)
-                tf.flush()
-                os.fsync(tf.fileno())
-            os.replace(tmp, path)
+            try:
+                with open(tmp, "w") as tf:
+                    json.dump(s, tf, indent=2)
+                    tf.flush()
+                    os.fsync(tf.fileno())
+                os.replace(tmp, path)
+            except OSError as e:
+                print(f"Failed to write ~/.claude/settings.json: {e}. The hook was not added.")
+                raise SystemExit(1)
 except PermissionError:
     # Surface to user; do not write marker
     raise
 ```
 
 If a PermissionError is raised, tell the user: "Cannot write to ~/.claude/settings.json; check file permissions. The hook was not added." Do not write the marker file if any hook write fails.
+
+If a JSONDecodeError output is printed, tell the user: "~/.claude/settings.json contains invalid JSON and cannot be safely modified. Inspect the file manually and try again." Do not write the marker file.
+
+If an OSError output is printed during the write phase, tell the user: "Failed to write to ~/.claude/settings.json. The hook was not added." Do not write the marker file.
 
 Only add a hook ID to the manifest list if BOTH the script write and the settings.json update completed without error. Partial installs (one succeeded, one failed) are not recorded; undo-setup should not attempt to reverse a partially applied hook.
 

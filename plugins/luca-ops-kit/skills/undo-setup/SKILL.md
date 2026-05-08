@@ -46,7 +46,8 @@ fingerprints = ["<!-- luca-ops-kit:rule-skills-first -->",
 to_remove = [fp for fp in fingerprints if fp in rules_added_as_fingerprint_list]
 
 path = os.path.expanduser("~/.claude/CLAUDE.md")
-lines = open(path).readlines()
+with open(path) as f:
+    lines = f.readlines()
 found = []
 filtered = []
 for line in lines:
@@ -113,6 +114,9 @@ try:
                 s = json.load(f)
         except FileNotFoundError:
             s = None  # settings.json already gone; nothing to remove
+        except json.JSONDecodeError:
+            print("~/.claude/settings.json contains invalid JSON -- cannot modify it safely. Inspect the file and try again.")
+            raise SystemExit(1)
         if s is not None:
             upsub = s.get("hooks", {}).get("UserPromptSubmit", [])
             new_upsub = []
@@ -129,17 +133,25 @@ try:
             if changed:
                 s["hooks"]["UserPromptSubmit"] = new_upsub
                 tmp = path + ".tmp"
-                with open(tmp, "w") as tf:
-                    json.dump(s, tf, indent=2)
-                    tf.flush()
-                    os.fsync(tf.fileno())
-                os.replace(tmp, path)
+                try:
+                    with open(tmp, "w") as tf:
+                        json.dump(s, tf, indent=2)
+                        tf.flush()
+                        os.fsync(tf.fileno())
+                    os.replace(tmp, path)
+                except OSError as e:
+                    print(f"Failed to write ~/.claude/settings.json: {e}. The hook entry was not removed.")
+                    raise SystemExit(1)
 except PermissionError:
     print(f"Cannot write to {path} -- check permissions.")
     raise
 ```
 
 If a PermissionError is raised, tell the user: "Cannot write to ~/.claude/settings.json; check file permissions. The hook entry was not removed." Stop without executing the remaining steps.
+
+If a JSONDecodeError output is printed, tell the user: "~/.claude/settings.json contains invalid JSON and cannot be safely modified. Inspect the file manually and try again." Stop without executing the remaining steps.
+
+If an OSError output is printed during the write phase, tell the user: "Failed to write to ~/.claude/settings.json. The hook entry was not removed." Stop without executing the remaining steps.
 
 ## Step 5: Remove or restore hook scripts
 
