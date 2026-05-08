@@ -46,8 +46,12 @@ fingerprints = ["<!-- luca-ops-kit:rule-skills-first -->",
 to_remove = [fp for fp in fingerprints if fp in rules_added_as_fingerprint_list]
 
 path = os.path.expanduser("~/.claude/CLAUDE.md")
-with open(path) as f:
-    lines = f.readlines()
+try:
+    with open(path) as f:
+        lines = f.readlines()
+except FileNotFoundError:
+    print("~/.claude/CLAUDE.md not found -- skipping rule removal")
+    raise SystemExit(0)
 found = []
 filtered = []
 for line in lines:
@@ -59,11 +63,11 @@ for line in lines:
 
 # Remove empty section header: if the header line exists and no bullet
 # lines follow it before the next heading or end of file, drop it.
-HEADER = "## Suggested defaults (luca-ops-kit)\n"
+HEADER = "## Suggested defaults (luca-ops-kit)"
 result = []
 i = 0
 while i < len(filtered):
-    if filtered[i] == HEADER:
+    if filtered[i].rstrip() == HEADER:
         # Look ahead: skip blank lines; if next non-blank is a bullet or content, keep header
         j = i + 1
         while j < len(filtered) and filtered[j].strip() == "":
@@ -118,12 +122,23 @@ try:
             print("~/.claude/settings.json contains invalid JSON -- cannot modify it safely. Inspect the file and try again.")
             raise SystemExit(1)
         if s is not None:
-            upsub = s.get("hooks", {}).get("UserPromptSubmit", [])
+            hooks = s.get("hooks", {})
+            if not isinstance(hooks, dict):
+                hooks = {}
+            upsub = hooks.get("UserPromptSubmit", [])
+            if not isinstance(upsub, list):
+                upsub = []
             new_upsub = []
             changed = False
             for entry in upsub:
-                remaining = [h for h in entry.get("hooks", []) if script_name not in h.get("command", "")]
-                if len(remaining) != len(entry.get("hooks", [])):
+                if not isinstance(entry, dict):
+                    new_upsub.append(entry)
+                    continue
+                hooks_list = entry.get("hooks", [])
+                if not isinstance(hooks_list, list):
+                    hooks_list = []
+                remaining = [h for h in hooks_list if isinstance(h, dict) and script_name not in h.get("command", "")]
+                if len(remaining) != len(hooks_list):
                     changed = True
                     if remaining:
                         new_upsub.append({**entry, "hooks": remaining})
@@ -216,5 +231,6 @@ Average ≥ 9.5 → stop. Otherwise revise and re-score (max 3 iterations; stop 
 | Hooks take effect next session | Platform constraint; user is told explicitly so they know the session they're in still has the hooks active |
 | Inline Python/Bash blocks are execution instructions, not user content | Extracting these to external script files would create a file dependency that breaks the skill's self-containment; Claude executes the blocks directly via Bash; the user never sees them |
 | Step 2 preview uses manifest text, not live CLAUDE.md state | Verifying live state would add a Read call and create a preview/execute inconsistency if the file changed between preview and execution; Step 3's "absent" reporting handles any drift gracefully |
+| Step 2 hook command entry constructed from known pattern, not read from settings.json | The command is always `bash ~/.claude/hooks/<name>.sh`; reading settings.json live would add a tool call and could show a user-modified entry that undo-setup would remove by filename match regardless |
 | Fingerprint-not-found triggers a passive note, not a confirmation gate | If a fingerprint is absent from CLAUDE.md, the rule is already gone; the desired end state is already reached; requiring confirmation would add friction with no safety benefit |
 | Completeness and Cleanliness are distinct, not overlapping | Completeness = every manifest item was attempted; Cleanliness = no residue remains in the end state; a run can be complete but leave residue (partial write), or clean but incomplete (missing manifest entry) |

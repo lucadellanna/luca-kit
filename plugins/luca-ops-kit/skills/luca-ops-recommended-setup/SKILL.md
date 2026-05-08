@@ -102,7 +102,7 @@ If "Skip all hooks" is chosen, proceed to Step 6.
 **Pre-check for idempotent re-runs**: before spawning the reviewer, check whether each selected hook file already exists and is tagged as ours:
 
 ```bash
-test -f ~/.claude/hooks/<name>.sh && head -2 ~/.claude/hooks/<name>.sh || echo missing
+if test -f ~/.claude/hooks/<name>.sh; then head -2 ~/.claude/hooks/<name>.sh; else echo missing; fi
 ```
 
 - If ALL selected hooks have existing files whose second line contains `# luca-ops-kit:`: this is a full idempotent re-run. Skip the code-reviewer (scripts were reviewed at prior install) and proceed directly to the preview and confirmation.
@@ -136,7 +136,7 @@ Only proceed on explicit confirmation.
 **Check for an existing script file first.** Use Bash to test whether `~/.claude/hooks/<name>.sh` already exists:
 
 ```bash
-test -f ~/.claude/hooks/<name>.sh && head -2 ~/.claude/hooks/<name>.sh || echo missing
+if test -f ~/.claude/hooks/<name>.sh; then head -2 ~/.claude/hooks/<name>.sh; else echo missing; fi
 ```
 
 - If the file is missing: proceed to write.
@@ -196,7 +196,9 @@ try:
         except json.JSONDecodeError:
             print("~/.claude/settings.json contains invalid JSON -- cannot modify it safely. Inspect the file and try again.")
             raise SystemExit(1)
-        upsub = s.setdefault("hooks", {}).setdefault("UserPromptSubmit", [])
+        if not isinstance(s.get("hooks"), dict):
+            s["hooks"] = {}
+        upsub = s["hooks"].setdefault("UserPromptSubmit", [])
         already = any(
             script_name in h.get("command", "")
             for entry in upsub for h in entry.get("hooks", [])
@@ -245,8 +247,9 @@ prior_backed_up = {}
 try:
     with open(manifest_path) as f:
         prior = json.load(f)
-    prior_backed_up = prior.get("hooks_backed_up", {})
-except FileNotFoundError:
+    if isinstance(prior, dict):
+        prior_backed_up = prior.get("hooks_backed_up", {})
+except (FileNotFoundError, json.JSONDecodeError, AttributeError):
     pass
 # Then when building the new manifest, start hooks_backed_up from prior_backed_up
 # and add any new backup paths recorded during this run on top of it.
