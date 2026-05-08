@@ -140,16 +140,16 @@ branch = run(['git', 'branch', '--show-current']) or run(['git', 'rev-parse', '-
 path = os.path.expanduser(f"~/.claude/reflect-logs/{slug}.jsonl")
 os.makedirs(os.path.dirname(path), exist_ok=True)
 today = str(datetime.date.today())
-allow_dup = os.environ.get('ALLOW_DUPLICATE')
+allow_dup = os.environ.get('ALLOW_DUPLICATE', '').lower() in ('1', 'true', 'yes')
 count = 0
 try:
     with open(path) as f:
         for line in f:
-            count += 1
             try:
                 if not allow_dup and json.loads(line).get('date') == today:
                     print('DUPLICATE_DATE')
                     sys.exit(0)
+                count += 1
             except json.JSONDecodeError:
                 pass
 except FileNotFoundError:
