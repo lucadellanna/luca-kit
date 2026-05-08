@@ -280,7 +280,7 @@ except (FileNotFoundError, json.JSONDecodeError, AttributeError):
 }
 ```
 
-`hooks_backed_up` is omitted if no backups were made. `/undo-setup` uses it to restore pre-existing scripts rather than deleting them.
+`hooks_backed_up` is omitted when neither this run nor any prior run backed up a script. On re-runs, previously recorded backup paths are carried forward from the prior manifest, so the key may be present even if the current run made no new backups. `/undo-setup` uses it to restore pre-existing scripts rather than deleting them.
 
 If the manifest write fails, tell the user "Could not write the setup record; setup is incomplete. Run `/luca-ops-recommended-setup` again to retry." Do not write the marker.
 

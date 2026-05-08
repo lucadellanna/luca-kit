@@ -32,7 +32,7 @@ Only proceed on explicit "yes" (case-insensitive). Any other response: stop with
 
 ## Step 3: Remove CLAUDE.md rules
 
-Execute the following Python block via Bash (substitute `rules_added` list from Step 1). The block reads CLAUDE.md directly and handles the not-found case internally -- no separate Bash existence check is needed:
+Execute the following Python block via Bash. Substitute `rules_added_ids` with the `rules_added` list from Step 1 (a list of short IDs such as `["rule-skills-first", "rule-confirm-irreversible", "rule-clarifying-question"]`). The block reads CLAUDE.md directly and handles the not-found case internally -- no separate Bash existence check is needed:
 
 ```python
 import os
@@ -40,8 +40,9 @@ import os
 fingerprints = ["<!-- luca-ops-kit:rule-skills-first -->",
                 "<!-- luca-ops-kit:rule-confirm-irreversible -->",
                 "<!-- luca-ops-kit:rule-clarifying-question -->"]
-# Filter to only those in rules_added from Step 1
-to_remove = [fp for fp in fingerprints if fp in rules_added_as_fingerprint_list]
+# rules_added_ids is the list of rule IDs from the manifest (e.g. ["rule-skills-first", ...])
+# Each ID is a substring of its matching fingerprint comment, so use substring check
+to_remove = [fp for fp in fingerprints if any(rid in fp for rid in rules_added_ids)]
 
 path = os.path.expanduser("~/.claude/CLAUDE.md")
 try:
