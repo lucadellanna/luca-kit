@@ -186,7 +186,7 @@ script_name = "<name>.sh"
 path = os.path.expanduser("~/.claude/settings.json")
 lock_path = path + ".lock"
 try:
-    with open(lock_path, "w") as lock_f:
+    with open(lock_path, "a") as lock_f:
         fcntl.flock(lock_f, fcntl.LOCK_EX)
         try:
             with open(path) as f:
@@ -224,7 +224,22 @@ Write `~/.claude/luca-ops-kit/applied.json` (create directory with `mkdir -p` if
 
 Build the manifest from **all items currently active** (pre-existing from Step 2 plus anything added in Steps 4–5), not just what was added this run. This makes re-runs self-healing: if a previous run crashed before writing the manifest, the re-run writes a complete manifest covering everything it detects as present.
 
-Before writing: if `~/.claude/luca-ops-kit/applied.json` already exists, read it and extract its `hooks_backed_up` map. Merge those entries into the new manifest for any hook IDs in `hooks_added`. Without this merge, a re-run overwrites the manifest and loses backup paths from the prior run; undo-setup would then delete the user's original script instead of restoring it.
+Before writing: if `~/.claude/luca-ops-kit/applied.json` already exists, read it and extract its entire `hooks_backed_up` map. Copy **all** entries from the old manifest's `hooks_backed_up` into the new manifest, regardless of whether those hook IDs appear in the current `hooks_added` list. Without this merge, a re-run overwrites the manifest and loses backup paths from the prior run; undo-setup would then delete the user's original script instead of restoring it. Use this Python snippet to merge:
+
+```python
+import json, os
+
+manifest_path = os.path.expanduser("~/.claude/luca-ops-kit/applied.json")
+prior_backed_up = {}
+try:
+    with open(manifest_path) as f:
+        prior = json.load(f)
+    prior_backed_up = prior.get("hooks_backed_up", {})
+except FileNotFoundError:
+    pass
+# Then when building the new manifest, start hooks_backed_up from prior_backed_up
+# and add any new backup paths recorded during this run on top of it.
+```
 
 ```json
 {
@@ -290,6 +305,7 @@ Average ≥ 9.5 → stop. Average < 9.5 → revise and re-score (max 3 iteration
 | Marker at `~/.claude/luca-ops-kit/setup-complete` (not a root dotfile) | Plugin-namespaced path avoids polluting `~/.claude/` root; survives backup/restore cycles without false triggers |
 | Fingerprint comments in CLAUDE.md rules | Enables precise removal by `undo-setup` without content-matching; invisible during normal reading; survives user edits to surrounding text |
 | Dedicated lock file (`settings.json.lock`) for flock synchronization | `fcntl.flock` locks an inode; after `os.replace()` the original inode is unlinked and new openers get the new inode with no lock. A separate `.lock` file that is never replaced ensures all processes always synchronize on the same inode. The `.lock` file is a benign leftover and does not need cleanup. |
+| `settings.json.lock` not added to `.gitignore` | The file lives in `~/.claude/`, which is a user home directory and not a git repository; the CLAUDE.md "gitignore generated state files" rule applies to project state files in git-tracked directories, not to home-directory runtime files |
 | Hook scripts version-tagged in a comment | Allows drift detection on re-run; confirms provenance if user later audits `~/.claude/hooks/` |
 | "Skip all hooks" as a first-class option | Non-technical users cannot meaningfully audit shell scripts; making skip prominent respects their agency |
 | code-reviewer runs before writing | Reviewer sees the planned script content before any files are touched; fixes are applied in-context and the corrected version is what gets written; avoids inconsistent state from post-write fixes |

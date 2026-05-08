@@ -32,17 +32,61 @@ Only proceed on explicit "yes" (case-insensitive). Any other response: stop with
 
 ## Step 3: Remove CLAUDE.md rules
 
-Read `~/.claude/CLAUDE.md` once. If the file does not exist, note it and skip this step.
+Read `~/.claude/CLAUDE.md` once via Bash. If the file does not exist, note it and skip this step.
 
-In a single pass over the file lines:
-- For each line, check whether it contains any of the fingerprint comments from `rules_added` (e.g., `<!-- luca-ops-kit:rule-skills-first -->`). Remove lines that match.
-- Track which fingerprints were found and which were absent.
+Execute the following Python block via Bash (substitute `rules_added` list from Step 1):
 
-After filtering all lines: check if the `## Suggested defaults (luca-ops-kit)` section header has no bullet lines remaining under it. If the header is now empty, remove it too.
+```python
+import os
 
-Write the result back atomically in one operation: write to `~/.claude/CLAUDE.md.tmp`, fsync, then `os.replace()`.
+fingerprints = ["<!-- luca-ops-kit:rule-skills-first -->",
+                "<!-- luca-ops-kit:rule-confirm-irreversible -->",
+                "<!-- luca-ops-kit:rule-clarifying-question -->"]
+# Filter to only those in rules_added from Step 1
+to_remove = [fp for fp in fingerprints if fp in rules_added_as_fingerprint_list]
 
-Report any fingerprints that were not found: "Rule already absent: <id>".
+path = os.path.expanduser("~/.claude/CLAUDE.md")
+lines = open(path).readlines()
+found = []
+filtered = []
+for line in lines:
+    matched = next((fp for fp in to_remove if fp in line), None)
+    if matched:
+        found.append(matched)
+    else:
+        filtered.append(line)
+
+# Remove empty section header: if the header line exists and no bullet
+# lines follow it before the next heading or end of file, drop it.
+HEADER = "## Suggested defaults (luca-ops-kit)\n"
+result = []
+i = 0
+while i < len(filtered):
+    if filtered[i] == HEADER:
+        # Look ahead: skip blank lines; if next non-blank is a bullet or content, keep header
+        j = i + 1
+        while j < len(filtered) and filtered[j].strip() == "":
+            j += 1
+        if j >= len(filtered) or filtered[j].startswith("## "):
+            i = j  # skip header and trailing blanks
+            continue
+    result.append(filtered[i])
+    i += 1
+
+tmp = path + ".tmp"
+with open(tmp, "w") as tf:
+    tf.writelines(result)
+    tf.flush()
+    os.fsync(tf.fileno())
+os.replace(tmp, path)
+
+# Report absent fingerprints
+for fp in to_remove:
+    if fp not in found:
+        print(f"Rule already absent: {fp}")
+```
+
+Report any fingerprints not found: "Rule already absent: <id>".
 
 ## Step 4: Remove hooks from settings.json
 
@@ -62,7 +106,7 @@ script_name = "<name>.sh"
 path = os.path.expanduser("~/.claude/settings.json")
 lock_path = path + ".lock"
 try:
-    with open(lock_path, "w") as lock_f:
+    with open(lock_path, "a") as lock_f:
         fcntl.flock(lock_f, fcntl.LOCK_EX)
         try:
             with open(path) as f:
@@ -95,7 +139,7 @@ except PermissionError:
     raise
 ```
 
-If PermissionError, tell the user and stop without writing the remaining steps.
+If a PermissionError is raised, tell the user: "Cannot write to ~/.claude/settings.json; check file permissions. The hook entry was not removed." Stop without executing the remaining steps.
 
 ## Step 5: Remove or restore hook scripts
 
@@ -103,9 +147,9 @@ For each hook ID in `hooks_added`:
 
 Check the manifest for a `hooks_backed_up` entry mapping the hook ID to a backup path (e.g., `~/.claude/hooks/<name>.sh.bak-luca-ops-kit`). This entry is written when `/luca-ops-recommended-setup` backed up a pre-existing file before overwriting.
 
-- **If a backup path is recorded**: restore it. Use Bash to run:
+- **If a backup path is recorded**: restore it. Use the absolute path stored in the manifest directly as the source (do not reconstruct it). Use Bash to run:
   ```bash
-  mv ~/.claude/hooks/<name>.sh.bak-luca-ops-kit ~/.claude/hooks/<name>.sh
+  mv "<absolute-backup-path-from-manifest>" ~/.claude/hooks/<name>.sh
   ```
   Note "Restored original: ~/.claude/hooks/<name>.sh"
 
