@@ -104,8 +104,6 @@ Ask the user what to implement via AskUserQuestion (multiSelect: true) with the 
 
 Runs after Step 5. Run only if `~/.claude/reflect-logs/.enabled` exists.
 
-**Double-log guard**: check `~/.claude/reflect-logs/<slug>.jsonl` for an entry where `date` equals today. If found, ask: "You've already logged a reflection today. Add a second entry, or skip?" Default: skip.
-
 **Derive repo slug** using Python (all subprocess calls ignore errors):
 ```
 1. git remote get-url origin  →  normalize colons to slashes, strip .git,
@@ -115,10 +113,10 @@ Runs after Step 5. Run only if `~/.claude/reflect-logs/.enabled` exists.
 Sanitize: replace chars outside [a-zA-Z0-9_-] with "-"
 ```
 
-**Build and append entry** using `python3` for atomic write (prevents partial lines):
+**Build and append entry** using `python3` for atomic write (prevents partial lines). Includes the double-log guard: prints `DUPLICATE_DATE` and exits without writing if today's date is already in the log.
 
 ```python
-import json, os, datetime, subprocess
+import json, os, sys, datetime, subprocess
 
 def run(cmd): return subprocess.run(cmd, capture_output=True, text=True).stdout.strip()
 
@@ -132,9 +130,27 @@ slug = ''.join(c if c.isalnum() or c in '-_' else '-' for c in slug)
 
 branch = run(['git', 'branch', '--show-current']) or run(['git', 'rev-parse', '--short', 'HEAD']) or 'unknown'
 
+path = os.path.expanduser(f"~/.claude/reflect-logs/{slug}.jsonl")
+os.makedirs(os.path.dirname(path), exist_ok=True)
+today = str(datetime.date.today())
+count = 0
+try:
+    with open(path) as f:
+        for line in f:
+            count += 1
+            try:
+                if json.loads(line).get('date') == today:
+                    print('DUPLICATE_DATE')
+                    sys.exit(0)
+            except json.JSONDecodeError:
+                pass
+except FileNotFoundError:
+    pass
+count += 1
+
 entry = {
     "schema": 1,
-    "date": str(datetime.date.today()),
+    "date": today,
     "branch": branch,
     "workspace": "/".join(os.path.normpath(os.getcwd()).split(os.sep)[-2:]),
     "findings": [
@@ -156,18 +172,13 @@ entry = {
     "avg_score": 0.0  # replace with avg_score from Step 3
 }
 
-path = os.path.expanduser(f"~/.claude/reflect-logs/{slug}.jsonl")
-os.makedirs(os.path.dirname(path), exist_ok=True)
-try:
-    with open(path) as f:
-        count = sum(1 for _ in f) + 1
-except FileNotFoundError:
-    count = 1
 with open(path, 'a') as f:
     f.write(json.dumps(entry) + '\n')
 if count >= 10 and count % 10 == 0:
     print(f"NUDGE:{count}")
 ```
+
+If the script prints `DUPLICATE_DATE`: ask "You've already logged a reflection today. Add a second entry, or skip?" (default: skip). If the user chooses to add a second entry, re-run the script with the date-check block removed.
 
 If the script prints `NUDGE:<count>`, append to end of output:
 > "You've completed `<count>` /reflect sessions; a good moment to run /dream, which spots patterns across sessions and consolidates memory. (Don't have /dream yet? It's part of the luca-ops-kit plugin.)"

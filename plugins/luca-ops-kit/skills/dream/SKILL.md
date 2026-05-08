@@ -34,16 +34,22 @@ Filter to entries within the date range using Python or `jq`.
 
 For `all` projects: pre-aggregate via Bash before loading into context (raw multi-repo logs overflow context):
 ```bash
-# Top recurring finding texts
-jq -r '.findings[] | .text' ~/.claude/reflect-logs/*.jsonl 2>/dev/null \
+# Top recurring finding texts with source repo
+jq -rn 'inputs as $e | $e.findings[] |
+  [(input_filename | split("/")[-1] | rtrimstr(".jsonl")), .text] | @tsv' \
+  ~/.claude/reflect-logs/*.jsonl 2>/dev/null \
   | sort | uniq -c | sort -rn | head -50
 
-# Skill improvement targets by frequency
-jq -r '.findings[] | select(.type=="skill_improvement") | .skill' ~/.claude/reflect-logs/*.jsonl 2>/dev/null \
+# Skill improvement targets with source repo
+jq -rn 'inputs as $e | $e.findings[] | select(.type=="skill_improvement") |
+  [(input_filename | split("/")[-1] | rtrimstr(".jsonl")), .skill] | @tsv' \
+  ~/.claude/reflect-logs/*.jsonl 2>/dev/null \
   | sort | uniq -c | sort -rn
 
-# Memory targets written more than once (contradiction candidates)
-jq -r '.findings[] | select(.type=="memory") | .memory_target' ~/.claude/reflect-logs/*.jsonl 2>/dev/null \
+# Memory targets with source repo (contradiction candidates)
+jq -rn 'inputs as $e | $e.findings[] | select(.type=="memory") |
+  [(input_filename | split("/")[-1] | rtrimstr(".jsonl")), .memory_target] | @tsv' \
+  ~/.claude/reflect-logs/*.jsonl 2>/dev/null \
   | sort | uniq -c | sort -rn | awk '$1 > 1'
 ```
 Load full entries only for repos where pre-aggregation shows signal (≥3 matching findings, matching the Step 2 detection threshold). Skip entries with unknown `schema` values; report a count of skipped entries if any.
