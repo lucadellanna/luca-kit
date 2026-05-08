@@ -58,6 +58,11 @@ Load full entries only for repos where pre-aggregation shows signal (≥3 matchi
 - Project memory: `<repo-root>/.claude/memory/*.md`
 - Global memory: `~/.claude/MEMORY.md`
 
+**Load code-review checklist** (if it exists):
+```bash
+cat ~/.claude/code-review-checklist.md 2>/dev/null
+```
+
 If no log file found for the current project: "No session notes found for this project. Run /reflect at least once with session notes enabled; it will ask on the next run."
 
 ## Step 2: Mine cross-session signal
@@ -72,6 +77,8 @@ Analyze entries within the date window and identify:
 | Skill drift | Same `skill` value in ≥3 entries with inconsistent `change` summaries | Medium |
 | Stale insight | Finding not seen in last 10 entries but referenced in current memory file | Medium |
 | Cross-project pattern (`all` mode only) | Same `text` or `category` appearing in ≥2 repos | High (CLAUDE.md candidate) |
+| Stale checklist item | Item in `~/.claude/code-review-checklist.md` has no semantically matching finding across all sessions in the date window | Medium |
+| Duplicate checklist items | Two checklist items describe overlapping patterns (judge semantically, not by exact text) | Medium |
 
 ## Step 3: Score
 
@@ -99,9 +106,10 @@ AskUserQuestion (multiSelect: true) with the specific items as options:
 - **Memory updates**: update or remove the stale/contradicted entry
 - **Skill improvements**: apply a consolidated fix resolving drift or recurring gap
 - **CLAUDE.md additions** (`all` mode only): elevate cross-project pattern
+- **Checklist maintenance**: remove stale items, merge duplicates, reword overly-specific entries (show proposed diff before writing)
 - **No action needed**: note only
 
-Apply chosen actions. One focused edit per finding. For memory updates, show the exact proposed change before writing.
+Apply chosen actions. One focused edit per finding. For memory updates and checklist edits, show the exact proposed change before writing.
 
 ## Step 5: Self-reflection
 
@@ -126,3 +134,4 @@ If any criterion scores below 8, draft a concise edit to this SKILL.md, show it 
 | `memory_target` for contradiction detection | Structured field lookup is reliable; free-text NLP comparison is not. |
 | Reads `<repo>/.claude/memory/` not `~/.claude/projects/*/memory/` | The latter is Conductor's auto-memory and is wiped on workspace rotation. |
 | Scoring criteria duplicated from /reflect Step 3 | Intentional: skills must be self-contained; cross-skill references to prose sections break if the source skill is renamed or restructured. |
+| Checklist pruning in /dream, not /review-loop | /review-loop only has single-session visibility; /dream has the cross-session data needed to judge whether an item is genuinely stale vs. just not triggered recently. |
