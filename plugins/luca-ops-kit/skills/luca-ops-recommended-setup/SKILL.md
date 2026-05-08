@@ -178,16 +178,21 @@ fi
 exit 0
 ```
 
-**settings.json atomic update**: use this Python pattern for each hook:
+**settings.json atomic update**: use this Python pattern for each hook. A dedicated lock file (`settings.json.lock`) is used for synchronization so the lock persists across `os.replace()` calls on the settings file itself.
 ```python
 import json, os, fcntl
 
 script_name = "<name>.sh"
 path = os.path.expanduser("~/.claude/settings.json")
+lock_path = path + ".lock"
 try:
-    with open(path, "r+") as f:
-        fcntl.flock(f, fcntl.LOCK_EX)
-        s = json.load(f)
+    with open(lock_path, "w") as lock_f:
+        fcntl.flock(lock_f, fcntl.LOCK_EX)
+        try:
+            with open(path) as f:
+                s = json.load(f)
+        except FileNotFoundError:
+            s = {"hooks": {"UserPromptSubmit": []}}
         upsub = s.setdefault("hooks", {}).setdefault("UserPromptSubmit", [])
         already = any(
             script_name in h.get("command", "")
@@ -209,8 +214,6 @@ except PermissionError:
     raise
 ```
 
-If `~/.claude/settings.json` does not exist, create it with `{"hooks": {"UserPromptSubmit": []}}` first, then apply the update.
-
 If a PermissionError is raised, tell the user: "Cannot write to ~/.claude/settings.json; check file permissions. The hook was not added." Do not write the marker file if any hook write fails.
 
 Only add a hook ID to the manifest list if BOTH the script write and the settings.json update completed without error. Partial installs (one succeeded, one failed) are not recorded; undo-setup should not attempt to reverse a partially applied hook.
@@ -220,6 +223,8 @@ Only add a hook ID to the manifest list if BOTH the script write and the setting
 Write `~/.claude/luca-ops-kit/applied.json` (create directory with `mkdir -p` if needed).
 
 Build the manifest from **all items currently active** (pre-existing from Step 2 plus anything added in Steps 4–5), not just what was added this run. This makes re-runs self-healing: if a previous run crashed before writing the manifest, the re-run writes a complete manifest covering everything it detects as present.
+
+Before writing: if `~/.claude/luca-ops-kit/applied.json` already exists, read it and extract its `hooks_backed_up` map. Merge those entries into the new manifest for any hook IDs in `hooks_added`. Without this merge, a re-run overwrites the manifest and loses backup paths from the prior run; undo-setup would then delete the user's original script instead of restoring it.
 
 ```json
 {
@@ -284,7 +289,7 @@ Average ≥ 9.5 → stop. Average < 9.5 → revise and re-score (max 3 iteration
 |----------|-----------|
 | Marker at `~/.claude/luca-ops-kit/setup-complete` (not a root dotfile) | Plugin-namespaced path avoids polluting `~/.claude/` root; survives backup/restore cycles without false triggers |
 | Fingerprint comments in CLAUDE.md rules | Enables precise removal by `undo-setup` without content-matching; invisible during normal reading; survives user edits to surrounding text |
-| Atomic write + flock for settings.json | Prevents config corruption on crash; guards against two concurrent Claude sessions running setup simultaneously |
+| Dedicated lock file (`settings.json.lock`) for flock synchronization | `fcntl.flock` locks an inode; after `os.replace()` the original inode is unlinked and new openers get the new inode with no lock. A separate `.lock` file that is never replaced ensures all processes always synchronize on the same inode. The `.lock` file is a benign leftover and does not need cleanup. |
 | Hook scripts version-tagged in a comment | Allows drift detection on re-run; confirms provenance if user later audits `~/.claude/hooks/` |
 | "Skip all hooks" as a first-class option | Non-technical users cannot meaningfully audit shell scripts; making skip prominent respects their agency |
 | code-reviewer runs before writing | Reviewer sees the planned script content before any files are touched; fixes are applied in-context and the corrected version is what gets written; avoids inconsistent state from post-write fixes |
@@ -295,6 +300,7 @@ Average ≥ 9.5 → stop. Average < 9.5 → revise and re-score (max 3 iteration
 | Raw text search for hooks in settings.json (Step 2) | The filename is a JSON string literal and will appear verbatim regardless of indentation or whitespace; only pathological reformatting that splits the filename string (impossible in valid JSON) could cause a false negative; Python parse adds no reliability for this specific case |
 | Marker write gated on manifest write success | If the manifest write fails but the marker is written, future re-runs detect "setup complete" but undo-setup finds no manifest and cannot reverse the actual changes; writing marker only after a confirmed manifest write keeps the two files in sync |
 | Manifest records all currently-active items, not just this-run additions | If a previous run crashed before writing the manifest, re-run detects orphaned items via Step 2 fingerprint/filename scan and includes them in the new manifest; this makes re-runs self-healing without requiring rollback logic |
+| Manifest re-run merges existing `hooks_backed_up` before overwriting | A re-run skips the backup step for already-tagged hooks; without merging the prior manifest's backup paths into the new one, undo-setup loses the restore path and deletes the user's original script instead of restoring it |
 | Fingerprint-present-without-rule is treated as present | A fingerprint comment in CLAUDE.md without its rule body would cause the rule to be skipped on re-run; fingerprint text is highly specific markdown comment syntax that no user would type manually, making this case effectively impossible |
 | Backup verified by byte count before overwriting | A failed mid-write backup followed by an overwrite would destroy the original; size verification is a cheap guard that catches this before any data is lost |
 | Hook only recorded in manifest if both writes succeed | Partial installs (script written, settings.json failed or vice versa) produce inconsistent state; recording only complete installs ensures undo-setup reverses exactly what is active |

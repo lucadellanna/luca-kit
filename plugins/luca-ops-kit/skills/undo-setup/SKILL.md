@@ -60,32 +60,36 @@ import json, os, fcntl
 
 script_name = "<name>.sh"
 path = os.path.expanduser("~/.claude/settings.json")
+lock_path = path + ".lock"
 try:
-    with open(path, "r+") as f:
-        fcntl.flock(f, fcntl.LOCK_EX)
-        s = json.load(f)
-        upsub = s.get("hooks", {}).get("UserPromptSubmit", [])
-        new_upsub = []
-        changed = False
-        for entry in upsub:
-            remaining = [h for h in entry.get("hooks", []) if script_name not in h.get("command", "")]
-            if len(remaining) != len(entry.get("hooks", [])):
-                changed = True
-                if remaining:
-                    new_upsub.append({**entry, "hooks": remaining})
-                # else: entry has no hooks left; drop it entirely
-            else:
-                new_upsub.append(entry)
-        if changed:
-            s["hooks"]["UserPromptSubmit"] = new_upsub
-            tmp = path + ".tmp"
-            with open(tmp, "w") as tf:
-                json.dump(s, tf, indent=2)
-                tf.flush()
-                os.fsync(tf.fileno())
-            os.replace(tmp, path)
-except FileNotFoundError:
-    pass  # settings.json already gone; nothing to remove
+    with open(lock_path, "w") as lock_f:
+        fcntl.flock(lock_f, fcntl.LOCK_EX)
+        try:
+            with open(path) as f:
+                s = json.load(f)
+        except FileNotFoundError:
+            s = None  # settings.json already gone; nothing to remove
+        if s is not None:
+            upsub = s.get("hooks", {}).get("UserPromptSubmit", [])
+            new_upsub = []
+            changed = False
+            for entry in upsub:
+                remaining = [h for h in entry.get("hooks", []) if script_name not in h.get("command", "")]
+                if len(remaining) != len(entry.get("hooks", [])):
+                    changed = True
+                    if remaining:
+                        new_upsub.append({**entry, "hooks": remaining})
+                    # else: entry has no hooks left; drop it entirely
+                else:
+                    new_upsub.append(entry)
+            if changed:
+                s["hooks"]["UserPromptSubmit"] = new_upsub
+                tmp = path + ".tmp"
+                with open(tmp, "w") as tf:
+                    json.dump(s, tf, indent=2)
+                    tf.flush()
+                    os.fsync(tf.fileno())
+                os.replace(tmp, path)
 except PermissionError:
     print(f"Cannot write to {path} -- check permissions.")
     raise
@@ -149,7 +153,7 @@ Average ≥ 9.5 → stop. Otherwise revise and re-score (max 3 iterations; stop 
 | Decision | Rationale |
 |----------|-----------|
 | Manifest as source of truth (not re-scanning) | Re-scanning for fingerprints is fragile if the user edited CLAUDE.md; the manifest records exactly what was added |
-| Atomic write + flock for settings.json | Same reason as in luca-ops-recommended-setup: prevents corruption on crash or concurrent access |
+| Dedicated lock file (`settings.json.lock`) for flock synchronization | Same reason as in luca-ops-recommended-setup: `fcntl.flock` locks an inode; after `os.replace()` new openers get the new inode with no lock; a persistent `.lock` file ensures synchronization across replacements |
 | Hook removal filters within entries, not whole entries | A UserPromptSubmit entry can contain multiple hook objects; dropping the entire entry when one hook matches would silently remove unrelated hooks the user or another tool added to the same entry |
 | Remove empty section header after rule removal | Leaves CLAUDE.md clean; a dangling `## Suggested defaults (luca-ops-kit)` header with no content would confuse future audits |
 | `rmdir` with `|| true` for luca-ops-kit directory | Only removes the directory if empty (won't accidentally delete user-added files); error suppression is intentional |
