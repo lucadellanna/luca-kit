@@ -106,8 +106,8 @@ Runs after Step 5. Run only if `~/.claude/reflect-logs/.enabled` exists.
 
 **Derive repo slug** using Python (all subprocess calls ignore errors):
 ```
-1. git remote get-url origin  →  normalize colons to slashes, strip .git,
-   take last 2 path components, join with "__"  →  "org__repo"
+1. git remote get-url origin  →  strip trailing slash, strip .git suffix,
+   normalize colons to slashes, take last 2 path components, join with "__"  →  "org__repo"
 2. Fallback: basename of git rev-parse --show-toplevel
 3. Fallback: "no-repo"
 Sanitize: replace chars outside [a-zA-Z0-9_-] with "-"
@@ -118,11 +118,17 @@ Sanitize: replace chars outside [a-zA-Z0-9_-] with "-"
 ```python
 import json, os, sys, datetime, subprocess
 
-def run(cmd): return subprocess.run(cmd, capture_output=True, text=True).stdout.strip()
+def run(cmd):
+    try:
+        return subprocess.run(cmd, capture_output=True, text=True).stdout.strip()
+    except FileNotFoundError:
+        return ""
 
 origin = run(['git', 'remote', 'get-url', 'origin'])
 if origin:
-    slug = '__'.join(origin.rstrip('/').replace('.git','').replace(':','/').split('/')[-2:])
+    clean = origin.rstrip('/')
+    if clean.endswith('.git'): clean = clean[:-4]
+    slug = '__'.join(clean.replace(':', '/').split('/')[-2:])
 else:
     top = run(['git', 'rev-parse', '--show-toplevel'])
     slug = os.path.basename(top) if top else 'no-repo'
