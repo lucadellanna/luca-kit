@@ -52,6 +52,7 @@ Scan these areas:
 - **Knowledge gaps**: things Claude got wrong, had to look up, or where the user supplied domain knowledge Claude lacked
 - **External reviewer patterns**: did any automated reviewer (Gemini, sub-agent) flag the same issue category 2+ times? Each recurring catch is a candidate for a new checklist item or class-level rule
 - **User workflow**: steps the user took repeatedly or awkwardly that a skill, shortcut, or process change could streamline; opportunities the user might not notice themselves
+- **Time efficiency**: steps or sequences where the user spent disproportionate time relative to the value gained; identify specifically what took longer than it should have and what a faster path would look like (different tool, reversed order, delegated to Claude earlier, skipped entirely)
 
 ## Step 2: Classify Findings
 
