@@ -216,14 +216,16 @@ Only add a hook ID to the manifest list if BOTH the script write and the setting
 
 ## Step 6: Write manifest, marker, and summarize
 
-Write `~/.claude/luca-ops-kit/applied.json` (create directory with `mkdir -p` if needed):
+Write `~/.claude/luca-ops-kit/applied.json` (create directory with `mkdir -p` if needed).
+
+Build the manifest from **all items currently active** (pre-existing from Step 2 plus anything added in Steps 4–5), not just what was added this run. This makes re-runs self-healing: if a previous run crashed before writing the manifest, the re-run writes a complete manifest covering everything it detects as present.
 
 ```json
 {
   "plugin_version": "0.1.0",
   "applied_at": "<ISO 8601 timestamp from: python3 -c 'from datetime import datetime, timezone; print(datetime.now(timezone.utc).isoformat())'>",
-  "rules_added": ["<ids of rules added, e.g. rule-skills-first>"],
-  "hooks_added": ["<ids of hooks added, e.g. optimization-hint>"],
+  "rules_added": ["<all rule IDs now active: rule-skills-first if present, rule-confirm-irreversible if present, rule-clarifying-question if present>"],
+  "hooks_added": ["<all hook IDs now active: optimization-hint if present, prompt-word-count if present>"],
   "hooks_backed_up": {
     "<hook-id>": "<absolute backup path, e.g. /Users/.../.claude/hooks/optimization-hint.sh.bak-luca-ops-kit>"
   }
@@ -291,7 +293,7 @@ Average ≥ 9.5 → stop. Average < 9.5 → revise and re-score (max 3 iteration
 | Hook filename search includes `.sh` extension | Searching for `optimization-hint` alone could match a user's unrelated hook that happens to include the word; `.sh` makes the check specific to our exact filename |
 | Raw text search for hooks in settings.json (Step 2) | The filename is a JSON string literal and will appear verbatim regardless of indentation or whitespace; only pathological reformatting that splits the filename string (impossible in valid JSON) could cause a false negative; Python parse adds no reliability for this specific case |
 | Marker write gated on manifest write success | If the manifest write fails but the marker is written, future re-runs detect "setup complete" but undo-setup finds no manifest and cannot reverse the actual changes; writing marker only after a confirmed manifest write keeps the two files in sync |
-| Crash between last hook write and manifest write leaves unrecorded hooks | This is an inherent limitation of sequential multi-step writes without database transactions; re-running setup will detect already-installed hooks via fingerprints and settings.json scan and not re-add them, so the only consequence is the manifest omitting hooks that are already active |
+| Manifest records all currently-active items, not just this-run additions | If a previous run crashed before writing the manifest, re-run detects orphaned items via Step 2 fingerprint/filename scan and includes them in the new manifest; this makes re-runs self-healing without requiring rollback logic |
 | Fingerprint-present-without-rule is treated as present | A fingerprint comment in CLAUDE.md without its rule body would cause the rule to be skipped on re-run; fingerprint text is highly specific markdown comment syntax that no user would type manually, making this case effectively impossible |
 | Backup verified by byte count before overwriting | A failed mid-write backup followed by an overwrite would destroy the original; size verification is a cheap guard that catches this before any data is lost |
 | Hook only recorded in manifest if both writes succeed | Partial installs (script written, settings.json failed or vice versa) produce inconsistent state; recording only complete installs ensures undo-setup reverses exactly what is active |

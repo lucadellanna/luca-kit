@@ -65,11 +65,18 @@ try:
         fcntl.flock(f, fcntl.LOCK_EX)
         s = json.load(f)
         upsub = s.get("hooks", {}).get("UserPromptSubmit", [])
-        new_upsub = [
-            entry for entry in upsub
-            if not any(script_name in h.get("command", "") for h in entry.get("hooks", []))
-        ]
-        if len(new_upsub) != len(upsub):
+        new_upsub = []
+        changed = False
+        for entry in upsub:
+            remaining = [h for h in entry.get("hooks", []) if script_name not in h.get("command", "")]
+            if len(remaining) != len(entry.get("hooks", [])):
+                changed = True
+                if remaining:
+                    new_upsub.append({**entry, "hooks": remaining})
+                # else: entry has no hooks left; drop it entirely
+            else:
+                new_upsub.append(entry)
+        if changed:
             s["hooks"]["UserPromptSubmit"] = new_upsub
             tmp = path + ".tmp"
             with open(tmp, "w") as tf:
@@ -143,6 +150,7 @@ Average ≥ 9.5 → stop. Otherwise revise and re-score (max 3 iterations; stop 
 |----------|-----------|
 | Manifest as source of truth (not re-scanning) | Re-scanning for fingerprints is fragile if the user edited CLAUDE.md; the manifest records exactly what was added |
 | Atomic write + flock for settings.json | Same reason as in luca-ops-recommended-setup: prevents corruption on crash or concurrent access |
+| Hook removal filters within entries, not whole entries | A UserPromptSubmit entry can contain multiple hook objects; dropping the entire entry when one hook matches would silently remove unrelated hooks the user or another tool added to the same entry |
 | Remove empty section header after rule removal | Leaves CLAUDE.md clean; a dangling `## Suggested defaults (luca-ops-kit)` header with no content would confuse future audits |
 | `rmdir` with `|| true` for luca-ops-kit directory | Only removes the directory if empty (won't accidentally delete user-added files); error suppression is intentional |
 | Hooks take effect next session | Platform constraint; user is told explicitly so they know the session they're in still has the hooks active |
