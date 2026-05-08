@@ -80,7 +80,7 @@ For each selected rule, add it to the end of `~/.claude/CLAUDE.md` using the ato
 - If a request has multiple valid interpretations, ask one clarifying question before starting. Do not guess at intent. <!-- luca-ops-kit:rule-clarifying-question -->
 ```
 
-Write atomically: use Python to write to `~/.claude/CLAUDE.md.tmp`, fsync, then `os.replace()` to the final path. Skip any rule whose fingerprint already exists.
+Write atomically: use Python to write to `~/.claude/CLAUDE.md.tmp`, fsync, then `os.replace()` to the final path. If the file does not exist, start with an empty string as the current content (do not raise FileNotFoundError). Skip any rule whose fingerprint already exists.
 
 Track which rules were added in a list for the manifest (Step 6).
 
@@ -99,25 +99,13 @@ Use AskUserQuestion (multiSelect, pre-select missing hooks, include "Skip all ho
 
 If "Skip all hooks" is chosen, proceed to Step 6.
 
-**Before writing anything**, show the user exactly what will be created:
-
-For each selected hook, display:
-- The full file path
-- The complete script contents
-- The exact JSON entry that will be added to `~/.claude/settings.json`
-
-Use AskUserQuestion (open text):
-> "This is exactly what will be added to your system. Type 'yes' to confirm, or describe any changes you'd like."
-
-Only proceed on explicit confirmation.
-
 **Pre-check for idempotent re-runs**: before spawning the reviewer, check whether each selected hook file already exists and is tagged as ours:
 
 ```bash
 test -f ~/.claude/hooks/<name>.sh && head -2 ~/.claude/hooks/<name>.sh || echo missing
 ```
 
-- If ALL selected hooks have existing files whose second line contains `# luca-ops-kit:`: this is a full idempotent re-run. Skip the code-reviewer (scripts were reviewed at prior install) and proceed directly to writing.
+- If ALL selected hooks have existing files whose second line contains `# luca-ops-kit:`: this is a full idempotent re-run. Skip the code-reviewer (scripts were reviewed at prior install) and proceed directly to the preview and confirmation.
 - Otherwise: spawn the reviewer for all selected scripts (new or untagged files require review).
 
 **When required**, spawn a `feature-dev:code-reviewer` sub-agent. Pass it the full contents of each selected script (shown below) and this prompt:
@@ -129,9 +117,21 @@ test -f ~/.claude/hooks/<name>.sh && head -2 ~/.claude/hooks/<name>.sh || echo m
 > (d) Scope: does the script do anything beyond what the user was told?
 > Quote offending lines and propose minimal fixes. If no issues, say so explicitly.
 
-If the reviewer flags issues: show them to the user, apply agreed fixes to the script content in this context, then proceed with the corrected versions. If the reviewer is unavailable, note it and continue.
+If the reviewer flags issues: apply agreed fixes to the script content in this context before showing the preview to the user. If the reviewer is unavailable, note it and continue.
 
-**On confirmation** (and after any reviewer fixes), for each selected hook:
+**Show the user exactly what will be written** (after any reviewer fixes):
+
+For each selected hook, display:
+- The full file path
+- The complete script contents (post-reviewer version)
+- The exact JSON entry that will be added to `~/.claude/settings.json`
+
+Use AskUserQuestion (open text):
+> "This is exactly what will be added to your system. Type 'yes' to confirm, or describe any changes you'd like."
+
+Only proceed on explicit confirmation.
+
+**On confirmation**, for each selected hook:
 
 **Check for an existing script file first.** Use Bash to test whether `~/.claude/hooks/<name>.sh` already exists:
 
@@ -167,6 +167,7 @@ import sys, json
 try:
     data = json.load(sys.stdin)
     prompt = data.get('prompt', '') or data.get('user_prompt', '')
+    if not isinstance(prompt, str): prompt = ''
     print(len(prompt.split()))
 except Exception:
     pass
@@ -302,3 +303,5 @@ Average ≥ 9.5 → stop. Average < 9.5 → revise and re-score (max 3 iteration
 | `prompt-word-count.sh` tries both `prompt` and `user_prompt` keys | The Claude Code hook stdin schema is not publicly documented; the script tries both known key names and silently no-ops if neither matches; a degraded but safe failure; the code-reviewer gate surfaces this concern at install time |
 | Existing hook scripts backed up rather than overwritten silently | Overwiting a user's existing hook script without warning destroys their work; backing up preserves it and undo-setup can restore it; the backup path is recorded in the manifest as the source of truth |
 | Skills overview is hardcoded (not read from README at runtime) | Avoids a file-read tool call at the end of setup; the table is a stable snapshot that changes only when new skills are added to the plugin, at which point this skill should be updated in the same PR |
+| UserPromptSubmit hook fires at the start of the next message, not immediately after a response | Claude Code injects hook output into the system prompt for the next user turn; the optimization-hint hook looks back at the prior response's tool-call count. The user description ("after any response") is an approximation of this mechanism; the technically precise description would be "as a prefix to the next response". |
+| Confirmation gate runs after code-reviewer | Showing the preview before the reviewer runs would let the user approve content that the reviewer may then change; the confirmation must cover the final post-reviewer version to be meaningful |
