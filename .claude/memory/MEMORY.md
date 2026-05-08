@@ -2,6 +2,8 @@
 
 ## Workflow patterns
 
+**Bulk text substitution**: for find-and-replace with known search strings (e.g., em dash fixes), use a single Python script that opens/replaces/writes files directly from disk; no `Read` calls. `Read` loads content into context; Python `str.replace()` doesn't. Pattern: (1) one scan to identify occurrences, (2) one script fixing all files, (3) one verification scan.
+
 **Git commit with env-var prefix**: use `python3 -c "open('/tmp/msg.txt','w').write(msg)"` + `git commit -F /tmp/msg.txt` instead of heredocs when `SPECS_REVIEWED=1` or similar env-var prefixes are needed; shell metacharacter expansion breaks `$(cat <<'EOF'...)` syntax.
 
 **Subagents: pass paths not content**: pass file paths to subagents; let them read with their own tools. Exception: filtering or transformation needed before the subagent sees the content.
