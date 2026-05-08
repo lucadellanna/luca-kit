@@ -1,7 +1,7 @@
 ---
 name: Create Operational Skill
 description: Create a reusable Claude skill from a business procedure, SOP, wiki page, checklist, or verbal description of a recurring task. For non-technical teams turning operating knowledge into repeatable AI workflows.
-version: 0.1.0
+version: 0.2.0
 ---
 
 # Create Operational Skill
@@ -58,6 +58,8 @@ version: 0.1.0
 
 ## Self-reflection
 
+During execution, follow the self-observation protocol (see CLAUDE.md Principles).
+
 [2–5 MECE success criteria go here.]
 
 Spawn a Haiku sub-agent to score each criterion 0–10. If average < 9.5, revise the output and re-score. Stop after 3 iterations or if the score stops improving. If any criterion remains below 8 after iteration, draft a concise edit to this SKILL.md to prevent the same failure, show it to the user, and use Edit to apply it on approval.
@@ -77,7 +79,7 @@ Rules for the draft:
 - No boilerplate, filler, or examples the user didn't ask for.
 - Name the skill directory as kebab-case verb-noun (e.g., `review-invoice`, `onboard-client`).
 - Never write CLI commands, install steps, or configuration syntax you're not certain is correct; flag uncertainty and ask whether to verify or omit.
-- Include a `## Self-reflection` section with 2–5 MECE success criteria and the standard loop (see CLAUDE.md).
+- Include a `## Self-reflection` section with the self-observation protocol one-liner, 2–5 MECE success criteria, and the standard loop (see CLAUDE.md).
 - Include a `## Design decisions` table; document intentional trade-offs so future audits don't penalise accepted choices. Leave the placeholder row if no decisions exist yet.
 
 ## Step 4: Score and iterate this SKILL.md draft
@@ -131,7 +133,20 @@ On approval: use Bash to create the directory `skills/<skill-name>/`, then use W
 
 Open an `audit-skill` session and provide the absolute path to the saved skill file in the opening message. Resolve it first: run `realpath skills/<skill-name>/SKILL.md` via Bash and use that output. If `audit-skill` is unavailable, note "audit-skill not found; skipping quality audit." and continue to Self-reflection.
 
+## Step 8: Update project documentation
+
+Use Read to check whether `README.md` and `CLAUDE.md` exist at the project root. For each file that exists, scan its content for a skills section: a `## Skills` heading, a Markdown table with a "Skill" column header, or a bullet list of skill names. If neither file contains a skills section, skip this step silently.
+
+For each file that has a skills section, propose adding the new skill using its frontmatter `name` and `description` fields. Show the exact text that would be inserted (matching the surrounding format (table row or bullet line)).
+
+Use AskUserQuestion (multiSelect: true, pre-select all candidates):
+> "I found a skills list in [file(s)]. Add the new skill there?"
+
+For each confirmed file, use Edit to insert the entry into the existing table or list. Do not create a new section; only append to existing ones.
+
 ## Self-reflection
+
+During execution, follow the self-observation protocol (see CLAUDE.md Principles).
 
 Spawn a Haiku sub-agent to verify the runtime quality of the skill just saved (distinct from the document quality checked in Step 4). Pass it the generated SKILL.md content and the source material from Step 1, with the instruction: "Score each criterion 0–10. For each, give a one-sentence rationale. Return a markdown table, no preamble."
 
@@ -150,3 +165,5 @@ If any criterion scores below 8, draft a concise edit to this SKILL.md to preven
 | Self-reflection is one-shot (no average loop) | The self-reflection checks runtime quality of the generated skill, not the document quality of create-skill itself; document quality is iterated in Step 4; a second loop would conflate the two checks |
 | code-reviewer runs before save (Step 5) | Catches injection, boundary, redundant-state, and contradiction bugs that prose-level review misses; placed before save so the user approves the technically verified version |
 | audit-skill runs after save (Step 7) | Skills start life with a quality score rather than waiting for a future audit-skills rotation; co-installed as part of the same plugin so almost always available |
+| Doc-sync runs after audit (Step 8), not before | The final audited name and description are the ones worth adding to docs; syncing before the audit could register a name or description that still changes |
+| Step 8 appends to existing sections only, never creates one | If neither README nor CLAUDE.md has a skills section the project hasn't opted into that convention; imposing structure would be overreach |

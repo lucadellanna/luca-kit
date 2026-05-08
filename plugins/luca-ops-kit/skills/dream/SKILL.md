@@ -123,7 +123,9 @@ AskUserQuestion (multiSelect: true) with the specific items as options:
 
 Apply chosen actions. One focused edit per finding. For memory updates and checklist edits, show the exact proposed change before writing.
 
-## Step 5: Self-reflection
+## Self-reflection
+
+During execution, follow the self-observation protocol (see CLAUDE.md Principles).
 
 Spawn a Haiku sub-agent to verify:
 

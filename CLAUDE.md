@@ -38,7 +38,13 @@ skills/<name>/SKILL.md        # One directory per skill
 
 Skill directories use kebab-case verb-noun names (e.g., `review-invoice`, `onboard-client`).
 
+**All new skills must be created via `/create-skill`.** Never write SKILL.md files directly. The guided workflow ensures quality gates (elicitation, scoring, code review, audit) are applied consistently.
+
 No commands, agents, or hooks yet: skills only.
+
+## First-run
+
+If neither `~/.claude/luca-ops-kit/setup-complete` nor `~/.claude/luca-ops-kit/applied.json` exists, proactively suggest running `/luca-ops-recommended-setup` at the start of the conversation before addressing any other request. If the user declines, do not suggest it again in this session.
 
 ## Principles
 
@@ -49,7 +55,9 @@ No commands, agents, or hooks yet: skills only.
 - **Guardrails against overreach.** Skills stay within their stated scope. Flag when a request falls outside.
 - **Token efficiency.** Minimize token use. Short sentences, no redundant context, no verbose output formatting.
 - **Self-reflection.** Every skill includes a `## Self-reflection` section: 2–5 MECE success criteria scored 0–10 by a Haiku sub-agent. If average < 9.5, revise and re-score (max 3 iterations; stop if score plateaus). If any criterion remains below 8 after iteration, draft a concise edit to this SKILL.md to prevent the same failure, show it to the user, and apply on approval.
+- **Self-observation.** During skill execution, log problems encountered (unexpected behavior, wasted iterations, tool failures, scorer inconsistencies) to a running task list. After the main work completes, investigate each item for root cause and decide whether a permanent fix is needed (skill edit, CLAUDE.md rule, audit-skill change). Apply fixes before closing the task.
 - **Scoring is net of design decisions.** Every skill may include a `## Design decisions` section documenting intentional trade-offs. Scoring sub-agents must treat documented decisions as accepted; do not penalise them. When an audit raises a concern that is deliberately accepted (not overlooked), add it to `## Design decisions` rather than leaving it as an open gap.
+- **Design decisions table stays current.** When a code change affects the rationale for a decision, update the `## Design decisions` table in the same edit; never as a follow-up. A stale rationale is a contradiction, not documentation.
 
 ## Inter-skill patterns
 
@@ -59,4 +67,7 @@ No commands, agents, or hooks yet: skills only.
 - **Sanitize at the boundary.** When emitting structured output (TSV, CSV, JSON), do all field escaping in a single pass at the output statement. Never scatter sanitization across helper functions: fields added later skip it and review catches the gap one field at a time.
 - **Gitignore generated state files.** When a skill generates a local state or cache file, add it to `.gitignore` immediately; do not leave it as a "you should" note in the skill doc. The skill's note can then confirm it is already excluded rather than instructing the user to exclude it.
 - **Incremental-edit Sonnet gate.** When a complex skill (multi-step orchestration, state management, inter-skill delegation) receives 3 or more incremental edits in one session, run one final independent Sonnet pass on the complete updated file before committing. In-context incremental review misses step-sequence bugs and edge cases that accumulate across edits.
+- **Pre-write review gate.** When a skill generates content that will be written to the user's system (scripts, config entries, generated files), run the code-reviewer sub-agent on the planned content before writing, not after. Apply any fixes in-context, then write the corrected version. Post-write review creates inconsistent state: the unfixed version is already on disk and registered, and rollback is unspecified.
+- **Opus security gate for global-state features.** Before implementing any plugin feature that writes to the user's global environment (settings.json, CLAUDE.md, hook scripts, global config), run an Opus review pass on the plan with focus on security and plugin-owner liability. In-context Sonnet review is anchored to the plan's already-accepted decisions; Opus starting fresh treats them as open questions. This gate is separate from and precedes the inline Sonnet review.
+- **Manifest-as-source-of-truth for global-state writes.** When a skill writes to global state in multiple steps, record each write to a plugin-namespaced manifest (e.g., `~/.claude/<plugin>/applied.json`) before marking setup complete. The companion undo skill reads only the manifest; never re-scans user files; this ensures precise, safe reversal.
 - **Typed agent spawns vs. model-tier spawns.** Skills may use either `subagent_type: <agent-type>` (a specialized agent with defined tools, e.g. `feature-dev:code-reviewer`) or a generic model-tier spawn (e.g. "spawn a Haiku sub-agent"). These are different primitives. Do not replace a typed agent spawn with a generic model tier: specialized agents have capabilities generic spawns lack. Automated reviewers (Gemini) may flag typed agent names as non-standard; pre-classify such suggestions as false positives unless the agent type does not exist in this environment.

@@ -104,6 +104,8 @@ No follow-up questions.
 
 ## Self-reflection
 
+During execution, follow the self-observation protocol (see CLAUDE.md Principles).
+
 Spawn a Haiku sub-agent. Pass it the row count from `TOTAL:N`, the rendered table, and the raw TSV data from Step 1, with these criteria:
 
 1. **Completeness**: row count in table matches `TOTAL:N` from the script
