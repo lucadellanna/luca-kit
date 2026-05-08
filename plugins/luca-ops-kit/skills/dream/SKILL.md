@@ -32,9 +32,9 @@ cat ~/.claude/reflect-logs/<slug>.jsonl
 ```
 Filter to entries within the date range using Python or `jq`.
 
-For `all` projects: pre-aggregate via Bash before loading into context (raw multi-repo logs overflow context). Substitute the number of days from the user's date range for `DAYS` (default: 90):
+For `all` projects: pre-aggregate via Bash before loading into context (raw multi-repo logs overflow context). Replace `90` with the user's date range in days if different:
 ```bash
-SINCE=$(python3 -c "import datetime; print((datetime.date.today() - datetime.timedelta(days=DAYS)).isoformat())")
+SINCE=$(python3 -c "import datetime; print((datetime.date.today() - datetime.timedelta(days=90)).isoformat())")
 
 # Top recurring finding texts with source repo
 jq -rn --arg since "$SINCE" \
