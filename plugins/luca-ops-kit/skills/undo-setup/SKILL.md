@@ -32,9 +32,7 @@ Only proceed on explicit "yes" (case-insensitive). Any other response: stop with
 
 ## Step 3: Remove CLAUDE.md rules
 
-Read `~/.claude/CLAUDE.md` once via Bash. If the file does not exist, note it and skip this step.
-
-Execute the following Python block via Bash (substitute `rules_added` list from Step 1):
+Execute the following Python block via Bash (substitute `rules_added` list from Step 1). The block reads CLAUDE.md directly and handles the not-found case internally -- no separate Bash existence check is needed:
 
 ```python
 import os
@@ -72,7 +70,7 @@ while i < len(filtered):
         j = i + 1
         while j < len(filtered) and filtered[j].strip() == "":
             j += 1
-        if j >= len(filtered) or filtered[j].startswith("## "):
+        if j >= len(filtered) or filtered[j].startswith("#"):
             i = j  # skip header and trailing blanks
             continue
     result.append(filtered[i])
@@ -121,10 +119,11 @@ try:
         except json.JSONDecodeError:
             print("~/.claude/settings.json contains invalid JSON -- cannot modify it safely. Inspect the file and try again.")
             raise SystemExit(1)
-        if s is not None:
+        if s is not None and isinstance(s, dict):
             hooks = s.get("hooks", {})
             if not isinstance(hooks, dict):
                 hooks = {}
+                s["hooks"] = hooks
             upsub = hooks.get("UserPromptSubmit", [])
             if not isinstance(upsub, list):
                 upsub = []

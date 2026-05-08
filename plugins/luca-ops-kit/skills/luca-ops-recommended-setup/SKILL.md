@@ -196,13 +196,24 @@ try:
         except json.JSONDecodeError:
             print("~/.claude/settings.json contains invalid JSON -- cannot modify it safely. Inspect the file and try again.")
             raise SystemExit(1)
+        if not isinstance(s, dict):
+            s = {}
         if not isinstance(s.get("hooks"), dict):
             s["hooks"] = {}
         upsub = s["hooks"].setdefault("UserPromptSubmit", [])
-        already = any(
-            script_name in h.get("command", "")
-            for entry in upsub for h in entry.get("hooks", [])
-        )
+        if not isinstance(upsub, list):
+            upsub = []
+            s["hooks"]["UserPromptSubmit"] = upsub
+        already = False
+        for entry in upsub:
+            if not isinstance(entry, dict):
+                continue
+            hooks_val = entry.get("hooks", [])
+            if not isinstance(hooks_val, list):
+                continue
+            if any(isinstance(h, dict) and script_name in h.get("command", "") for h in hooks_val):
+                already = True
+                break
         if not already:
             upsub.append({
                 "matcher": "",
@@ -249,6 +260,8 @@ try:
         prior = json.load(f)
     if isinstance(prior, dict):
         prior_backed_up = prior.get("hooks_backed_up", {})
+        if not isinstance(prior_backed_up, dict):
+            prior_backed_up = {}
 except (FileNotFoundError, json.JSONDecodeError, AttributeError):
     pass
 # Then when building the new manifest, start hooks_backed_up from prior_backed_up
