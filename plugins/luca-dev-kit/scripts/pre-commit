@@ -83,6 +83,7 @@ if [[ -n "$TYPECHECK_WANTED" && -z "$SKIP_TYPECHECK" ]]; then
   # Detect typecheck script key and validate its value before running.
   # Validation prevents a malicious package.json from executing arbitrary code
   # via a hijacked typecheck script name.
+  TYPECHECK_WARN=$(mktemp)
   TYPECHECK_SCRIPT=$(REPO_ROOT="$REPO_ROOT" python3 -c "
 import json, os, re, sys
 
@@ -107,15 +108,16 @@ for k in ['typecheck', 'type-check', 'tsc']:
     print(k)
     sys.exit(0)
 sys.exit(1)
-" 2>/tmp/luca-devkit-typecheck-warn) || {
+" 2>"$TYPECHECK_WARN") || {
     WARN_CODE=$?
     if [[ $WARN_CODE -eq 2 ]]; then
-      WARN=$(cat /tmp/luca-devkit-typecheck-warn)
+      WARN=$(cat "$TYPECHECK_WARN")
       echo "⚠️  Typecheck skipped: script value looks unusual: $WARN" >&2
       echo "   Run typecheck manually before pushing." >&2
     fi
     TYPECHECK_SCRIPT=""
   }
+  rm -f "$TYPECHECK_WARN"
 
   START_MS=$(python3 -c "import time; print(int(time.time() * 1000))")
 

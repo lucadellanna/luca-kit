@@ -29,9 +29,9 @@ fi
 REVIEW_TS=$(echo "$REVIEW" | python3 -c "import sys,json; print(json.load(sys.stdin)['submittedAt'])" 2>/dev/null) || exit 1
 
 # Compare timestamps: normalize both to UTC seconds for robust comparison.
-IS_NEW=$(python3 -c "
+IS_NEW=$(TRIGGER_TS="$TRIGGER_TS" REVIEW_TS="$REVIEW_TS" python3 -c "
 from datetime import datetime, timezone
-import sys
+import sys, os
 
 def to_utc(s):
     # Handle both 'Z' suffix and '+00:00' offset forms
@@ -41,8 +41,8 @@ def to_utc(s):
     return datetime.fromisoformat(s).astimezone(timezone.utc)
 
 try:
-    trigger = to_utc('$TRIGGER_TS')
-    review  = to_utc('$REVIEW_TS')
+    trigger = to_utc(os.environ['TRIGGER_TS'])
+    review  = to_utc(os.environ['REVIEW_TS'])
     print('1' if review > trigger else '')
 except Exception as e:
     print('', file=sys.stderr)
