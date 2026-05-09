@@ -111,9 +111,9 @@ chmod +x "$REPO_ROOT/.git/hooks/pre-commit"
 **5b: Append to existing hook:**
 ```bash
 # Ensure file ends with a newline before appending
-python3 -c "
+REPO_ROOT="$REPO_ROOT" python3 -c "
 import os
-p = '$REPO_ROOT/.git/hooks/pre-commit'
+p = os.path.join(os.environ['REPO_ROOT'], '.git/hooks/pre-commit')
 with open(p, 'rb+') as f:
     f.seek(0, 2)
     if f.tell() > 0:
@@ -141,9 +141,9 @@ grep -q "luca-dev-kit" "$REPO_ROOT/.git/hooks/pre-commit" || {
 GITIGNORE="$REPO_ROOT/.gitignore"
 if ! grep -qE '^\.claude/cache/' "$GITIGNORE" 2>/dev/null; then
   # Ensure file ends with newline before appending
-  python3 -c "
+  GITIGNORE="$GITIGNORE" python3 -c "
 import os
-p = '$GITIGNORE'
+p = os.environ['GITIGNORE']
 if os.path.exists(p):
     with open(p, 'rb+') as f:
         f.seek(0, 2)

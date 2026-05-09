@@ -89,7 +89,7 @@ query($owner:String!, $repo:String!, $pr:Int!) {
       }
     }
   }
-}' -F owner=OWNER -F repo=REPO -F pr="$PR_NUM"
+}' -F owner="$OWNER" -F repo="$REPO" -F pr="$PR_NUM"
 ```
 
 Get `owner` and `repo` from: `gh pr view --json headRepositoryOwner,headRepository -q '{owner:.headRepositoryOwner.login,repo:.headRepository.name}'`
