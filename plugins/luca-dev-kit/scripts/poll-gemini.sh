@@ -3,7 +3,7 @@
 # Usage: poll-gemini.sh <pr_number> <trigger_iso_timestamp>
 # Exit 0 + prints JSON review object: new review found since trigger_ts
 # Exit 1: no new review yet
-# Exit 2: usage error or no PR
+# Exit 2: usage error, tool failure, or parse error
 
 set -euo pipefail
 
@@ -26,7 +26,7 @@ if [[ -z "$REVIEW" ]]; then
   exit 1
 fi
 
-REVIEW_TS=$(echo "$REVIEW" | python3 -c "import sys,json; print(json.load(sys.stdin)['submittedAt'])" 2>/dev/null) || exit 1
+REVIEW_TS=$(echo "$REVIEW" | python3 -c "import sys,json; print(json.load(sys.stdin)['submittedAt'])") || { echo "Failed to parse review timestamp" >&2; exit 2; }
 
 # Compare timestamps: normalize both to UTC seconds for robust comparison.
 IS_NEW=$(TRIGGER_TS="$TRIGGER_TS" REVIEW_TS="$REVIEW_TS" python3 -c "
@@ -46,7 +46,7 @@ try:
     print('1' if review > trigger else '')
 except Exception as e:
     print(f'Error comparing timestamps: {e}', file=sys.stderr)
-    sys.exit(1)
+    sys.exit(2)
 ")
 
 if [[ -n "$IS_NEW" ]]; then

@@ -58,9 +58,15 @@ fi
 
 **Never use `sleep` in a Bash tool call for waiting** — the Bash tool times out at 2 min by default (10 min max), so `sleep 480` would abort the loop. Use `ScheduleWakeup` instead:
 
+The script exits 0 (found), 1 (not yet), or 2 (tool/parse failure). Treat exit 2 as a stop condition.
+
 1. Poll immediately (Gemini sometimes responds within seconds):
    ```bash
-   bash "$POLL_SCRIPT" "$PR_NUM" "$TRIGGER_TS" && FOUND=1 || FOUND=0
+   bash "$POLL_SCRIPT" "$PR_NUM" "$TRIGGER_TS"
+   EXIT=$?
+   if [[ $EXIT -eq 0 ]]; then FOUND=1
+   elif [[ $EXIT -eq 2 ]]; then echo "Poll script error (exit 2): stop." >&2; exit 1
+   else FOUND=0; fi
    ```
 2. If not found: `ScheduleWakeup(delaySeconds=480, reason="waiting 8 min for Gemini on PR #<N>")`. On wake, poll once.
 3. If still not found: `ScheduleWakeup(delaySeconds=120)` up to 3 more times (14 min total).
