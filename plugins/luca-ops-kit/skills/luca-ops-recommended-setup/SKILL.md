@@ -197,13 +197,14 @@ try:
             print("~/.claude/settings.json contains invalid JSON -- cannot modify it safely. Inspect the file and try again.")
             raise SystemExit(1)
         if not isinstance(s, dict):
-            s = {}
+            print("~/.claude/settings.json is not a JSON object -- cannot modify it safely. Inspect the file and try again.")
+            raise SystemExit(1)
         if not isinstance(s.get("hooks"), dict):
             s["hooks"] = {}
         upsub = s["hooks"].setdefault("UserPromptSubmit", [])
         if not isinstance(upsub, list):
-            upsub = []
-            s["hooks"]["UserPromptSubmit"] = upsub
+            print("~/.claude/settings.json hooks.UserPromptSubmit is not an array -- cannot modify it safely. Inspect the file and try again.")
+            raise SystemExit(1)
         already = False
         for entry in upsub:
             if not isinstance(entry, dict):
@@ -237,6 +238,10 @@ except PermissionError:
 If a PermissionError is raised, tell the user: "Cannot write to ~/.claude/settings.json; check file permissions. The hook was not added." Do not write the marker file if any hook write fails.
 
 If a JSONDecodeError output is printed, tell the user: "~/.claude/settings.json contains invalid JSON and cannot be safely modified. Inspect the file manually and try again." Do not write the marker file.
+
+If the "is not a JSON object" message is printed, tell the user: "~/.claude/settings.json exists but is not a JSON object (it may be an array or other value). Inspect the file manually and try again." Do not write the marker file.
+
+If the "hooks.UserPromptSubmit is not an array" message is printed, tell the user: "~/.claude/settings.json has an unexpected type for hooks.UserPromptSubmit. Inspect the file manually and try again." Do not write the marker file.
 
 If an OSError output is printed during the write phase, tell the user: "Failed to write to ~/.claude/settings.json. The hook was not added." Do not write the marker file.
 
@@ -316,7 +321,7 @@ Then present the full skill overview:
 
 During execution, follow the self-observation protocol (see CLAUDE.md Principles).
 
-Spawn a Sonnet sub-agent. Pass it the full contents of this SKILL.md and the following instruction: "Score this skill run on each criterion 0–10. For each, give a one-sentence rationale. Score net of documented design decisions; do not penalise intentional trade-offs listed in ## Design decisions. Return a markdown table; no preamble.":
+Spawn a Haiku sub-agent. Pass it the full contents of this SKILL.md and the following instruction: "Score this skill run on each criterion 0–10. For each, give a one-sentence rationale. Score net of documented design decisions; do not penalise intentional trade-offs listed in ## Design decisions. Return a markdown table; no preamble.":
 
 1. **Detection accuracy**: every item already present was correctly identified and skipped; every missing item was correctly identified and offered
 2. **User communication**: explanations in Steps 3–5 are plain enough for a non-technical user to act on without follow-up questions; no developer jargon was surfaced
