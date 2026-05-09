@@ -87,7 +87,7 @@ if [[ -n "$TYPECHECK_WANTED" && -z "$SKIP_TYPECHECK" ]]; then
   TYPECHECK_SCRIPT=$(REPO_ROOT="$REPO_ROOT" python3 -c "
 import json, os, re, sys
 
-SAFE_PREFIXES = ('tsc', 'vue-tsc', 'pyright', 'typescript', 'npx tsc', 'pnpm tsc', 'yarn tsc')
+SAFE_PREFIXES = ('tsc', 'vue-tsc', 'pyright', 'typescript', 'mypy', 'python -m mypy', 'python3 -m mypy', 'npx tsc', 'pnpm tsc', 'yarn tsc')
 UNSAFE_CHARS  = re.compile(r'[|;&\$\`><]')
 
 p = os.path.join(os.environ['REPO_ROOT'], 'package.json')

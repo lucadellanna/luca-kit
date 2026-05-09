@@ -54,18 +54,17 @@ if [[ ! -f "$POLL_SCRIPT" ]]; then
   echo "❌ Cannot find poll-gemini.sh at $POLL_SCRIPT: is CLAUDE_PLUGIN_ROOT set?" >&2
   exit 1
 fi
-
-# Attempt 1: wait 8 min
-sleep 480
-RESULT=$("$POLL_SCRIPT" "$PR_NUM" "$TRIGGER_TS") && FOUND=1 || FOUND=0
-
-# Attempts 2-4: 2 min each (14 min total)
-if [[ $FOUND -eq 0 ]]; then sleep 120; RESULT=$("$POLL_SCRIPT" "$PR_NUM" "$TRIGGER_TS") && FOUND=1 || FOUND=0; fi
-if [[ $FOUND -eq 0 ]]; then sleep 120; RESULT=$("$POLL_SCRIPT" "$PR_NUM" "$TRIGGER_TS") && FOUND=1 || FOUND=0; fi
-if [[ $FOUND -eq 0 ]]; then sleep 120; RESULT=$("$POLL_SCRIPT" "$PR_NUM" "$TRIGGER_TS") && FOUND=1 || FOUND=0; fi
 ```
 
-If `FOUND=0` after 14 min: post a second `/gemini review` and restart the poll sequence once. If still no response, stop and notify user.
+**Never use `sleep` in a Bash tool call for waiting** — the Bash tool times out at 2 min by default (10 min max), so `sleep 480` would abort the loop. Use `ScheduleWakeup` instead:
+
+1. Poll immediately (Gemini sometimes responds within seconds):
+   ```bash
+   bash "$POLL_SCRIPT" "$PR_NUM" "$TRIGGER_TS" && FOUND=1 || FOUND=0
+   ```
+2. If not found: `ScheduleWakeup(delaySeconds=480, reason="waiting 8 min for Gemini on PR #<N>")`. On wake, poll once.
+3. If still not found: `ScheduleWakeup(delaySeconds=120)` up to 3 more times (14 min total).
+4. If no response after 14 min: post a second `/gemini review` and restart from step 2 once. If still no response, stop and notify user.
 
 ### B. Check review state
 
@@ -155,7 +154,8 @@ Stop. Wait for user confirmation.
 
 ```bash
 # Use python3 hashlib: md5sum is not available on stock macOS (only md5)
-CURRENT_HASH=$(echo "<FIX thread IDs+bodies concatenated>" | \
+FIX_THREAD_DATA=$(printf '%s %s\n' "${FIX_THREAD_IDS[@]}" "${FIX_THREAD_BODIES[@]}")
+CURRENT_HASH=$(echo "$FIX_THREAD_DATA" | \
   python3 -c "import sys,hashlib; print(hashlib.sha256(sys.stdin.buffer.read()).hexdigest())")
 ```
 
