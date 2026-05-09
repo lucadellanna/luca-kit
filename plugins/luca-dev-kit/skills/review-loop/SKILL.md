@@ -91,7 +91,11 @@ query($owner:String!, $repo:String!, $pr:Int!) {
 }' -F owner="$OWNER" -F repo="$REPO" -F pr="$PR_NUM"
 ```
 
-Get `owner` and `repo` from: `gh pr view --json headRepositoryOwner,headRepository -q '{owner:.headRepositoryOwner.login,repo:.headRepository.name}'`
+Parse `owner` and `repo` into shell variables:
+```bash
+OWNER=$(gh pr view "$PR_NUM" --json headRepositoryOwner -q '.headRepositoryOwner.login')
+REPO=$(gh pr view "$PR_NUM" --json headRepository -q '.headRepository.name')
+```
 
 Filter to unresolved Gemini threads only:
 ```bash

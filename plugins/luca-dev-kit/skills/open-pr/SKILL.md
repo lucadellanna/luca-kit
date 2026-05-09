@@ -32,10 +32,10 @@ If diff is empty: "Nothing new vs $BASE: commit your changes first." Stop.
 
 Check if ALL changed files are purely structural (no logic added or modified):
 ```bash
-git diff "$BASE"...HEAD --stat
+git diff "origin/$BASE"...HEAD
 ```
 
-Structural = only renames, moves, or reformatting; no lines containing `def `, `function `, `class `, `if `, `return `, `=>`, or similar logic tokens in added lines.
+Structural = only renames, moves, or reformatting; no lines containing `def `, `function `, `class `, `if `, `return `, `=>`, or similar logic tokens in added lines (`+` prefix in the diff).
 
 If structural-only: skip steps 4–5 (no review needed). Jump to step 6.
 
