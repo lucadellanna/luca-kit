@@ -78,19 +78,26 @@ while i < len(filtered):
     i += 1
 
 tmp = path + ".tmp"
-with open(tmp, "w") as tf:
-    tf.writelines(result)
-    tf.flush()
-    os.fsync(tf.fileno())
-os.replace(tmp, path)
+try:
+    with open(tmp, "w") as tf:
+        tf.writelines(result)
+        tf.flush()
+        os.fsync(tf.fileno())
+    os.replace(tmp, path)
+except OSError as e:
+    print(f"Failed to write ~/.claude/CLAUDE.md: {e}. Rules may not have been removed.")
+    raise SystemExit(1)
 
-# Report absent fingerprints
+# Report absent fingerprints (extract human-readable ID from the HTML comment)
 for fp in to_remove:
     if fp not in found:
-        print(f"Rule already absent: {fp}")
+        rule_id = fp.replace("<!-- luca-ops-kit:", "").replace(" -->", "")
+        print(f"Rule already absent: {rule_id}")
 ```
 
-Report any fingerprints not found: "Rule already absent: <id>".
+Report any fingerprints not found: "Rule already absent: <id>" (e.g. `rule-skills-first`).
+
+If a "Failed to write ~/.claude/CLAUDE.md" message is printed, tell the user: "The CLAUDE.md update failed. Check disk space and file permissions, then re-run /undo-setup." Stop without proceeding to Step 4.
 
 ## Step 4: Remove hooks from settings.json
 

@@ -34,8 +34,13 @@ def get_plugin_meta(path):
     try:
         with open(path, 'r', encoding='utf-8') as f:
             d = json.load(f)
-        return d.get('name', '?').replace('\t', ' '), d.get('author', {}).get('name', '?').replace('\t', ' ')
-    except (FileNotFoundError, IOError, json.JSONDecodeError):
+        if not isinstance(d, dict):
+            return '?', '?'
+        name = str(d.get('name') or '?').replace('\t', ' ')
+        author = d.get('author')
+        author_name = str(author.get('name') or '?').replace('\t', ' ') if isinstance(author, dict) else '?'
+        return name, author_name
+    except (FileNotFoundError, IOError, json.JSONDecodeError, AttributeError, TypeError):
         return '?', '?'
 
 def scan_skills(sdir, attribution, rows):
