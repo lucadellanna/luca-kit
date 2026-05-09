@@ -146,7 +146,8 @@ try:
     with open(path) as f:
         for line in f:
             try:
-                if not allow_dup and json.loads(line).get('date') == today:
+                obj = json.loads(line)
+                if not allow_dup and isinstance(obj, dict) and obj.get('date') == today:
                     print('DUPLICATE_DATE')
                     sys.exit(0)
                 count += 1
@@ -193,10 +194,12 @@ If the script prints `NUDGE:<count>`, append to end of output:
 
 ## Self-reflection
 
+During execution, follow the self-observation protocol (see CLAUDE.md Principles).
+
 After acting on choices, spawn a Haiku sub-agent to verify:
 
 1. **Impact**: if any actions were selected: at least one was successfully applied. Auto-pass if the user declined all proposed actions or only insights were surfaced.
-2. **Quality**: findings passed the Step 3 gate: average ≥ 9.5 was achieved, OR all 3 iterations were completed. Reaching max iterations is a passing condition, not a failure.
+2. **Quality**: auto-pass if all 3 scoring iterations were completed, regardless of final average; also passes if average ≥ 9.5 was reached in fewer iterations.
 3. **No overreach**: no actions were taken beyond what the user selected
 
 If any criterion scores below 8, draft a concise edit to this SKILL.md to prevent the same failure, show it to the user, and apply on approval.

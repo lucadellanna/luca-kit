@@ -1,7 +1,7 @@
 ---
 name: Create Operational Skill
 description: Create a reusable Claude skill from a business procedure, SOP, wiki page, checklist, or verbal description of a recurring task. For non-technical teams turning operating knowledge into repeatable AI workflows.
-version: 0.1.0
+version: 0.2.0
 ---
 
 # Create Operational Skill
@@ -15,10 +15,12 @@ Steps 1–2 use Haiku (information gathering). Step 3 uses Sonnet (drafting).
 Determine what the user has:
 
 - **Source material provided** (SOP, procedure doc, checklist, wiki page, pasted text): Read it. Summarize the task it describes in 2–3 sentences. Use AskUserQuestion (open text) to ask the user to confirm or correct.
-- **No source material**: Use AskUserQuestion (open text) for each of these questions (ask the first one alone, then the remaining two together once the purpose is clear):
+- **No source material**: Use AskUserQuestion (open text) for each of these questions (ask the first one alone, then the remaining four together once the purpose is clear):
   1. What recurring task should this skill handle?
   2. What does a good result look like?
   3. What should the skill never do?
+  4. Who will run this skill? (e.g., manager, admin, salesperson)
+  5. What usually triggers it -- a specific event, a request from someone, a schedule?
 
 Keep this step short. Extract only: purpose, key steps, scope boundaries.
 
@@ -43,7 +45,22 @@ Default document-quality criteria (adjust based on context):
 
 Present defaults. Use AskUserQuestion (open text) to ask the user to confirm, modify, or add criteria. Move on once agreed.
 
-## Step 3: Draft the skill
+## Step 3: Present skill blueprint in plan mode
+
+Synthesize from Steps 1–2 into a structured blueprint before drafting anything:
+
+- **Skill name**: proposed kebab-case verb-noun directory name
+- **Purpose**: one sentence
+- **Step outline**: 3–7 numbered steps, high-level only (no sub-steps)
+- **Human approval gates**: any steps that require explicit user confirmation before acting
+- **Out of scope**: what this skill will not do
+- **Success criteria**: the agreed list from Step 2 (one line each)
+
+Call EnterPlanMode. Present the blueprint in a single formatted markdown block. Tell the user: "Review this plan. Approve to begin drafting, or tell me what to change."
+
+Stay in plan mode until the user approves. If corrections are given, update the blueprint and re-present before asking for approval again. Once approved, call ExitPlanMode, then proceed to Step 4.
+
+## Step 4: Draft the skill
 
 Write a SKILL.md file with this structure:
 
@@ -57,6 +74,8 @@ version: 0.1.0
 [Body: purpose, steps, decision points, approval gates, scope boundaries]
 
 ## Self-reflection
+
+During execution, follow the self-observation protocol (see CLAUDE.md Principles).
 
 [2–5 MECE success criteria go here.]
 
@@ -77,10 +96,10 @@ Rules for the draft:
 - No boilerplate, filler, or examples the user didn't ask for.
 - Name the skill directory as kebab-case verb-noun (e.g., `review-invoice`, `onboard-client`).
 - Never write CLI commands, install steps, or configuration syntax you're not certain is correct; flag uncertainty and ask whether to verify or omit.
-- Include a `## Self-reflection` section with 2–5 MECE success criteria and the standard loop (see CLAUDE.md).
+- Include a `## Self-reflection` section with the self-observation protocol one-liner, 2–5 MECE success criteria, and the standard loop (see CLAUDE.md).
 - Include a `## Design decisions` table; document intentional trade-offs so future audits don't penalise accepted choices. Leave the placeholder row if no decisions exist yet.
 
-## Step 4: Score and iterate this SKILL.md draft
+## Step 5: Score and iterate this SKILL.md draft
 
 This step scores the SKILL.md *document quality* against the criteria agreed in Step 2. The generated skill's *runtime quality* is evaluated separately in `## Self-reflection` at the end.
 
@@ -95,13 +114,13 @@ Use the sub-agent's scores directly:
 |-----------|-------|-----|
 | [Criterion Name] | X/10 | [what's missing] |
 
-- If average ≥ 9.5: proceed to Step 5.
+- If average ≥ 9.5: proceed to Step 6.
 - If average < 9.5: revise the draft to close the lowest-scoring gaps. Spawn a fresh Sonnet sub-agent passing the revised draft, the agreed criteria, and the same instruction string from above. Repeat.
-- If the average did not improve from the previous iteration: stop iterating, proceed to Step 5 with the best version.
+- If the average did not improve from the previous iteration: stop iterating, proceed to Step 6 with the best version.
 
 Do not iterate more than 3 times.
 
-## Step 5: Code-level correctness review
+## Step 6: Code-level correctness review
 
 Spawn a `feature-dev:code-reviewer` sub-agent. Pass it the full SKILL.md text and this prompt:
 
@@ -121,19 +140,32 @@ Spawn a `feature-dev:code-reviewer` sub-agent. Pass it the full SKILL.md text an
 
 Apply any fixes to the draft before proceeding. If the sub-agent is unavailable, skip and note "code-reviewer not available; skipping correctness check."
 
-## Step 6: Confirm and save
+## Step 7: Confirm and save
 
 Show the user the final SKILL.md. Use AskUserQuestion (open text) to ask for explicit approval before writing the file.
 
 On approval: use Bash to create the directory `skills/<skill-name>/`, then use Write to save the content to `skills/<skill-name>/SKILL.md`.
 
-## Step 7: Audit the new skill
+## Step 8: Audit the new skill
 
 Open an `audit-skill` session and provide the absolute path to the saved skill file in the opening message. Resolve it first: run `realpath skills/<skill-name>/SKILL.md` via Bash and use that output. If `audit-skill` is unavailable, note "audit-skill not found; skipping quality audit." and continue to Self-reflection.
 
+## Step 9: Update project documentation
+
+Use Read to check whether `README.md` and `CLAUDE.md` exist at the project root. For each file that exists, scan its content for a skills section: a `## Skills` heading, a Markdown table with a "Skill" column header, or a bullet list of skill names. If neither file contains a skills section, skip this step silently.
+
+For each file that has a skills section, propose adding the new skill using its frontmatter `name` and `description` fields. Show the exact text that would be inserted (matching the surrounding format (table row or bullet line)).
+
+Use AskUserQuestion (multiSelect: true, pre-select all candidates):
+> "I found a skills list in [file(s)]. Add the new skill there?"
+
+For each confirmed file, use Edit to insert the entry into the existing table or list. Do not create a new section; only append to existing ones.
+
 ## Self-reflection
 
-Spawn a Haiku sub-agent to verify the runtime quality of the skill just saved (distinct from the document quality checked in Step 4). Pass it the generated SKILL.md content and the source material from Step 1, with the instruction: "Score each criterion 0–10. For each, give a one-sentence rationale. Return a markdown table, no preamble."
+During execution, follow the self-observation protocol (see CLAUDE.md Principles).
+
+Spawn a Haiku sub-agent to verify the runtime quality of the skill just saved (distinct from the document quality checked in Step 5). Pass it the generated SKILL.md content and the source material from Step 1, with the instruction: "Score each criterion 0–10. For each, give a one-sentence rationale. Return a markdown table, no preamble."
 
 1. **Usefulness**: the generated skill would let a new user complete the task without asking for help
 2. **Efficiency**: no unnecessary questions were asked; the user wasn't asked to make decisions that Claude could make
@@ -146,7 +178,11 @@ If any criterion scores below 8, draft a concise edit to this SKILL.md to preven
 | Decision | Rationale |
 |----------|-----------|
 | 8 default criteria in Step 2 (exceeds the 2–5 guideline) | Defaults are a menu, not a mandate; users confirm and trim to 2–5 in the Step 2 conversation; a richer starting menu produces better criteria choices than a shorter one |
+| Plan mode used for blueprint (Step 3), not a plain AskUserQuestion | EnterPlanMode enforces that Claude cannot write any files or run commands until the user explicitly approves; a plain confirmation question is bypassable if the skill drifts into drafting early |
+| Two extra questions in Step 1 (persona, trigger) | Who uses the skill determines tone; the trigger shapes the entry point of the generated skill. Both are lost if not captured before drafting because the user rarely volunteers them unprompted |
 | Sonnet (not Haiku) for scoring sub-agents | Step 2 criteria include instruction explicitness and design decision coverage, which require simulating execution paths; Haiku misses subtle precision gaps in these areas |
-| Self-reflection is one-shot (no average loop) | The self-reflection checks runtime quality of the generated skill, not the document quality of create-skill itself; document quality is iterated in Step 4; a second loop would conflate the two checks |
-| code-reviewer runs before save (Step 5) | Catches injection, boundary, redundant-state, and contradiction bugs that prose-level review misses; placed before save so the user approves the technically verified version |
-| audit-skill runs after save (Step 7) | Skills start life with a quality score rather than waiting for a future audit-skills rotation; co-installed as part of the same plugin so almost always available |
+| Self-reflection is one-shot (no average loop) | The self-reflection checks runtime quality of the generated skill, not the document quality of create-skill itself; document quality is iterated in Step 5; a second loop would conflate the two checks |
+| code-reviewer runs before save (Step 6) | Catches injection, boundary, redundant-state, and contradiction bugs that prose-level review misses; placed before save so the user approves the technically verified version |
+| audit-skill runs after save (Step 8) | Skills start life with a quality score rather than waiting for a future audit-skills rotation; co-installed as part of the same plugin so almost always available |
+| Doc-sync runs after audit (Step 9), not before | The final audited name and description are the ones worth adding to docs; syncing before the audit could register a name or description that still changes |
+| Step 9 appends to existing sections only, never creates one | If neither README nor CLAUDE.md has a skills section the project hasn't opted into that convention; imposing structure would be overreach |

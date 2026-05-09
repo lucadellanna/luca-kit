@@ -85,6 +85,8 @@ After all confirmed skills are processed:
 
 ## Self-reflection
 
+During execution, follow the self-observation protocol (see CLAUDE.md Principles).
+
 If no skills were audited (all deselected or all skipped due to errors), note "Nothing audited this session; self-reflection skipped." and stop.
 
 Otherwise, spawn a Haiku sub-agent. Pass it the Step 6 summary, the final state file contents, and the list of confirmed vs. skipped skills. Score each criterion 0–10. If average < 9.5, revise and re-score (max 3 iterations; stop if score stops improving). If any criterion remains below 8 after iteration, draft a concise edit to this SKILL.md, show it to the user, and apply on approval.

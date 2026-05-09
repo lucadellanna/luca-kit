@@ -21,6 +21,8 @@ Requires [Claude Code](https://claude.ai/code).
 
 **To uninstall:**
 
+If you ran `/luca-ops-recommended-setup`, run `/undo-setup` first to remove hooks and rules it added to your global Claude config. Then:
+
 ```
 /plugin uninstall luca-ops-kit@lucadellanna/luca-ops-kit
 ```
@@ -57,8 +59,16 @@ The plugin ships **meta-skills**: structured workflows for building, auditing, a
 
 | Skill | What it does |
 |-------|-------------|
-| **create-skill** | Guides you through turning a procedure, SOP, or task description into a reusable Claude skill with built-in quality scoring |
-| **reflect** | Analyzes a conversation to surface learnings, catch errors, and propose skill improvements or new skills worth creating |
+| **luca-ops-recommended-setup** | First-run wizard: adds three best-practice rules to your Claude config and offers two automation hooks (skill-check reminder, long-prompt clarity check) |
+| **undo-setup** | Reverses everything /luca-ops-recommended-setup added (rules, hooks, and scripts) so you can cleanly uninstall the plugin |
+| **build-work-context** | Interviews you about your company and role, then saves a persistent profile so Claude doesn't need to ask "who do you work for?" every session |
+| **create-skill** | Turns a procedure, SOP, checklist, or verbal description into a ready-to-use skill file, scoring and improving it before saving |
+| **list-skills** | Lists every installed skill with its plugin, one-line description, and file size in a single table |
+| **audit-skill** | Scores a single skill against 7 quality dimensions (clarity, security, instruction explicitness, and more), proposes improvements, and iterates until the bar is met |
+| **audit-skills** | Scans your whole skill library for overlapping skills, then audits a rotating batch of 3 so every skill gets reviewed over time |
+| **audit-claude** | Scans your CLAUDE.md and memory files for bloat and cross-file redundancy, proposes targeted cuts, and verifies nothing meaningful was lost |
+| **reflect** | After a session, extracts what went well, what went wrong, and what should become a memory update, skill improvement, or new skill |
+| **dream** | Mines your /reflect logs to surface patterns across sessions: recurring issues never fixed, memory contradictions, and improvements that keep coming up but never land |
 
 ## License
 

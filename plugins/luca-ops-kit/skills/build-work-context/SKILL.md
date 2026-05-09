@@ -140,6 +140,8 @@ Confirm to the user: "Saved. Claude will now use this context automatically in e
 
 ## Self-reflection
 
+During execution, follow the self-observation protocol (see CLAUDE.md Principles).
+
 Spawn a Haiku sub-agent. Pass it:
 1. The user's verbatim answers from Steps 2–4
 2. The full content of the written `~/.claude/memory/work-context.md`

@@ -34,37 +34,40 @@ Filter to entries within the date range using Python or `jq`.
 
 For `all` projects: pre-aggregate via Bash before loading into context (raw multi-repo logs overflow context). Replace `90` with the user's date range in days if different:
 ```bash
+# Guard: skip if no log files exist (unmatched glob causes misbehavior in nullglob shells)
+ls ~/.claude/reflect-logs/*.jsonl 2>/dev/null | grep -q . || { echo "No reflect logs found across any project. Run /reflect with session notes enabled first."; exit 0; }
+
 SINCE=$(python3 -c "import datetime; print((datetime.date.today() - datetime.timedelta(days=90)).isoformat())")
 
 # Top recurring finding texts with source repo (within-repo recurrence)
 jq -rn --arg since "$SINCE" \
   'inputs as $e | select($e.schema == 1 and $e.date >= $since) | $e.findings[] |
-  [(input_filename | split("/")[-1] | rtrimstr(".jsonl")), .text] | @tsv' \
+  [(input_filename | split("/")[-1] | rtrimstr(".jsonl")), (.text // "")] | @tsv' \
   ~/.claude/reflect-logs/*.jsonl 2>/dev/null \
   | sort | uniq -c | sort -rn | awk '$1 >= 2' | head -50
 
 # Cross-project patterns: same finding text appearing in ≥2 repos
 jq -rn --arg since "$SINCE" \
   'inputs as $e | select($e.schema == 1 and $e.date >= $since) | $e.findings[] |
-  [(input_filename | split("/")[-1] | rtrimstr(".jsonl")), .text] | @tsv' \
+  [(input_filename | split("/")[-1] | rtrimstr(".jsonl")), (.text // "")] | @tsv' \
   ~/.claude/reflect-logs/*.jsonl 2>/dev/null \
   | sort -u | cut -f2- | sort | uniq -c | sort -rn | awk '$1 >= 2' | head -20
 
 # Skill improvement targets with source repo
 jq -rn --arg since "$SINCE" \
   'inputs as $e | select($e.schema == 1 and $e.date >= $since) | $e.findings[] | select(.type=="skill_improvement") |
-  [(input_filename | split("/")[-1] | rtrimstr(".jsonl")), .skill] | @tsv' \
+  [(input_filename | split("/")[-1] | rtrimstr(".jsonl")), (.skill // "")] | @tsv' \
   ~/.claude/reflect-logs/*.jsonl 2>/dev/null \
   | sort | uniq -c | sort -rn | awk '$1 >= 2'
 
 # Memory targets with source repo (contradiction candidates)
 jq -rn --arg since "$SINCE" \
   'inputs as $e | select($e.schema == 1 and $e.date >= $since) | $e.findings[] | select(.type=="memory") |
-  [(input_filename | split("/")[-1] | rtrimstr(".jsonl")), .memory_target] | @tsv' \
+  [(input_filename | split("/")[-1] | rtrimstr(".jsonl")), (.memory_target // "")] | @tsv' \
   ~/.claude/reflect-logs/*.jsonl 2>/dev/null \
   | sort | uniq -c | sort -rn | awk '$1 > 1'
 ```
-Load full entries only for repos where pre-aggregation shows signal (≥2 matching findings, covering the lowest Step 2 detection threshold). Skip entries with unknown `schema` values; report a count of skipped entries if any.
+Load full entries only for repos where pre-aggregation shows signal (≥2 matching findings -- intentionally one below Step 2's ≥3 bar so borderline candidates are available for analysis without over-loading context). Skip entries with unknown `schema` values; report a count of skipped entries if any.
 
 **Load memory files:**
 - Project memory: `<repo-root>/.claude/memory/*.md`
@@ -123,7 +126,9 @@ AskUserQuestion (multiSelect: true) with the specific items as options:
 
 Apply chosen actions. One focused edit per finding. For memory updates and checklist edits, show the exact proposed change before writing.
 
-## Step 5: Self-reflection
+## Self-reflection
+
+During execution, follow the self-observation protocol (see CLAUDE.md Principles).
 
 Spawn a Haiku sub-agent to verify:
 
@@ -141,6 +146,8 @@ If any criterion scores below 8, draft a concise edit to this SKILL.md, show it 
 | /dream never writes to .jsonl logs | Logs are append-only; only /reflect writes. Prevents dream contaminating its own input corpus. |
 | Scope defaults to current repo | Least-surprise default; `all` requires explicit opt-in. |
 | `all` mode pre-aggregates via jq | Raw multi-repo logs overflow model context; jq extracts only threshold-meeting candidates before the model sees them. |
+| Pre-load threshold ≥2 (below Step 2's ≥3 bar) | Conservative buffer: loads borderline candidates so Step 2 analysis can apply the stricter filter without risk of missing anything. Step 2 performs the authoritative ≥3 check. |
+| Glob guard before jq pipelines | Unmatched glob in nullglob shells passes no args to `jq -rn`, causing it to block on stdin; in non-nullglob shells it passes the literal glob string as a filename. The guard exits early cleanly. |
 | 90-day default window | Balances recency with capturing never-acted-on patterns that may be older. |
 | `--dry-run` flag | Builds user trust before any writes; recommended for first run. |
 | `memory_target` for contradiction detection | Structured field lookup is reliable; free-text NLP comparison is not. |

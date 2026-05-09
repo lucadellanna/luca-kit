@@ -34,8 +34,13 @@ def get_plugin_meta(path):
     try:
         with open(path, 'r', encoding='utf-8') as f:
             d = json.load(f)
-        return d.get('name', '?').replace('\t', ' '), d.get('author', {}).get('name', '?').replace('\t', ' ')
-    except (FileNotFoundError, IOError, json.JSONDecodeError):
+        if not isinstance(d, dict):
+            return '?', '?'
+        name = str(d.get('name') or '?').replace('\t', ' ')
+        author = d.get('author')
+        author_name = str(author.get('name') or '?').replace('\t', ' ') if isinstance(author, dict) else '?'
+        return name, author_name
+    except (FileNotFoundError, IOError, json.JSONDecodeError, AttributeError, TypeError):
         return '?', '?'
 
 def scan_skills(sdir, attribution, rows):
@@ -103,6 +108,8 @@ End with: `<N> skills found across <M> source(s).`
 No follow-up questions.
 
 ## Self-reflection
+
+During execution, follow the self-observation protocol (see CLAUDE.md Principles).
 
 Spawn a Haiku sub-agent. Pass it the row count from `TOTAL:N`, the rendered table, and the raw TSV data from Step 1, with these criteria:
 
