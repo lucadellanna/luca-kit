@@ -129,7 +129,7 @@ Do not iterate more than 3 times.
 
 Spawn a `feature-dev:code-reviewer` sub-agent. Pass it the full SKILL.md text, the DESIGN.md text, and this prompt:
 
-> Treat this SKILL.md as executable code. Check:
+> Treat this SKILL.md as executable code. Review it net of documented design decisions in the provided DESIGN.md; do not flag intentional trade-offs as bugs. Check:
 > (a) Data format fields: are any TSV/JSON fields susceptible to delimiter or newline injection that would corrupt a consuming skill?
 > (b) Algorithm edge cases at boundaries: empty list, total items < batch size, deleted item at cursor position.
 > (c) Redundant state: variables or flags that are set but never used, or derived values that are recomputed unnecessarily.
