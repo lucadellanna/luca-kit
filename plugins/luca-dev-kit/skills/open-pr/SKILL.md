@@ -159,3 +159,9 @@ fi
 ```
 
 Then immediately invoke `luca-dev-kit:review-loop`. Pass the PR number. The loop runs autonomously from here: no further user input expected until a stop condition fires.
+
+## Design decisions
+
+| Decision | Rationale |
+|---|---|
+| `git remote show origin` for base branch detection (not `git symbolic-ref`) | `git symbolic-ref refs/remotes/origin/HEAD` is not reliably set in all clone types (shallow, sparse). `git remote show origin` is consistent across all three skills and the subsequent `git fetch` already incurs network I/O. |
