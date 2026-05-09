@@ -37,12 +37,8 @@ Execute the following Python block via Bash. Substitute `rules_added_ids` with t
 ```python
 import os
 
-fingerprints = ["<!-- luca-ops-kit:rule-skills-first -->",
-                "<!-- luca-ops-kit:rule-confirm-irreversible -->",
-                "<!-- luca-ops-kit:rule-clarifying-question -->"]
-# rules_added_ids is the list of rule IDs from the manifest (e.g. ["rule-skills-first", ...])
-# Each ID is a substring of its matching fingerprint comment, so use substring check
-to_remove = [fp for fp in fingerprints if any(rid in fp for rid in rules_added_ids)]
+# Derive fingerprints from rule IDs -- format is always <!-- luca-ops-kit:{rule-id} -->
+to_remove = [f"<!-- luca-ops-kit:{rid} -->" for rid in rules_added_ids]
 
 path = os.path.expanduser("~/.claude/CLAUDE.md")
 try:
@@ -158,6 +154,7 @@ try:
                 try:
                     with open(tmp, "w") as tf:
                         json.dump(s, tf, indent=2)
+                        tf.write('\n')
                         tf.flush()
                         os.fsync(tf.fileno())
                     os.replace(tmp, path)

@@ -224,6 +224,7 @@ try:
             try:
                 with open(tmp, "w") as tf:
                     json.dump(s, tf, indent=2)
+                    tf.write('\n')
                     tf.flush()
                     os.fsync(tf.fileno())
                 os.replace(tmp, path)
