@@ -18,18 +18,21 @@ Score an existing skill, improve it, and iterate until it meets quality standard
 | 4 | **Token efficiency** | Two sub-dimensions: (a) *document*: the SKILL.md text is lean, no redundant words or boilerplate; (b) *runtime*: the skill uses the appropriate model tier (Haiku for simple/fast steps, Sonnet for balanced work, Opus for complex reasoning), spawns sub-agents where they improve quality or speed and avoids them otherwise, and minimises unnecessary back-and-forth or verbose outputs. |
 | 5 | **Effectiveness** | Has a `## Self-reflection` section with the self-observation protocol reference and 2–5 criteria. Score on how *appropriate* (relevant to the skill's purpose) and *MECE* (mutually exclusive: no overlap; collectively exhaustive: together they fully capture "good output" for this skill) the criteria are. No section = 0. Missing self-observation reference or wrong/overlapping criteria = low. |
 | 6 | **Instruction explicitness** | Every action the skill instructs Claude to perform names the specific tool to use and the expected outcome, not just the goal. "Use Read to check if X exists; if the file is not found, proceed to Y" rather than "Check if X exists." Implied tool choices, ambiguous outcomes, or steps that assume Claude will infer the mechanism score low. |
-| 7 | **Design decision coverage** | Every intentional trade-off, non-obvious constraint, or deliberate limitation has a row in `## Design decisions`. A reviewer seeing the skill cold should not be able to flag an intentional choice as a gap. Missing section = 0. Section exists but omits obvious choices = low. |
+| 7 | **Design decision coverage** | Every intentional trade-off, non-obvious constraint, or deliberate limitation has a row in `DESIGN.md`. A reviewer seeing the skill cold should not be able to flag an intentional choice as a gap. Missing file = 0. File exists but omits obvious choices = low. |
 
 ## Step 1: Identify the target
 
-If no skill path was provided, ask which skill to audit. Read the file. If it doesn't exist, say so and stop.
+If no skill path was provided, ask which skill to audit. Read the SKILL.md file. If it doesn't exist, say so and stop.
+
+Also attempt to read DESIGN.md from the same directory (replace `SKILL.md` with `DESIGN.md` in the path). If it exists, hold its content as design context for Steps 2 and 6. If not, design context is empty.
 
 ## Step 2: Score (initial)
 
 Spawn a Sonnet sub-agent to score the skill. Pass it:
 1. The full SKILL.md content
-2. The scoring criteria from the **Scoring criteria** section above
-3. The instruction: "FIRST: read the ## Design decisions section and list every documented decision. Then, for each criterion below, if a concern you would raise is already listed there as an intentional trade-off, do not reduce the score for it. Score each criterion 0–10. For each, give a one-sentence rationale and name the specific line or gap that most affected the score. Return a markdown table; no preamble."
+2. The DESIGN.md content (pass as empty block if none was found in Step 1)
+3. The scoring criteria from the **Scoring criteria** section above
+4. The instruction: "FIRST: review the design decisions provided and list each one. Then, for each criterion below, if a concern you would raise is already listed there as an intentional trade-off, do not reduce the score for it. Score each criterion 0–10. For each, give a one-sentence rationale and name the specific line or gap that most affected the score. Return a markdown table; no preamble."
 
 Use the sub-agent's scores directly:
 
@@ -68,11 +71,11 @@ Use AskUserQuestion (multiSelect: true) with each item as an option, all pre-sel
 ## Step 5: Apply
 
 For each selected **Fix** item: state the planned edit in one line, then use Edit to apply it.
-For each selected **Document** item: add a row to `## Design decisions` explaining the trade-off. Do not write code changes for Document items.
+For each selected **Document** item: add a row to `DESIGN.md` (create it using a `# Design decisions` heading and the standard table if absent). Do not write code changes for Document items.
 
 ## Step 6: Re-score and iterate
 
-Spawn a fresh Sonnet sub-agent to re-score. Pass it the updated skill file content and the scoring criteria from the **Scoring criteria** section above, with the instruction: "FIRST: read the ## Design decisions section and list every documented decision. Then, for each criterion below, if a concern you would raise is already listed there as an intentional trade-off, do not reduce the score for it. Score each criterion 0–10. For each, give a one-sentence rationale and name the specific line or gap that most affected the score. Return a markdown table; no preamble."
+Spawn a fresh Sonnet sub-agent to re-score. Pass it the updated SKILL.md content, the current DESIGN.md content (re-read if a Document item was applied in Step 5; otherwise use the design context from Step 1), and the scoring criteria from the **Scoring criteria** section above, with the instruction: "FIRST: review the design decisions provided and list each one. Then, for each criterion below, if a concern you would raise is already listed there as an intentional trade-off, do not reduce the score for it. Score each criterion 0–10. For each, give a one-sentence rationale and name the specific line or gap that most affected the score. Return a markdown table; no preamble."
 
 - Average ≥ 9.5 → proceed to Step 7.
 - Score increased by < 0.5 and all applied changes were objectively positive (additions or tightening only, no substantive content removed) → treat as scoring variance; stop and proceed to Step 7 with the current version.
@@ -100,13 +103,3 @@ Spawn a Haiku sub-agent to verify the audit's own quality on these criteria:
 
 If any criterion scores below 8, draft a concise edit to this SKILL.md to prevent the same failure, show it to the user, and apply on approval.
 
-## Design decisions
-
-| Decision | Rationale |
-|----------|-----------|
-| Criteria table passed to sub-agents in full on each call | Stateless sub-agents have no access to the parent conversation; full context must be provided on every spawn; this is not redundancy |
-| No edit-permission check in Step 1 | Skills live in team-owned repositories; the caller is assumed to have appropriate access |
-| Sonnet (not Haiku) for scoring sub-agents | Instruction explicitness and criterion ambiguity require simulating execution paths; Haiku scores surface-level clarity but misses subtle precision gaps. Haiku remains appropriate for the self-reflection binary checks. |
-| Fix vs. Document classification in Step 3 | Concerns that are inherent trade-offs should become Design decisions entries, not code changes; conflating the two causes wasted iteration rounds where the re-scorer flags the same concern again because it isn't yet documented |
-| Clarity criterion scoped to user-facing outputs, not SKILL.md text | SKILL.md contains technical instructions for Claude (code blocks, tool names, model directives); penalising these for non-technical readability misapplies the criterion; Token efficiency already judges SKILL.md text length |
-| Design-decision pre-check is a mandatory first step in scorer prompt | Placing "score net of documented decisions" as a trailing clause in prose causes scorers to acknowledge it in aggregate but ignore it per-criterion; making it the first explicit step anchors the scorer before any criterion is evaluated |

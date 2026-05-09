@@ -41,7 +41,7 @@ Default document-quality criteria (adjust based on context):
 | 5 | Runtime efficiency: when run, the skill uses the appropriate model tier (Haiku for simple/fast steps, Sonnet for balanced work, Opus for complex reasoning), spawns sub-agents where they improve quality or speed and avoids them otherwise, and minimises unnecessary back-and-forth or verbose outputs |
 | 6 | Self-reflection quality: the generated skill's `## Self-reflection` section has 2–5 criteria that are appropriate (relevant to the skill's purpose) and MECE (no overlap between criteria; together they fully capture "good output") |
 | 7 | Instruction explicitness: every action names the specific tool to use and the expected outcome, not just the goal (e.g., "Use Read to open X; if not found, proceed to Y" rather than "Check if X exists") |
-| 8 | Design decision coverage: every intentional trade-off or non-obvious constraint has a row in `## Design decisions`; a reviewer seeing the skill cold should not flag an intentional choice as a gap |
+| 8 | Design decision coverage: every intentional trade-off or non-obvious constraint has a row in `DESIGN.md`; a reviewer seeing the skill cold should not flag an intentional choice as a gap |
 
 Present defaults. Use AskUserQuestion (open text) to ask the user to confirm, modify, or add criteria. Move on once agreed.
 
@@ -80,8 +80,12 @@ During execution, follow the self-observation protocol (see CLAUDE.md Principles
 [2–5 MECE success criteria go here.]
 
 Spawn a Haiku sub-agent to score each criterion 0–10. If average < 9.5, revise the output and re-score. Stop after 3 iterations or if the score stops improving. If any criterion remains below 8 after iteration, draft a concise edit to this SKILL.md to prevent the same failure, show it to the user, and use Edit to apply it on approval.
+```
 
-## Design decisions
+Also draft a `DESIGN.md` alongside `SKILL.md`:
+
+```
+# Design decisions
 
 | Decision | Rationale |
 |----------|-----------|
@@ -97,7 +101,7 @@ Rules for the draft:
 - Name the skill directory as kebab-case verb-noun (e.g., `review-invoice`, `onboard-client`).
 - Never write CLI commands, install steps, or configuration syntax you're not certain is correct; flag uncertainty and ask whether to verify or omit.
 - Include a `## Self-reflection` section with the self-observation protocol one-liner, 2–5 MECE success criteria, and the standard loop (see CLAUDE.md).
-- Include a `## Design decisions` table; document intentional trade-offs so future audits don't penalise accepted choices. Leave the placeholder row if no decisions exist yet.
+- Create a separate `DESIGN.md` file alongside `SKILL.md` with a `# Design decisions` table; document intentional trade-offs there so future audits don't penalise accepted choices. Leave the placeholder row if no decisions exist yet.
 
 ## Step 5: Score and iterate this SKILL.md draft
 
@@ -105,8 +109,9 @@ This step scores the SKILL.md *document quality* against the criteria agreed in 
 
 Spawn a Sonnet sub-agent to score the draft. Pass it:
 1. The full SKILL.md draft text
-2. The agreed criteria and their definitions
-3. The instruction: "Score each criterion 0–10. If the draft has a ## Design decisions section, score net of documented decisions; do not penalise intentional trade-offs. For each criterion, give a one-sentence rationale and name the specific element that most affected the score. Return a markdown table, no preamble."
+2. The DESIGN.md draft text
+3. The agreed criteria and their definitions
+4. The instruction: "Score each criterion 0–10. Review the design decisions provided and score net of them; do not penalise intentional trade-offs. For each criterion, give a one-sentence rationale and name the specific element that most affected the score. Return a markdown table, no preamble."
 
 Use the sub-agent's scores directly:
 
@@ -122,7 +127,7 @@ Do not iterate more than 3 times.
 
 ## Step 6: Code-level correctness review
 
-Spawn a `feature-dev:code-reviewer` sub-agent. Pass it the full SKILL.md text and this prompt:
+Spawn a `feature-dev:code-reviewer` sub-agent. Pass it the full SKILL.md text, the DESIGN.md text, and this prompt:
 
 > Treat this SKILL.md as executable code. Check:
 > (a) Data format fields: are any TSV/JSON fields susceptible to delimiter or newline injection that would corrupt a consuming skill?
@@ -144,7 +149,7 @@ Apply any fixes to the draft before proceeding. If the sub-agent is unavailable,
 
 Show the user the final SKILL.md. Use AskUserQuestion (open text) to ask for explicit approval before writing the file.
 
-On approval: use Bash to create the directory `skills/<skill-name>/`, then use Write to save the content to `skills/<skill-name>/SKILL.md`.
+On approval: use Bash to create the directory `skills/<skill-name>/`, then use Write to save `skills/<skill-name>/SKILL.md` and `skills/<skill-name>/DESIGN.md`.
 
 ## Step 8: Audit the new skill
 
@@ -173,16 +178,3 @@ Spawn a Haiku sub-agent to verify the runtime quality of the skill just saved (d
 
 If any criterion scores below 8, draft a concise edit to this SKILL.md to prevent the same failure, show it to the user, and use Edit to apply it on approval.
 
-## Design decisions
-
-| Decision | Rationale |
-|----------|-----------|
-| 8 default criteria in Step 2 (exceeds the 2–5 guideline) | Defaults are a menu, not a mandate; users confirm and trim to 2–5 in the Step 2 conversation; a richer starting menu produces better criteria choices than a shorter one |
-| Plan mode used for blueprint (Step 3), not a plain AskUserQuestion | EnterPlanMode enforces that Claude cannot write any files or run commands until the user explicitly approves; a plain confirmation question is bypassable if the skill drifts into drafting early |
-| Two extra questions in Step 1 (persona, trigger) | Who uses the skill determines tone; the trigger shapes the entry point of the generated skill. Both are lost if not captured before drafting because the user rarely volunteers them unprompted |
-| Sonnet (not Haiku) for scoring sub-agents | Step 2 criteria include instruction explicitness and design decision coverage, which require simulating execution paths; Haiku misses subtle precision gaps in these areas |
-| Self-reflection is one-shot (no average loop) | The self-reflection checks runtime quality of the generated skill, not the document quality of create-skill itself; document quality is iterated in Step 5; a second loop would conflate the two checks |
-| code-reviewer runs before save (Step 6) | Catches injection, boundary, redundant-state, and contradiction bugs that prose-level review misses; placed before save so the user approves the technically verified version |
-| audit-skill runs after save (Step 8) | Skills start life with a quality score rather than waiting for a future audit-skills rotation; co-installed as part of the same plugin so almost always available |
-| Doc-sync runs after audit (Step 9), not before | The final audited name and description are the ones worth adding to docs; syncing before the audit could register a name or description that still changes |
-| Step 9 appends to existing sections only, never creates one | If neither README nor CLAUDE.md has a skills section the project hasn't opted into that convention; imposing structure would be overreach |
