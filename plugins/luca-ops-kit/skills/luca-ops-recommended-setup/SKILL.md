@@ -212,7 +212,7 @@ try:
             hooks_val = entry.get("hooks", [])
             if not isinstance(hooks_val, list):
                 continue
-            if any(isinstance(h, dict) and script_name in (h.get("command") or "") for h in hooks_val):
+            if any(isinstance(h, dict) and h.get("command") == f"bash ~/.claude/hooks/{script_name}" for h in hooks_val):
                 already = True
                 break
         if not already:
@@ -344,7 +344,9 @@ Average ≥ 9.5 → stop. Average < 9.5 → revise and re-score (max 3 iteration
 | code-reviewer skipped on idempotent re-runs | If all selected hook files already exist and are tagged as ours, the scripts were reviewed at prior install; re-running the reviewer adds no value and wastes a sub-agent call |
 | Checklist guarded on re-runs | First-time users need the privacy/backup checklist; returning users who've already read it are interrupted unnecessarily; a one-question gate respects their time |
 | Open-text "yes" confirmation for hook preview | Structured multiSelect forces a binary choice; open text lets users say "yes but change the word count threshold" in the same response, reducing round-trips |
-| Hook filename search includes `.sh` extension | Searching for `optimization-hint` alone could match a user's unrelated hook that happens to include the word; `.sh` makes the check specific to our exact filename |
+| Hook idempotency check uses exact command string | `h.get("command") == f"bash ~/.claude/hooks/{script_name}"` matches only the exact command this plugin installs; substring check risks false positives if the user has an unrelated hook whose command contains the script name as a substring |
+| `fcntl` used without Windows fallback | The plugin uses bash `.sh` scripts, `chmod`, and other Unix-only primitives throughout; Windows is not a supported platform. Adding a Windows fallback for `fcntl` alone while the rest of the plugin requires Unix would create false confidence. |
+| CLAUDE.md rules written via prose instruction, not a code block | The rules to add depend on runtime user selection and cannot be fully templated; the prose instruction ("write to .tmp, fsync, os.replace") is explicit enough for correct atomic execution; settings.json uses a code block because its JSON-parsing and locking logic is non-trivial and error-prone |
 | Raw text search for hooks in settings.json (Step 2) | The filename is a JSON string literal and will appear verbatim regardless of indentation or whitespace; only pathological reformatting that splits the filename string (impossible in valid JSON) could cause a false negative; Python parse adds no reliability for this specific case |
 | Marker write gated on manifest write success | If the manifest write fails but the marker is written, future re-runs detect "setup complete" but undo-setup finds no manifest and cannot reverse the actual changes; writing marker only after a confirmed manifest write keeps the two files in sync |
 | Manifest records all currently-active items, not just this-run additions | If a previous run crashed before writing the manifest, re-run detects orphaned items via Step 2 fingerprint/filename scan and includes them in the new manifest; this makes re-runs self-healing without requiring rollback logic |

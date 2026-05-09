@@ -137,7 +137,7 @@ try:
                 hooks_list = entry.get("hooks", [])
                 if not isinstance(hooks_list, list):
                     hooks_list = []
-                remaining = [h for h in hooks_list if not (isinstance(h, dict) and script_name in (h.get("command") or ""))]
+                remaining = [h for h in hooks_list if not (isinstance(h, dict) and h.get("command") == f"bash ~/.claude/hooks/{script_name}")]
                 if len(remaining) != len(hooks_list):
                     changed = True
                     if remaining:
@@ -231,6 +231,8 @@ Average ≥ 9.5 → stop. Otherwise revise and re-score (max 3 iterations; stop 
 | Hooks take effect next session | Platform constraint; user is told explicitly so they know the session they're in still has the hooks active |
 | Inline Python/Bash blocks are execution instructions, not user content | Extracting these to external script files would create a file dependency that breaks the skill's self-containment; Claude executes the blocks directly via Bash; the user never sees them |
 | Step 2 preview uses manifest text, not live CLAUDE.md state | Verifying live state would add a Read call and create a preview/execute inconsistency if the file changed between preview and execution; Step 3's "absent" reporting handles any drift gracefully |
-| Step 2 hook command entry constructed from known pattern, not read from settings.json | The command is always `bash ~/.claude/hooks/<name>.sh`; reading settings.json live would add a tool call and could show a user-modified entry that undo-setup would remove by filename match regardless |
+| Step 2 hook command entry constructed from known pattern, not read from settings.json | The command is always `bash ~/.claude/hooks/<name>.sh`; reading settings.json live would add a tool call and could show a user-modified entry that undo-setup would remove by exact command match regardless |
+| Hook removal uses exact command string, not substring | `h.get("command") == f"bash ~/.claude/hooks/{script_name}"` removes only what this plugin installed; substring check risks false positives if another hook command contains the script name as a substring |
+| `fcntl` used without Windows fallback | The plugin uses bash `.sh` scripts, `chmod`, and other Unix-only primitives throughout; Windows is not a supported platform |
 | Fingerprint-not-found triggers a passive note, not a confirmation gate | If a fingerprint is absent from CLAUDE.md, the rule is already gone; the desired end state is already reached; requiring confirmation would add friction with no safety benefit |
 | Completeness and Cleanliness are distinct, not overlapping | Completeness = every manifest item was attempted; Cleanliness = no residue remains in the end state; a run can be complete but leave residue (partial write), or clean but incomplete (missing manifest entry) |
