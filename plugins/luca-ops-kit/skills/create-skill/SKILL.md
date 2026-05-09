@@ -111,7 +111,7 @@ Spawn a Sonnet sub-agent to score the draft. Pass it:
 1. The full SKILL.md draft text
 2. The DESIGN.md draft text
 3. The agreed criteria and their definitions
-4. The instruction: "Score each criterion 0–10. Review the design decisions provided and score net of them; do not penalise intentional trade-offs. For each criterion, give a one-sentence rationale and name the specific element that most affected the score. Return a markdown table, no preamble."
+4. The instruction: "FIRST: review the design decisions provided and list each one. Then, for each criterion below, if a concern you would raise is already listed there as an intentional trade-off, do not reduce the score for it. Score each criterion 0–10. For each, give a one-sentence rationale and name the specific element that most affected the score. Return a markdown table, no preamble."
 
 Use the sub-agent's scores directly:
 

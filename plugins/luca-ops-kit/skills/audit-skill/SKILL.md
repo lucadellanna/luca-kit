@@ -24,13 +24,13 @@ Score an existing skill, improve it, and iterate until it meets quality standard
 
 If no skill path was provided, ask which skill to audit. Read the SKILL.md file. If it doesn't exist, say so and stop.
 
-Also attempt to read DESIGN.md from the same directory (replace `SKILL.md` with `DESIGN.md` in the path). If it exists, hold its content as design context for Steps 2 and 6. If not, design context is empty.
+Also attempt to read DESIGN.md from the same directory (replace `SKILL.md` with `DESIGN.md` in the path). If it exists, hold its content as design context for Steps 2 and 6. If not, design context is the string `"DESIGN.md: NOT FOUND"`.
 
 ## Step 2: Score (initial)
 
 Spawn a Sonnet sub-agent to score the skill. Pass it:
 1. The full SKILL.md content
-2. The DESIGN.md content (pass as empty block if none was found in Step 1)
+2. The design context from Step 1
 3. The scoring criteria from the **Scoring criteria** section above
 4. The instruction: "FIRST: review the design decisions provided and list each one. Then, for each criterion below, if a concern you would raise is already listed there as an intentional trade-off, do not reduce the score for it. Score each criterion 0–10. For each, give a one-sentence rationale and name the specific line or gap that most affected the score. Return a markdown table; no preamble."
 
@@ -71,7 +71,7 @@ Use AskUserQuestion (multiSelect: true) with each item as an option, all pre-sel
 ## Step 5: Apply
 
 For each selected **Fix** item: state the planned edit in one line, then use Edit to apply it.
-For each selected **Document** item: add a row to `DESIGN.md` (create it using a `# Design decisions` heading and the standard table if absent). Do not write code changes for Document items.
+For each selected **Document** item: add a row to `DESIGN.md` (create it using a `# Design decisions` heading and a `| Decision | Rationale |` table if absent). Do not write code changes for Document items.
 
 ## Step 6: Re-score and iterate
 
