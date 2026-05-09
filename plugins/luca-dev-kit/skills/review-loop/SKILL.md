@@ -163,11 +163,17 @@ Stop. Wait for user confirmation.
 
 ### F. Cycle detection
 
+Build a JSON array of `{"id": ..., "body": ...}` objects for each FIX thread (in order), then hash via env var -- never interpolate untrusted body content into Python source:
+
 ```bash
+# FIX_THREADS_JSON = '[{"id":"<id1>","body":"<body1>"},{"id":"<id2>","body":"<body2>"},...]'
+# Construct this JSON from the FIX thread list, then:
+CURRENT_HASH=$(FIX_THREADS_JSON="$FIX_THREADS_JSON" python3 -c "
+import sys, hashlib, os
 # Use python3 hashlib: md5sum is not available on stock macOS (only md5)
-FIX_THREAD_DATA=$(printf '%s %s\n' "${FIX_THREAD_IDS[@]}" "${FIX_THREAD_BODIES[@]}")
-CURRENT_HASH=$(echo "$FIX_THREAD_DATA" | \
-  python3 -c "import sys,hashlib; print(hashlib.sha256(sys.stdin.buffer.read()).hexdigest())")
+data = os.environ['FIX_THREADS_JSON'].encode()
+print(hashlib.sha256(data).hexdigest())
+")
 ```
 
 If `CURRENT_HASH == thread_hashes_prev`: stop.
@@ -227,7 +233,7 @@ If yes: reset counter to 0 and continue. If no: stop and report.
 
 ```bash
 gh pr comment --body "/gemini review"
-TRIGGER_TS=$(gh pr view --json comments -q '.comments | last | .createdAt')
+TRIGGER_TS=$(gh pr view "$PR_NUM" --json comments -q '.comments | map(select(.body == "/gemini review")) | last | .createdAt')
 ```
 
 Update `trigger_ts` in state file atomically. Loop back to step A.
@@ -254,3 +260,9 @@ osascript -e 'display notification "Review loop stopped: action needed." with ti
 ```
 
 Report the specific stop condition and required action clearly.
+
+## Design decisions
+
+| Decision | Rationale |
+|---|---|
+| OWNER/REPO fetched per-round (not cached in state file) | Each round is a separate Claude invocation via ScheduleWakeup. OWNER/REPO are fetched once per round in step C -- not in a tight inner loop. Caching in the state file adds state management complexity for negligible gain (one extra API call per round among many). |
