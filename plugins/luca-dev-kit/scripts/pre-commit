@@ -139,7 +139,7 @@ sys.exit(1)
   END_MS=$(python3 -c "import time; print(int(time.time() * 1000))")
   ELAPSED=$(( END_MS - START_MS ))
 
-  if [[ $ELAPSED -gt 10000 ]]; then
+  if [[ $ELAPSED -gt 30000 ]]; then
     mkdir -p "$REPO_ROOT/.claude/cache"
     TIMING_FILE="$TIMING_FILE" ELAPSED="$ELAPSED" python3 -c "
 import json, os
@@ -148,7 +148,7 @@ tmp = p + '.tmp'
 with open(tmp, 'w') as f:
     json.dump({'skip_in_commit': True,
                'elapsed_ms': int(os.environ['ELAPSED']),
-               'reason': 'typecheck exceeded 10s budget'}, f)
+               'reason': 'typecheck exceeded 30s budget'}, f)
 os.replace(tmp, p)
 "
     echo "⚠️  Typecheck took $((ELAPSED / 1000))s: skipping in future commits. Still runs in /open-pr." >&2

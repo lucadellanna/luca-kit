@@ -45,9 +45,9 @@ try:
     review  = to_utc(os.environ['REVIEW_TS'])
     print('1' if review > trigger else '')
 except Exception as e:
-    print('', file=sys.stderr)
-    sys.exit(0)
-" 2>/dev/null)
+    print(f'Error comparing timestamps: {e}', file=sys.stderr)
+    sys.exit(1)
+")
 
 if [[ -n "$IS_NEW" ]]; then
   echo "$REVIEW"
