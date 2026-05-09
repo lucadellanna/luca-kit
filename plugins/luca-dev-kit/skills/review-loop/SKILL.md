@@ -97,10 +97,11 @@ query($owner:String!, $repo:String!, $pr:Int!) {
 }' -F owner="$OWNER" -F repo="$REPO" -F pr="$PR_NUM"
 ```
 
-Parse `owner` and `repo` into shell variables:
+Parse `owner` and `repo` into shell variables. Use the PR URL (always the base repo) to avoid misidentifying the fork as the target in cross-repository PRs:
 ```bash
-OWNER=$(gh pr view "$PR_NUM" --json headRepositoryOwner -q '.headRepositoryOwner.login')
-REPO=$(gh pr view "$PR_NUM" --json headRepository -q '.headRepository.name')
+PR_URL=$(gh pr view "$PR_NUM" --json url -q '.url')
+OWNER=$(echo "$PR_URL" | cut -d'/' -f4)
+REPO=$(echo "$PR_URL" | cut -d'/' -f5)
 ```
 
 Filter to unresolved Gemini threads only:

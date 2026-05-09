@@ -20,6 +20,7 @@ If uncommitted changes exist: offer to commit them via `commit-commands:commit`.
 
 ```bash
 BASE=$(git remote show origin | grep 'HEAD branch' | awk '{print $NF}')
+[[ -z "$BASE" ]] && { echo "Error: Could not detect base branch from origin." >&2; exit 1; }
 git fetch origin "$BASE" --quiet 2>/dev/null || true   # ensure remote ref is current
 DIFF=$(git diff "origin/$BASE"...HEAD)
 ```
@@ -166,3 +167,4 @@ Then immediately invoke `luca-dev-kit:review-loop`. Pass the PR number. The loop
 |---|---|
 | `git remote show origin` for base branch detection (not `git symbolic-ref`) | `git symbolic-ref refs/remotes/origin/HEAD` is not reliably set in all clone types (shallow, sparse). `git remote show origin` is consistent across all three skills and the subsequent `git fetch` already incurs network I/O. |
 | Remote name hardcoded to `origin` (not dynamic detection) | Dynamic detection via `git remote | head -n 1` is unreliable: remotes have no defined ordering. `origin` is the standard convention and is used consistently for push and PR creation throughout all three skills. Fork-based workflows where the primary push remote differs from `origin` are out of scope. |
+| Structural-only token list not extended or made configurable | The heuristic errs toward running review (false positive over false negative): any unrecognized token causes review to run. Languages not in the list default to running review, which is safe. Per-project configuration is out of scope. |
