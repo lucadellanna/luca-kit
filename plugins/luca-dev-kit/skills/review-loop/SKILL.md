@@ -85,7 +85,7 @@ query($owner:String!, $repo:String!, $pr:Int!) {
   repository(owner:$owner, name:$repo) {
     pullRequest(number:$pr) {
       reviewThreads(first:100) {
-        nodes { id isResolved comments(first:1) { nodes { body path line } } }
+        nodes { id isResolved comments(first:1) { nodes { body path line author { login } } } }
       }
     }
   }
@@ -93,12 +93,6 @@ query($owner:String!, $repo:String!, $pr:Int!) {
 ```
 
 Get `owner` and `repo` from: `gh pr view --json headRepositoryOwner,headRepository -q '{owner:.headRepositoryOwner.login,repo:.headRepository.name}'`
-
-Add `author { login }` to the comment nodes in the query so threads can be filtered by author:
-
-```graphql
-comments(first:1) { nodes { body path line author { login } } }
-```
 
 Filter to unresolved Gemini threads only:
 ```bash

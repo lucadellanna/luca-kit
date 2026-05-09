@@ -19,6 +19,7 @@ Runtime instructions active in every session where this plugin is installed.
 - **Delegation over reimplementation.** When a global skill exists (`commit-commands:commit`), invoke it rather than reimplementing its logic.
 - **Time-budget gates.** Pre-commit hooks skip slow checks in future commits once a timing threshold is exceeded; `open-pr` always runs them regardless.
 - **No assumptions about project type.** Detect build tools and type checkers from repo files. Skip gracefully if not found.
+- **Self-observation.** During skill execution, log problems encountered (unexpected behavior, missed authoring gates, tool failures, wasted iterations) to a running task list. After the main work completes, investigate each item for root cause and decide whether a permanent fix is needed (skill edit, CLAUDE.md rule). Apply fixes before closing the task.
 
 ## Gemini review facts (as of May 2026)
 

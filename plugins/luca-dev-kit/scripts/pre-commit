@@ -18,7 +18,7 @@ for h in hits:
 " 2>/dev/null)
 
 if [[ -n "$EM_HITS" ]]; then
-  echo "❌ Em dash (:) found in staged changes. Replace with '--' or restructure." >&2
+  echo "❌ Em dash (U+2014) found in staged changes. Replace with '--' or restructure." >&2
   while IFS= read -r line; do echo "   $line" >&2; done <<< "$EM_HITS"
   exit 1
 fi
