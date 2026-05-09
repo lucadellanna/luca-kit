@@ -274,16 +274,32 @@ except (FileNotFoundError, json.JSONDecodeError, AttributeError):
 # and add any new backup paths recorded during this run on top of it.
 ```
 
-```json
-{
-  "plugin_version": "0.1.0",
-  "applied_at": "<ISO 8601 timestamp from: python3 -c 'from datetime import datetime, timezone; print(datetime.now(timezone.utc).isoformat())'>",
-  "rules_added": ["<all rule IDs now active: rule-skills-first if present, rule-confirm-irreversible if present, rule-clarifying-question if present>"],
-  "hooks_added": ["<all hook IDs now active: optimization-hint if present, prompt-word-count if present>"],
-  "hooks_backed_up": {
-    "<hook-id>": "<absolute backup path, e.g. /Users/.../.claude/hooks/optimization-hint.sh.bak-luca-ops-kit>"
-  }
+Build the manifest dict using the structure above, then write it atomically:
+
+```python
+import json, os
+
+manifest_path = os.path.expanduser("~/.claude/luca-ops-kit/applied.json")
+os.makedirs(os.path.dirname(manifest_path), exist_ok=True)
+manifest = {
+    "plugin_version": "0.1.0",
+    "applied_at": applied_at,      # ISO 8601 string from datetime.now(timezone.utc).isoformat()
+    "rules_added": rules_added,    # list of all active rule IDs
+    "hooks_added": hooks_added,    # list of all active hook IDs
 }
+if hooks_backed_up:
+    manifest["hooks_backed_up"] = hooks_backed_up  # merged from prior + this run
+tmp = manifest_path + ".tmp"
+try:
+    with open(tmp, "w") as tf:
+        json.dump(manifest, tf, indent=2)
+        tf.write('\n')
+        tf.flush()
+        os.fsync(tf.fileno())
+    os.replace(tmp, manifest_path)
+except OSError as e:
+    print(f"Could not write manifest: {e}")
+    raise SystemExit(1)
 ```
 
 `hooks_backed_up` is omitted when neither this run nor any prior run backed up a script. On re-runs, previously recorded backup paths are carried forward from the prior manifest, so the key may be present even if the current run made no new backups. `/undo-setup` uses it to restore pre-existing scripts rather than deleting them.
@@ -361,4 +377,6 @@ Average ≥ 9.5 → stop. Average < 9.5 → revise and re-score (max 3 iteration
 | Existing hook scripts backed up rather than overwritten silently | Overwiting a user's existing hook script without warning destroys their work; backing up preserves it and undo-setup can restore it; the backup path is recorded in the manifest as the source of truth |
 | Skills overview is hardcoded (not read from README at runtime) | Avoids a file-read tool call at the end of setup; the table is a stable snapshot that changes only when new skills are added to the plugin, at which point this skill should be updated in the same PR |
 | UserPromptSubmit hook fires at the start of the next message, not immediately after a response | Claude Code injects hook output into the system prompt for the next user turn; the optimization-hint hook looks back at the prior response's tool-call count. The user description ("after any response") is an approximation of this mechanism; the technically precise description would be "as a prefix to the next response". |
+| `null` `UserPromptSubmit` value causes SystemExit, not silent replacement | A null value is invalid for this field; silently replacing it with `[]` and proceeding could overwrite unexpected user state; explicit error with instructions preserves user control and avoids modifying a file in an unknown state |
+| Non-dict entries in `UserPromptSubmit` are silently skipped in the idempotency scan | The scan only needs to detect our specific hook command; non-dict entries cannot contain our command string; skipping is safe because the write loop preserves all non-matching entries regardless of type |
 | Confirmation gate runs after code-reviewer | Showing the preview before the reviewer runs would let the user approve content that the reviewer may then change; the confirmation must cover the final post-reviewer version to be meaningful |

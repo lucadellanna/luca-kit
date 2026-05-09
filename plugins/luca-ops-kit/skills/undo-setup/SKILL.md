@@ -20,7 +20,7 @@ Use Read to open `~/.claude/luca-ops-kit/applied.json`.
 Present a clear summary before touching anything:
 
 **Rules to remove from `~/.claude/CLAUDE.md`:**
-- For each rule ID in `rules_added`, show the fingerprint and the corresponding rule text
+- For each rule ID in `rules_added`, show the fingerprint (`<!-- luca-ops-kit:{rule-id} -->`)
 
 **Hooks to remove from `~/.claude/settings.json` and disk:**
 - For each hook ID in `hooks_added`, show the script filename and the settings.json command entry that references it
@@ -174,6 +174,8 @@ If an OSError output is printed during the write phase, tell the user: "Failed t
 
 ## Step 5: Remove or restore hook scripts
 
+Hook ID to script filename mapping (same table as Step 4): `optimization-hint` → `optimization-hint.sh`, `prompt-word-count` → `prompt-word-count.sh`.
+
 For each hook ID in `hooks_added`:
 
 Check the manifest for a `hooks_backed_up` entry mapping the hook ID to a backup path (e.g., `~/.claude/hooks/<name>.sh.bak-luca-ops-kit`). This entry is written when `/luca-ops-recommended-setup` backed up a pre-existing file before overwriting.
@@ -240,3 +242,6 @@ Average ≥ 9.5 → stop. Otherwise revise and re-score (max 3 iterations; stop 
 | `fcntl` used without Windows fallback | The plugin uses bash `.sh` scripts, `chmod`, and other Unix-only primitives throughout; Windows is not a supported platform |
 | Fingerprint-not-found triggers a passive note, not a confirmation gate | If a fingerprint is absent from CLAUDE.md, the rule is already gone; the desired end state is already reached; requiring confirmation would add friction with no safety benefit |
 | Completeness and Cleanliness are distinct, not overlapping | Completeness = every manifest item was attempted; Cleanliness = no residue remains in the end state; a run can be complete but leave residue (partial write), or clean but incomplete (missing manifest entry) |
+| `null` `UserPromptSubmit` silently treated as empty list (not an error) | If the value is null, no hooks exist to remove; the desired end state is already reached; modifying the file when no changes are needed adds risk with no benefit |
+| Step 2 shows fingerprint only, not full rule text | Rule text is not stored in the manifest; reading CLAUDE.md live would contradict the "manifest as source of truth" design decision; the fingerprint (`<!-- luca-ops-kit:{rule-id} -->`) contains the rule ID which is sufficient for user confirmation |
+| Hook ID-to-filename mapping duplicated inline in Step 5 header | The table in Step 4 is authoritative; the Step 5 inline note ensures `<name>` is unambiguous when reading Step 5 in isolation, avoiding a cross-step lookup under time pressure |
