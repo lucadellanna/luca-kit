@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(update-config)",
+      "Read(.)",
+      "Write(.)",
+      "Edit(.)",
+      "Bash(~/.claude/scripts/review-loop-check.sh *)",
+      "Bash(SPECS_REVIEWED=1 git commit *)",
+      "Bash(git add *)",
+      "Bash(git push *)",
+      "Bash(gh pr *)",
+      "Bash(git check-ignore *)"
+    ]
+  }
+}
