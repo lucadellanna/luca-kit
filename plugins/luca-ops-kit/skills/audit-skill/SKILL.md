@@ -24,7 +24,7 @@ Score an existing skill, improve it, and iterate until it meets quality standard
 
 If no skill path was provided, ask which skill to audit. Read the SKILL.md file. If it doesn't exist, say so and stop.
 
-Also attempt to read DESIGN.md from the same directory (replace `SKILL.md` with `DESIGN.md` in the path). If it exists, hold its content as design context for Steps 2 and 6. If not, design context is the string `"DESIGN.md: NOT FOUND"`.
+Use Read to attempt to read DESIGN.md from the same directory (replace `SKILL.md` with `DESIGN.md` in the path). If it exists, hold its content as design context for Steps 2 and 6. If not, design context is the string `"DESIGN.md: NOT FOUND"`.
 
 ## Step 2: Score (initial)
 
@@ -71,7 +71,7 @@ Use AskUserQuestion (multiSelect: true) with each item as an option, all pre-sel
 ## Step 5: Apply
 
 For each selected **Fix** item: state the planned edit in one line, then use Edit to apply it.
-For each selected **Document** item: add a row to `DESIGN.md` (create it using a `# Design decisions` heading and a `| Decision | Rationale |` table if absent). Do not write code changes for Document items.
+For each selected **Document** item: add a row to `DESIGN.md`. If the file is absent, use Write to create it with a `# Design decisions` heading and a `| Decision | Rationale |` table; if it exists, use Edit to append the row. Do not write code changes for Document items.
 
 ## Step 6: Re-score and iterate
 

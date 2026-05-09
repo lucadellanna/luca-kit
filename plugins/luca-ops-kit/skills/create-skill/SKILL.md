@@ -149,7 +149,7 @@ Apply any fixes to the draft before proceeding. If the sub-agent is unavailable,
 
 Show the user the final SKILL.md. Use AskUserQuestion (open text) to ask for explicit approval before writing the file.
 
-On approval: use Bash to create the directory `skills/<skill-name>/`, then use Write to save `skills/<skill-name>/SKILL.md`, and use Write again to save `skills/<skill-name>/DESIGN.md`.
+On approval: use Bash to create the directory `skills/<skill-name>/`, then use Write to save the SKILL.md draft to `skills/<skill-name>/SKILL.md`, and use Write again to save the DESIGN.md draft to `skills/<skill-name>/DESIGN.md`.
 
 ## Step 8: Audit the new skill
 
