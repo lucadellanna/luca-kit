@@ -17,9 +17,10 @@ All skills in this plugin are meta-skills. When adding a skill, confirm it fits 
 
 ```
 plugins/luca-ops-kit/
-  .claude-plugin/plugin.json   # Plugin manifest
+  .claude-plugin/plugin.json    # Plugin manifest
   CLAUDE.md                     # Runtime instructions (ships with plugin)
-  skills/<name>/SKILL.md        # One directory per skill
+  skills/<name>/SKILL.md        # Runtime instructions (loaded on every execution)
+  skills/<name>/DESIGN.md       # Design decisions (loaded only during audits)
 ```
 
 Skill directories use kebab-case verb-noun names (e.g., `review-invoice`, `onboard-client`).
@@ -50,4 +51,4 @@ These apply when writing or editing skills, not at user runtime. They are enforc
 - **Pre-write review gate.** When a skill generates content that will be written to the user's system (scripts, config entries, generated files), run the code-reviewer sub-agent on the planned content before writing, not after. Apply any fixes in-context, then write the corrected version. Post-write review creates inconsistent state: the unfixed version is already on disk and registered, and rollback is unspecified.
 - **Opus security gate for global-state features.** Before implementing any plugin feature that writes to the user's global environment (settings.json, CLAUDE.md, hook scripts, global config), run an Opus review pass on the plan with focus on security and plugin-owner liability. In-context Sonnet review is anchored to the plan's already-accepted decisions; Opus starting fresh treats them as open questions. This gate is separate from and precedes the inline Sonnet review.
 - **Pre-push proactive scan for SKILL.md files with embedded code.** Before the first `git push` on any PR that modifies SKILL.md files containing Python or Bash code blocks, spawn a Sonnet subagent to scan all modified SKILL.md files against the full `~/.claude/code-review-checklist.md`. This catches most issues in one pass instead of across multiple Gemini review rounds. Run the same scan that review-loop Step 5 runs, but before pushing rather than after each Gemini round.
-- **Design-decisions table when rejecting a Gemini thread.** When a Gemini review thread is rejected as a design decision (not a bug), update the `## Design decisions` table in the same commit. A documented decision prevents the same thread from being raised in subsequent review rounds.
+- **DESIGN.md when rejecting a Gemini thread.** When a Gemini review thread is rejected as a design decision (not a bug), update `DESIGN.md` in the same commit. A documented decision prevents the same thread from being raised in subsequent review rounds.
