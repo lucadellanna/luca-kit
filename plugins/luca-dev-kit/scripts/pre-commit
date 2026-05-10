@@ -139,6 +139,8 @@ sys.exit(1)
   END_MS=$(python3 -c "import time; print(int(time.time() * 1000))")
   ELAPSED=$(( END_MS - START_MS ))
 
+  # 30s threshold: generous for most projects; typecheck always runs in /open-pr regardless.
+  # Projects that regularly exceed this can reset via luca-dev-kit:install-pre-commit-hooks.
   if [[ $ELAPSED -gt 30000 ]]; then
     mkdir -p "$REPO_ROOT/.claude/cache"
     TIMING_FILE="$TIMING_FILE" ELAPSED="$ELAPSED" python3 -c "

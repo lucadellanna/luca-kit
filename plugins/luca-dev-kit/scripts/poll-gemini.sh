@@ -26,7 +26,7 @@ if [[ -z "$REVIEW" ]]; then
   exit 1
 fi
 
-REVIEW_TS=$(echo "$REVIEW" | python3 -c "import sys,json; print(json.load(sys.stdin)['submittedAt'])") || { echo "Failed to parse review timestamp" >&2; exit 2; }
+REVIEW_TS=$(printf '%s\n' "$REVIEW" | python3 -c "import sys,json; print(json.load(sys.stdin)['submittedAt'])") || { echo "Failed to parse review timestamp" >&2; exit 2; }
 
 # Compare timestamps: normalize both to UTC seconds for robust comparison.
 IS_NEW=$(TRIGGER_TS="$TRIGGER_TS" REVIEW_TS="$REVIEW_TS" python3 -c "
