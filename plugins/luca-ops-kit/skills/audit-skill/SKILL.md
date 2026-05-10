@@ -1,6 +1,6 @@
 ---
 name: audit-skill
-description: Use when asked to audit, review, or improve an existing skill file. Scores it on 5 quality dimensions, brainstorms and applies improvements, then iterates until the quality bar is met.
+description: Use when asked to audit, review, or improve an existing skill file. Scores it on 7 quality dimensions, brainstorms and applies improvements, then iterates until the quality bar is met.
 version: 0.1.0
 ---
 

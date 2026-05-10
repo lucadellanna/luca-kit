@@ -39,7 +39,7 @@ Read `~/.claude/settings.json` and `~/.claude/CLAUDE.md`. If either file does no
 | Confirm irreversible | `<!-- luca-ops-kit:rule-confirm-irreversible -->` | `rule2_present` |
 | Clarifying question | `<!-- luca-ops-kit:rule-clarifying-question -->` | `rule3_present` |
 
-Carry these five status variables forward. Do not show this step to the user.
+Carry these four status variables forward. Do not show this step to the user.
 
 ## Step 3: Manual checklist
 
@@ -85,7 +85,7 @@ Track which rules were added in a list for the manifest (Step 6).
 
 ## Step 5: Offer hooks
 
-If the hook is already present (`hook1_present` = true): tell the user "Your hooks are already configured." and skip to Step 6.
+If the hook is already present (`hook1_present` = true): tell the user "Your hook is already configured." and skip to Step 6.
 
 Explain the missing hook in plain language:
 
