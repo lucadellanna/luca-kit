@@ -70,7 +70,7 @@ jq -rn --arg since "$SINCE" \
   ~/.claude/reflect-logs/*.jsonl 2>/dev/null \
   | sort | uniq -c | sort -rn | awk '$1 > 1'
 ```
-Load full entries only for repos where pre-aggregation shows signal (≥2 matching findings -- intentionally one below Step 2's ≥3 bar so borderline candidates are available for analysis without over-loading context). Accept schema 1 and 2; skip entries with unknown `schema` values; report a count of skipped entries if any.
+Load full entries only for repos where pre-aggregation shows signal (≥2 matching findings -- intentionally one below Step 2's ≥3 bar so borderline candidates are available for analysis without over-loading context). Accept schema 1 and 2; silently skip entries with unknown `schema` values.
 
 **Load memory files:**
 - Project memory: `<repo-root>/.claude/memory/*.md`
