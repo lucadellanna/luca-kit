@@ -25,7 +25,7 @@ Runtime instructions active in every session where this plugin is installed.
 
 - Gemini **auto-triggers on PR creation**: no manual `/gemini review` needed for round 1.
 - Gemini posts either: (a) an APPROVED review with no threads, or (b) a COMMENTED review with one or more inline threads.
-- Gemini can take **up to 12 minutes**. Poll at 8 min, then every 2 min up to 14 min.
+- Gemini can take **up to 12 minutes**. Poll at 4 min, then every 2 min up to 12 min total.
 - After fixing and pushing, trigger round 2+ with: `gh pr comment --body "/gemini review"`
 
 ## Code review checklist

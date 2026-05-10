@@ -68,9 +68,9 @@ The script exits 0 (found), 1 (not yet), or 2 (tool/parse failure). Treat exit 2
    elif [[ $EXIT -eq 2 ]]; then echo "Poll script error (exit 2): stop." >&2; exit 1
    else FOUND=0; fi
    ```
-2. If not found: `ScheduleWakeup(delaySeconds=480, reason="waiting 8 min for Gemini on PR #$PR_NUM")`. On wake, poll once.
-3. If still not found: `ScheduleWakeup(delaySeconds=120)` up to 3 more times (14 min total).
-4. If no response after 14 min: post a second `/gemini review` and restart from step 2 once. If still no response, stop and notify user.
+2. If not found: `ScheduleWakeup(delaySeconds=240, reason="waiting 4 min for Gemini on PR #$PR_NUM")`. On wake, poll once.
+3. If still not found: `ScheduleWakeup(delaySeconds=120)` up to 4 more times (12 min total).
+4. If no response after 12 min: post a second `/gemini review` and restart from step 2 once. If still no response, stop and notify user.
 
 ### B. Check review state
 
