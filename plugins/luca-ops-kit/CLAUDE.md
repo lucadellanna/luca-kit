@@ -4,12 +4,12 @@ Runtime instructions active whenever this plugin's skills are in use.
 
 ## First-run
 
-**Disclaimer (once per install):** If `~/.claude/luca-ops-kit/disclaimer-v1.0-shown` does not exist:
+**Disclaimer (once per install):** At the very start of the session, before addressing any other request — and only if `mode: raw` is not present in the opening message — check if `~/.claude/luca-ops-kit/disclaimer-v1.0-shown` exists. If it does not:
 1. Run `cat "$CLAUDE_PLUGIN_ROOT/DISCLAIMER.md"` and display the output verbatim.
 2. Run `mkdir -p ~/.claude/luca-ops-kit && echo "v1.0 shown $(date +%Y-%m-%d)" > ~/.claude/luca-ops-kit/disclaimer-v1.0-shown`
 3. Do not display it again this session.
 
-**Setup prompt:** After the disclaimer (if shown), if neither `~/.claude/luca-ops-kit/setup-complete` nor `~/.claude/luca-ops-kit/applied.json` exists, suggest running `/luca-ops-recommended-setup`. On a fresh install where both apply, show the disclaimer first, then the setup suggestion in the same response. If the user declines setup, do not suggest it again this session.
+**Setup prompt:** After the disclaimer (if shown), before addressing any other request, if neither `~/.claude/luca-ops-kit/setup-complete` nor `~/.claude/luca-ops-kit/applied.json` exists, suggest running `/luca-ops-recommended-setup`. On a fresh install where both apply, show the disclaimer first, then the setup suggestion in the same response. If the user declines setup, do not suggest it again this session.
 
 ## Audience
 
