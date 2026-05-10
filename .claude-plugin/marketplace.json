@@ -8,6 +8,11 @@
       "name": "luca-ops-kit",
       "source": "./plugins/luca-ops-kit",
       "description": "Meta-skills for turning recurring work into reusable Claude procedures"
+    },
+    {
+      "name": "luca-dev-kit",
+      "source": "./plugins/luca-dev-kit",
+      "description": "Developer workflow automation: pre-PR quality gates, autonomous Gemini review loop, and pre-commit hook management"
     }
   ]
 }
