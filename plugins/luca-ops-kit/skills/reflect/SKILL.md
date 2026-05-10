@@ -90,11 +90,11 @@ def run(cmd):
 
 origin = run(['git', 'remote', 'get-url', 'origin'])
 if origin:
-    clean = origin.rstrip('/').removesuffix('.git')
+    clean = origin.rstrip('/'); clean = clean[:-4] if clean.endswith('.git') else clean
     slug = '__'.join(clean.replace(':', '/').split('/')[-2:])
 else:
     top = run(['git', 'rev-parse', '--show-toplevel'])
-    slug = os.path.basename(top) if top else 'no-repo'
+    slug = os.path.basename(top) or 'no-repo' if top else 'no-repo'
 slug = ''.join(c if c.isalnum() or c in '-_' else '-' for c in slug)
 
 path = os.path.expanduser(f"~/.claude/reflect-logs/{slug}.jsonl")
