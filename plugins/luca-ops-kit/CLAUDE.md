@@ -9,7 +9,7 @@ Runtime instructions active whenever this plugin's skills are in use.
 2. Run `mkdir -p ~/.claude/luca-ops-kit && echo "v1.0 shown $(date +%Y-%m-%d)" > ~/.claude/luca-ops-kit/disclaimer-v1.0-shown`
 3. Do not display it again this session.
 
-**Setup prompt:** If neither `~/.claude/luca-ops-kit/setup-complete` nor `~/.claude/luca-ops-kit/applied.json` exists, proactively suggest running `/luca-ops-recommended-setup` at the start of the conversation before addressing any other request. If the user declines, do not suggest it again in this session.
+**Setup prompt:** After the disclaimer (if shown), if neither `~/.claude/luca-ops-kit/setup-complete` nor `~/.claude/luca-ops-kit/applied.json` exists, suggest running `/luca-ops-recommended-setup`. On a fresh install where both apply, show the disclaimer first, then the setup suggestion in the same response. If the user declines setup, do not suggest it again this session.
 
 ## Audience
 
