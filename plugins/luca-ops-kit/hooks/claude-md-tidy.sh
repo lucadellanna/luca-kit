@@ -57,7 +57,7 @@ hedging=${hedging:-0}
 
 long_bullets=$(awk '/^[[:space:]]*[-*] / && length > 120 { count++ } END { print count+0 }' "$file_path")
 
-duplicate_lines=$({ grep -v '^$' "$file_path" || true; } | { grep -v '^#' || true; } | sort | uniq -d | wc -l | tr -d ' ')
+duplicate_lines=$({ grep -v '^[[:space:]]*$' "$file_path" || true; } | { grep -v '^[[:space:]]*#' || true; } | sed 's/^[[:space:]]*//; s/[[:space:]]*$//' | sort | uniq -d | wc -l | tr -d ' ')
 
 # --- Diff context ---
 if [[ "$tool_name" == "Edit" || "$tool_name" == "MultiEdit" ]]; then
