@@ -21,13 +21,6 @@ Runtime instructions active in every session where this plugin is installed.
 - **No assumptions about project type.** Detect build tools and type checkers from repo files. Skip gracefully if not found.
 - **Self-observation.** During skill execution, log problems encountered (unexpected behavior, missed authoring gates, tool failures, wasted iterations) to a running task list. After the main work completes, investigate each item for root cause and decide whether a permanent fix is needed (skill edit, CLAUDE.md rule). Apply fixes before closing the task.
 
-## Gemini review facts (as of May 2026)
-
-- Gemini **auto-triggers on PR creation**: no manual `/gemini review` needed for round 1.
-- Gemini posts either: (a) an APPROVED review with no threads, or (b) a COMMENTED review with one or more inline threads.
-- Gemini can take **up to 12 minutes**. Poll at 4 min, then every 2 min up to 12 min total.
-- After fixing and pushing, trigger round 2+ with: `gh pr comment --body "/gemini review"`
-
 ## Code review checklist
 
 `review-loop` reads from `~/.claude/code-review-checklist.md` (Lens B). This is a personal, per-user corpus that accumulates over time as Gemini flags new bug classes. It is not shipped with the plugin. If the file does not exist, `review-loop` creates it empty on first use. Format: one line per pattern, `- <what to check>: <why it matters>`.

@@ -171,6 +171,8 @@ fi
 
 Then immediately invoke `luca-dev-kit:review-loop`. Pass the PR number. The loop runs autonomously from here: no further user input expected until a stop condition fires.
 
+**Prerequisite:** `review-loop` requires the Gemini Code Assist GitHub App. If not installed: `https://github.com/$OWNER/$REPO/settings/installations`
+
 ## Design decisions
 
 See `DESIGN.md` in this directory.
