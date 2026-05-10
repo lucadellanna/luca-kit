@@ -68,7 +68,7 @@ The script exits 0 (found), 1 (not yet), or 2 (tool/parse failure). Treat exit 2
    elif [[ $EXIT -eq 2 ]]; then echo "Poll script error (exit 2): stop." >&2; exit 1
    else FOUND=0; fi
    ```
-2. If not found: `ScheduleWakeup(delaySeconds=480, reason="waiting 8 min for Gemini on PR #<N>")`. On wake, poll once.
+2. If not found: `ScheduleWakeup(delaySeconds=480, reason="waiting 8 min for Gemini on PR #$PR_NUM")`. On wake, poll once.
 3. If still not found: `ScheduleWakeup(delaySeconds=120)` up to 3 more times (14 min total).
 4. If no response after 14 min: post a second `/gemini review` and restart from step 2 once. If still no response, stop and notify user.
 
@@ -167,11 +167,11 @@ Build a JSON array of `{"id": ..., "body": ...}` objects for each FIX thread (in
 
 ```bash
 # FIX_THREADS_JSON = '[{"id":"<id1>","body":"<body1>"},{"id":"<id2>","body":"<body2>"},...]'
-# Construct this JSON from the FIX thread list, then pipe to stdin (avoids MAX_ARG_STRLEN limits):
-CURRENT_HASH=$(printf '%s' "$FIX_THREADS_JSON" | python3 -c "
-import sys, hashlib
+# Construct this JSON from the FIX thread list, then pass via env var:
+CURRENT_HASH=$(FIX_THREADS_JSON="$FIX_THREADS_JSON" python3 -c "
+import os, hashlib
 # Use python3 hashlib: md5sum is not available on stock macOS (only md5)
-data = sys.stdin.read().encode()
+data = os.environ['FIX_THREADS_JSON'].encode()
 print(hashlib.sha256(data).hexdigest())
 ")
 ```
@@ -215,7 +215,11 @@ After all fixes:
 
 ### H. Update checklist (mandatory every round -- do not skip)
 
-**This step runs every round, even if there are no FIX threads.** The checklist file is at `~/.claude/code-review-checklist.md` -- outside the repo. Create it if absent.
+**This step runs every round, even if there are no FIX threads.** The checklist file is at `~/.claude/code-review-checklist.md` -- outside the repo. Ensure the directory and file exist:
+```bash
+mkdir -p ~/.claude
+touch ~/.claude/code-review-checklist.md
+```
 
 For each FIX thread this round, check whether the bug class is already in the checklist. If not, append one line:
 ```
