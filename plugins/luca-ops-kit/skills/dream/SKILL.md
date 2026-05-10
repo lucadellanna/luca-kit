@@ -40,34 +40,37 @@ ls ~/.claude/reflect-logs/*.jsonl 2>/dev/null | grep -q . || { echo "No reflect 
 SINCE=$(python3 -c "import datetime; print((datetime.date.today() - datetime.timedelta(days=90)).isoformat())")
 
 # Top recurring finding texts with source repo (within-repo recurrence)
+# Handles both schema 1 (object findings with .text) and schema 2 (string findings)
 jq -rn --arg since "$SINCE" \
-  'inputs as $e | select($e.schema == 1 and $e.date >= $since) | $e.findings[] |
-  [(input_filename | split("/")[-1] | rtrimstr(".jsonl")), (.text // "")] | @tsv' \
+  'inputs as $e | select(($e.schema == 1 or $e.schema == 2) and $e.date >= $since) | $e.findings[] |
+  [(input_filename | split("/")[-1] | rtrimstr(".jsonl")),
+   (if type == "object" then (.text // "") else . end)] | @tsv' \
   ~/.claude/reflect-logs/*.jsonl 2>/dev/null \
   | sort | uniq -c | sort -rn | awk '$1 >= 2' | head -50
 
 # Cross-project patterns: same finding text appearing in ≥2 repos
 jq -rn --arg since "$SINCE" \
-  'inputs as $e | select($e.schema == 1 and $e.date >= $since) | $e.findings[] |
-  [(input_filename | split("/")[-1] | rtrimstr(".jsonl")), (.text // "")] | @tsv' \
+  'inputs as $e | select(($e.schema == 1 or $e.schema == 2) and $e.date >= $since) | $e.findings[] |
+  [(input_filename | split("/")[-1] | rtrimstr(".jsonl")),
+   (if type == "object" then (.text // "") else . end)] | @tsv' \
   ~/.claude/reflect-logs/*.jsonl 2>/dev/null \
   | sort -u | cut -f2- | sort | uniq -c | sort -rn | awk '$1 >= 2' | head -20
 
-# Skill improvement targets with source repo
+# Skill improvement targets with source repo (schema 1 only; schema 2 lacks typed fields)
 jq -rn --arg since "$SINCE" \
   'inputs as $e | select($e.schema == 1 and $e.date >= $since) | $e.findings[] | select(.type=="skill_improvement") |
   [(input_filename | split("/")[-1] | rtrimstr(".jsonl")), (.skill // "")] | @tsv' \
   ~/.claude/reflect-logs/*.jsonl 2>/dev/null \
   | sort | uniq -c | sort -rn | awk '$1 >= 2'
 
-# Memory targets with source repo (contradiction candidates)
+# Memory targets with source repo (schema 1 only; schema 2 lacks memory_target)
 jq -rn --arg since "$SINCE" \
   'inputs as $e | select($e.schema == 1 and $e.date >= $since) | $e.findings[] | select(.type=="memory") |
   [(input_filename | split("/")[-1] | rtrimstr(".jsonl")), (.memory_target // "")] | @tsv' \
   ~/.claude/reflect-logs/*.jsonl 2>/dev/null \
   | sort | uniq -c | sort -rn | awk '$1 > 1'
 ```
-Load full entries only for repos where pre-aggregation shows signal (≥2 matching findings -- intentionally one below Step 2's ≥3 bar so borderline candidates are available for analysis without over-loading context). Skip entries with unknown `schema` values; report a count of skipped entries if any.
+Load full entries only for repos where pre-aggregation shows signal (≥2 matching findings -- intentionally one below Step 2's ≥3 bar so borderline candidates are available for analysis without over-loading context). Accept schema 1 and 2; skip entries with unknown `schema` values; report a count of skipped entries if any.
 
 **Load memory files:**
 - Project memory: `<repo-root>/.claude/memory/*.md`
@@ -86,12 +89,13 @@ Analyze entries within the date window and identify:
 
 | Signal | Detection rule | Priority |
 |--------|---------------|----------|
-| Recurring suggestion, never acted on | Same `finding_id`-equivalent finding (matched by `type` + `text`) appears in ≥3 entries; in those sessions, no `actions_taken` entry has a `finding_id` referencing that finding | High |
-| Memory contradiction | Same `memory_target` field in entry A and later entry B with conflicting `text`; current memory file still has A's version | High |
-| Action not sticking | Same finding text in ≥3 entries AND matching `actions_taken` present each time; the action isn't solving the root cause | High |
-| Skill drift | Same `skill` value in ≥3 entries with inconsistent `change` summaries | Medium |
+| Recurring finding | Same finding text appears in ≥3 entries (schema 1: match by `type` + `text`; schema 2: match by string equality) | High |
+| Recurring suggestion, never acted on | Schema 1 only. Same finding in ≥3 entries where no `actions_taken` entry references it | High |
+| Memory contradiction | Schema 1 only. Same `memory_target` in entries A and B with conflicting `text`; current memory file still has A's version | High |
+| Action not sticking | Schema 1 only. Same finding in ≥3 entries AND matching `actions_taken` present each time | High |
+| Skill drift | Schema 1 only. Same `skill` value in ≥3 entries with inconsistent `change` summaries | Medium |
 | Stale insight | Finding not seen in last 10 entries but referenced in current memory file | Medium |
-| Cross-project pattern (`all` mode only) | Same `text` or `category` appearing in ≥2 repos | High (CLAUDE.md candidate) |
+| Cross-project pattern (`all` mode only) | Same finding text appearing in ≥2 repos | High (CLAUDE.md candidate) |
 | Stale checklist item | Item in `~/.claude/code-review-checklist.md` has no semantically matching finding across all sessions in the date window | Medium |
 | Duplicate checklist items | Two checklist items describe overlapping patterns (judge semantically, not by exact text) | Medium |
 

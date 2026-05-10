@@ -2,11 +2,11 @@
 
 | Decision | Rationale |
 |----------|-----------|
-| Haiku sub-agent for findings scoring (Step 3) | CLAUDE.md-mandated pattern; reduces confirmation bias and is cheaper than inline scoring; apparent token overhead is intentional |
-| Haiku sub-agent for self-reflection | CLAUDE.md mandates a Haiku-scored self-reflection section in every skill; inline gate-checks would save tokens but violate the plugin convention |
+| No sub-agent scoring loop before presenting | Reflect produces ephemeral, user-judged output (insights). The user is present and can judge quality instantly; sub-agent scoring adds latency without value. Scoring loops are for durable artifacts that must work standalone. |
+| No self-reflection section | A self-reflection step inside a reflection skill is recursion without termination value. The user's response to findings IS the quality signal. |
+| Trivial logging (date + finding strings) | Previous version had 60-line Python with FK relationships, finding IDs, memory_target fields, and duplicate-date guards. This coupled reflect tightly to /dream's internals and added latency every session. Simpler format is still parseable; if /dream needs richer data later, that's /dream's problem to solve at consumption time, not reflect's to pre-optimize for. |
+| Scan areas are suggestions, not a checklist | Previous version had 7 prescribed areas that forced filler findings. New version lists 4 areas with explicit instruction to skip irrelevant ones. Coverage is not a goal; signal density is. |
+| Keep logging opt-in ceremony (Step 0) | Privacy concern: defaulting to logging and mentioning opt-out after the fact may surprise privacy-conscious users. The current approach front-loads consent. Acceptable cost given it only triggers once (dotfile persists). |
 | Bash dotfile check, not Glob | Glob excludes dotfiles by default and would silently miss `.enabled`/`.disabled`, re-prompting every session |
-| All findings logged, not just acted-on ones | Gap between `findings` and `actions_taken` is the primary /dream signal |
-| Structured `actions_taken` objects | Free-text lists can't be grouped across sessions; /dream needs typed, targetable entries |
-| `memory_target` field on memory findings | Enables structured contradiction detection in /dream without free-text NLP |
-| `finding_id` + `actions_taken[].finding_id` FK | Multiple findings can share `type` + `skill` in one session; without an explicit FK, /dream cannot distinguish which finding an action resolved, making "never acted on" detection unreliable |
-| Python for atomic JSONL append | Single buffered write prevents partial lines from interrupted processes breaking /dream's line parser |
+| All findings logged, not just acted-on ones | Gap between findings and actions is still useful signal for /dream |
+| Python for atomic JSONL append | Single buffered write prevents partial lines from interrupted processes |

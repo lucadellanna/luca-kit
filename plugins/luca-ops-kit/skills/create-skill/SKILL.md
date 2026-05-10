@@ -10,6 +10,8 @@ You help non-technical users turn business knowledge into a reusable Claude skil
 
 Steps 1–2 use Haiku (information gathering). Step 3 uses Sonnet (drafting).
 
+**Scaling.** These steps are defaults for the general case. For simple skills (few steps, low stakes, no code blocks), collapse or skip steps where the overhead would exceed the value. The agent or user may make this call without justification. The quality gates (human approval before acting, DESIGN.md for trade-offs) are not skippable.
+
 ## Step 1: Understand the source
 
 Determine what the user has:
@@ -39,7 +41,7 @@ Default document-quality criteria (adjust based on context):
 | 3 | Safety: approval points and scope limits are explicit where stakes are non-trivial |
 | 4 | Conciseness: the skill document itself is lean; no unnecessary words, steps, or sentences |
 | 5 | Runtime efficiency: when run, the skill uses the appropriate model tier (Haiku for simple/fast steps, Sonnet for balanced work, Opus for complex reasoning), spawns sub-agents where they improve quality or speed and avoids them otherwise, and minimises unnecessary back-and-forth or verbose outputs |
-| 6 | Self-reflection quality: the generated skill's `## Self-reflection` section has 2–5 criteria that are appropriate (relevant to the skill's purpose) and MECE (no overlap between criteria; together they fully capture "good output") |
+| 6 | Self-reflection quality: the generated skill's `## Self-reflection` section has 2–5 criteria that are appropriate (relevant to the skill's purpose) and MECE (no overlap between criteria; together they fully capture "good output"). Drop this criterion for skills producing ephemeral, user-judged output (document omission in DESIGN.md instead). |
 | 7 | Instruction explicitness: every action names the specific tool to use and the expected outcome, not just the goal (e.g., "Use Read to open X; if not found, proceed to Y" rather than "Check if X exists") |
 | 8 | Design decision coverage: every intentional trade-off or non-obvious constraint has a row in `DESIGN.md`; a reviewer seeing the skill cold should not flag an intentional choice as a gap |
 
@@ -74,6 +76,7 @@ version: 0.1.0
 [Body: purpose, steps, decision points, approval gates, scope boundaries]
 
 ## Self-reflection
+(Include for skills producing durable artifacts. Omit for ephemeral, user-judged output; document omission in DESIGN.md.)
 
 During execution, follow the self-observation protocol (see CLAUDE.md Principles).
 
@@ -100,7 +103,7 @@ Rules for the draft:
 - No boilerplate, filler, or examples the user didn't ask for.
 - Name the skill directory as kebab-case verb-noun (e.g., `review-invoice`, `onboard-client`).
 - Never write CLI commands, install steps, or configuration syntax you're not certain is correct; flag uncertainty and ask whether to verify or omit.
-- Include a `## Self-reflection` section with the self-observation protocol one-liner, 2–5 MECE success criteria, and the standard loop (see CLAUDE.md).
+- Include a `## Self-reflection` section with the self-observation protocol one-liner, 2–5 MECE success criteria, and the standard loop (see CLAUDE.md). Exception: skills producing ephemeral, user-judged output (insights, suggestions, analysis) may omit the entire `## Self-reflection` section; document the omission in DESIGN.md.
 - Create a separate `DESIGN.md` file alongside `SKILL.md` with a `# Design decisions` table; document intentional trade-offs there so future audits don't penalise accepted choices. Leave the placeholder row if no decisions exist yet.
 
 ## Step 5: Score and iterate this SKILL.md draft
