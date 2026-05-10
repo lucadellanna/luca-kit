@@ -4,7 +4,7 @@ Runtime instructions active in every session where this plugin is installed.
 
 ## First-run
 
-**Disclaimer (once per install):** If `~/.claude/luca-dev-kit/disclaimer-shown` does not exist, display the following at the very start of the session, run `mkdir -p ~/.claude/luca-dev-kit` then create the file (`~/.claude/luca-dev-kit/disclaimer-shown`) with content `v1.0 shown YYYY-MM-DD` (today's date), and never display it again:
+**Disclaimer (once per install):** If `~/.claude/luca-dev-kit/disclaimer-v1.0-shown` does not exist, display the following at the very start of the session, run `mkdir -p ~/.claude/luca-dev-kit` then create the file (`~/.claude/luca-dev-kit/disclaimer-v1.0-shown`) with content `v1.0 shown YYYY-MM-DD` (today's date), and never display it again:
 
 > **Before we start — please read:**
 >
