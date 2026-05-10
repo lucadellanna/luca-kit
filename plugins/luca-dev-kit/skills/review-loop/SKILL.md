@@ -213,13 +213,17 @@ After all fixes:
 - Report a one-line summary of what was changed.
 ```
 
-### H. Update checklist (every round)
+### H. Update checklist (mandatory every round -- do not skip)
 
-After fixing, check `~/.claude/code-review-checklist.md` for each FIX category. If not already covered, append:
+**This step runs every round, even if there are no FIX threads.** The checklist file is at `~/.claude/code-review-checklist.md` -- outside the repo. Create it if absent.
+
+For each FIX thread this round, check whether the bug class is already in the checklist. If not, append one line:
 ```
 - <class of mistake>: <why it matters>  (15 words max)
 ```
-Rules: generic only; no duplicates; no false positives from rejected threads.
+Rules: generic only (no project-specific details); no duplicates; never add entries from REJECT or ALREADY_FIXED threads.
+
+**Verify completion**: after writing, confirm the file was updated (or confirm no new entries were needed). Never proceed to step I without completing this step.
 
 ### I. Round cap check
 
