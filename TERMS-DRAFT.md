@@ -141,7 +141,7 @@ The license is granted for the Term. The Seller may terminate the license immedi
 (b) the Customer materially breaches any provision of these Terms and (where the breach is capable of remedy) fails to remedy it within 14 days of written notice; or
 (c) the Customer becomes insolvent, enters administration, or makes any arrangement with creditors.
 
-On termination or expiry, the Customer shall immediately cease all use of the Plugins and delete all copies. Clauses 1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, and 20 survive termination.
+On termination or expiry, the Customer shall immediately cease all use of the Plugins and delete all copies. Clauses 1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 17, 18, 19, and 20 survive termination.
 
 ---
 
