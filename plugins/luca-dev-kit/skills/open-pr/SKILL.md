@@ -36,7 +36,17 @@ Check if ALL changed files are purely structural (no logic added or modified):
 git diff "origin/$BASE"...HEAD
 ```
 
-Structural = only renames, moves, or reformatting; no lines containing `def `, `function `, `class `, `if `, `return `, `=>`, or similar logic tokens in added lines (`+` prefix in the diff).
+Use git's own tools -- token scanning misses content changes in languages not covered by the list (constants, config strings, CSS, SQL, etc.).
+
+```bash
+# Pure renames/moves only (R100 = 100% similarity, no content change)
+NON_RENAMES=$(git diff "origin/$BASE"...HEAD --name-status | grep -v '^R100' | wc -l | tr -d ' ')
+
+# Whitespace/blank-line only changes (empty diff = formatting only)
+CONTENT_DIFF=$(git diff "origin/$BASE"...HEAD -w --ignore-blank-lines)
+```
+
+Structural-only if `NON_RENAMES == 0` (all changes are pure renames) OR `CONTENT_DIFF` is empty (only whitespace changed). Any other combination: run review.
 
 If structural-only: skip steps 4–5 (no review needed). Jump to step 6.
 
@@ -167,4 +177,4 @@ Then immediately invoke `luca-dev-kit:review-loop`. Pass the PR number. The loop
 |---|---|
 | `git remote show origin` for base branch detection (not `git symbolic-ref`) | `git symbolic-ref refs/remotes/origin/HEAD` is not reliably set in all clone types (shallow, sparse). `git remote show origin` is consistent across all three skills and the subsequent `git fetch` already incurs network I/O. |
 | Remote name hardcoded to `origin` (not dynamic detection) | Dynamic detection via `git remote | head -n 1` is unreliable: remotes have no defined ordering. `origin` is the standard convention and is used consistently for push and PR creation throughout all three skills. Fork-based workflows where the primary push remote differs from `origin` are out of scope. |
-| Structural-only token list not extended or made configurable | The heuristic errs toward running review (false positive over false negative): any unrecognized token causes review to run. Languages not in the list default to running review, which is safe. Per-project configuration is out of scope. |
+| Structural detection uses git tools, not token scanning | Token scanning misses content changes that don't use listed keywords (constants, config strings, CSS, SQL). `git diff --name-status | grep -v '^R100'` and `git diff -w --ignore-blank-lines` are language-agnostic and reliable. |

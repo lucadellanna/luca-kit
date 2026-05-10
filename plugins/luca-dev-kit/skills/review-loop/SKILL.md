@@ -167,11 +167,11 @@ Build a JSON array of `{"id": ..., "body": ...}` objects for each FIX thread (in
 
 ```bash
 # FIX_THREADS_JSON = '[{"id":"<id1>","body":"<body1>"},{"id":"<id2>","body":"<body2>"},...]'
-# Construct this JSON from the FIX thread list, then:
-CURRENT_HASH=$(FIX_THREADS_JSON="$FIX_THREADS_JSON" python3 -c "
-import sys, hashlib, os
+# Construct this JSON from the FIX thread list, then pipe to stdin (avoids MAX_ARG_STRLEN limits):
+CURRENT_HASH=$(printf '%s' "$FIX_THREADS_JSON" | python3 -c "
+import sys, hashlib
 # Use python3 hashlib: md5sum is not available on stock macOS (only md5)
-data = os.environ['FIX_THREADS_JSON'].encode()
+data = sys.stdin.read().encode()
 print(hashlib.sha256(data).hexdigest())
 ")
 ```
