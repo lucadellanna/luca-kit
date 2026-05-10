@@ -1,100 +1,42 @@
-# luca-ops-kit
+# luca-ops-kit & luca-dev-kit
 
-> **Status: Early access / Pre-release.** This plugin is under active development. Features may change, break, or be removed without notice. Not ready for production use.
+> **Status: Early access / Pre-release.** These plugins are under active development. Features may change, break, or be removed without notice. Not ready for production use.
 
-A meta-workflow toolkit for Claude that helps non-technical organizations turn recurring tasks, SOPs, wiki pages, and managerial know-how into reusable Claude Skills.
+This marketplace ships two Claude plugins:
 
-Most companies using AI are stuck at the "clever individual prompts" stage: useful experiments, inconsistent execution, little reuse, no lasting memory. luca-ops-kit provides the guided workflows to make good procedures explicit and reusable, so know-how doesn't stay trapped in individual heads or chat histories.
+| Plugin | Audience | Purpose |
+|--------|----------|---------|
+| **luca-ops-kit** | Organizations and individuals | Craft reusable skills, maintain a self-improving setup, and extract lasting learnings from every session |
+| **luca-dev-kit** | Developers | Pre-PR quality gates, autonomous Gemini review loop, and pre-commit hook management |
+
+Most companies and people using AI are stuck at the "clever individual prompts" stage: useful experiments, inconsistent execution, little reuse, and no lasting memory. These plugins provide guided workflows to make good procedures explicit and reusable, so know-how doesn't stay trapped in individual heads or chat histories.
 
 ## Installation
 
 Install in Claude Code, Cowork, or both; if you use both apps, follow each procedure separately.
 
-### Claude Code
+### luca-ops-kit
 
-Requires [Claude Code](https://claude.ai/code).
-
-**To install:** Run these two commands in Claude Code:
+**Claude Code** (requires [Claude Code](https://claude.ai/code)):
 
 ```
 /plugin marketplace add lucadellanna/luca-ops-kit
 /plugin install luca-ops-kit@lucadellanna
 ```
 
-**To uninstall:**
+**Claude Cowork:** Left sidebar → Customize → Plugins → Personal → **+** → Add marketplace → `lucadellanna/luca-ops-kit` → click on it → Install
 
-If you ran `/luca-ops-recommended-setup`, run `/undo-setup` first to remove hooks and rules it added to your global Claude config. Then:
+**To uninstall:** If you ran `/luca-ops-recommended-setup`, run `/undo-setup` first to remove hooks and rules it added to your global Claude config. Then:
 
 ```
 /plugin uninstall luca-ops-kit@lucadellanna/luca-ops-kit
 ```
 
-**To enable auto-updates:** Type `/plugin`, press Tab twice to open the Marketplaces tab, select `luca-ops-kit`, then select **Enable updates**.
+**To enable auto-updates (Claude Code):** Type `/plugin`, press Tab twice to open the Marketplaces tab, select `luca-ops-kit`, then select **Enable updates**.
 
-### Claude Cowork
+**To enable auto-updates (Cowork):** Left sidebar → Customize → Browse Plugins → Personal → luca-ops-kit → **···** → Sync automatically
 
-**To install:** Left sidebar → Customize → Plugins → Personal → **+** → Add marketplace → `lucadellanna/luca-ops-kit` → click on it → Install
-
-**To enable auto-updates:** Left sidebar → Customize → Browse Plugins → Personal → luca-ops-kit → **···** → Sync automatically
-
-## Who uses it
-
-| Role | What they do with it |
-|------|---------------------|
-| Manager | Points it at a procedure and asks what should become a skill |
-| Admin | Turns a repeated reporting task into a reusable workflow |
-| Salesperson | Converts a successful call-prep process into a skill |
-| Frontline manager | Builds an SOP from tacit know-how |
-| Local power user | Audits, consolidates, and governs the team's skill library |
-
-## How it works
-
-The plugin ships **meta-skills**: structured workflows for building, auditing, and improving procedures. Domain skills (the actual business procedures for your industry) are curated and added by your holding company.
-
-| Layer | Who provides it | What it contains |
-|-------|----------------|-----------------|
-| luca-ops-kit | Luca Dellanna | Meta-skills for building and improving procedures |
-| Holdco layer | Your holding company, franchisor, or trade association | Domain skills for your industry |
-| Partner layer | Your team | Local adaptations of holdco domain skills |
-
-## Skills
-
-| Skill | What it does |
-|-------|-------------|
-| **luca-ops-recommended-setup** | First-run wizard: adds three best-practice rules to your Claude config and offers two automation hooks (skill-check reminder, long-prompt clarity check) |
-| **undo-setup** | Reverses everything /luca-ops-recommended-setup added (rules, hooks, and scripts) so you can cleanly uninstall the plugin |
-| **build-work-context** | Interviews you about your company and role, then saves a persistent profile so Claude doesn't need to ask "who do you work for?" every session |
-| **create-skill** | Turns a procedure, SOP, checklist, or verbal description into a ready-to-use skill file, scoring and improving it before saving |
-| **list-skills** | Lists every installed skill with its plugin, one-line description, and file size in a single table |
-| **audit-skill** | Scores a single skill against 7 quality dimensions (clarity, security, instruction explicitness, and more), proposes improvements, and iterates until the bar is met |
-| **audit-skills** | Scans your whole skill library for overlapping skills, then audits a rotating batch of 3 so every skill gets reviewed over time |
-| **audit-claude** | Scans your CLAUDE.md and memory files for bloat and cross-file redundancy, proposes targeted cuts, and verifies nothing meaningful was lost |
-| **reflect** | After a session, extracts what went well, what went wrong, and what should become a memory update, skill improvement, or new skill |
-| **dream** | Mines your /reflect logs to surface patterns across sessions: recurring issues never fixed, memory contradictions, and improvements that keep coming up but never land |
-
-## Disclaimer
-
-This plugin is for business use only, and is intended exclusively for businesses and professionals acting in the course of a trade or profession. By using it, you represent that you are not a consumer under Italian law (Article 3, Codice del Consumo). It is designed exclusively for use with Claude (Anthropic); any adaptation to other AI providers is unsupported and at the user's sole risk. It is provided "as-is", without warranty of any kind, express or implied.
-
-The plugin depends on third-party services — including Anthropic (Claude API) and Claude Code — that Luca Dellanna does not control. Changes to those services, including model deprecations, pricing changes, or discontinuation, are not Luca Dellanna's responsibility. The plugin runs locally on your machine; Luca Dellanna does not collect or process your data.
-
-Outputs are generated by Anthropic Claude; the plugin orchestrates prompts but does not itself produce content. AI-generated outputs may contain errors, fabrications, or hallucinations, and may appear authoritative but be factually wrong. You are solely responsible for reviewing all outputs before acting on them. This plugin is not a substitute for professional legal, financial, medical, or other expert advice; do not use it for legal filings, medical decisions, financial transactions, regulated activities, or high-risk AI applications (EU AI Act, Reg. 2024/1689) without independent expert review.
-
-To the maximum extent permitted by applicable law, and in any case limited to fees paid in the 12 months preceding the claim, Luca Dellanna accepts no liability for any loss, damage, or consequence — direct or indirect — arising from use of this plugin or reliance on its outputs. This includes losses caused by third-party service changes (Anthropic, Claude Code, etc.). Nothing in this disclaimer excludes liability that cannot be excluded under applicable law (including liability for fraud, gross negligence, or death or personal injury caused by negligence). Full terms will be published at luca-dellanna.com before commercial launch. This disclaimer is governed by Italian law; any disputes shall be resolved in the Italian courts.
-
-*Disclaimer v1.0 — 2026-05-10*
-
-## License
-
-Source-available, not open-source. You may inspect the repository and use it for personal evaluation. Commercial, client-facing, team, or organizational use requires a paid license. Contact [Luca@Luca-Dellanna.com](mailto:Luca@Luca-Dellanna.com) for more information.
-
----
-
-# luca-dev-kit
-
-Developer workflow automation for Claude Code. Run "open pr" and Claude handles the rest: pre-PR quality gates, PR creation, and an autonomous Gemini review loop that fixes comments and re-triggers review until the PR is clean.
-
-## Installation
+### luca-dev-kit
 
 Claude Code only. Requires GitHub CLI (`gh`) and [Gemini Code Assist](https://codeassist.google/) installed on the repo.
 
@@ -115,6 +57,23 @@ If you already added the `lucadellanna/luca-ops-kit` marketplace (e.g. for luca-
 
 ## Skills
 
+### luca-ops-kit
+
+| Skill | What it does |
+|-------|-------------|
+| **luca-ops-recommended-setup** | First-run wizard: adds three best-practice rules to your Claude config and offers two automation hooks (skill-check reminder, long-prompt clarity check) |
+| **undo-setup** | Reverses everything /luca-ops-recommended-setup added (rules, hooks, and scripts) so you can cleanly uninstall the plugin |
+| **build-work-context** | Interviews you about your company and role, then saves a persistent profile so Claude doesn't need to ask "who do you work for?" every session |
+| **create-skill** | Turns a procedure, SOP, checklist, or verbal description into a ready-to-use skill file, scoring and improving it before saving |
+| **list-skills** | Lists every installed skill with its plugin, one-line description, and file size in a single table |
+| **audit-skill** | Scores a single skill against 7 quality dimensions (clarity, security, instruction explicitness, and more), proposes improvements, and iterates until the bar is met |
+| **audit-skills** | Scans your whole skill library for overlapping skills, then audits a rotating batch of 3 so every skill gets reviewed over time |
+| **audit-claude** | Scans your CLAUDE.md and memory files for bloat and cross-file redundancy, proposes targeted cuts, and verifies nothing meaningful was lost |
+| **reflect** | After a session, extracts what went well, what went wrong, and what should become a memory update, skill improvement, or new skill |
+| **dream** | Mines your /reflect logs to surface patterns across sessions: recurring issues never fixed, memory contradictions, and improvements that keep coming up but never land |
+
+### luca-dev-kit
+
 | Skill | Trigger | What it does |
 |---|---|---|
 | **open-pr** | "open pr", "create pr", "/open-pr" | Triple review, fix findings, typecheck, push, create PR, hand off to review-loop |
@@ -123,10 +82,48 @@ If you already added the `lucadellanna/luca-ops-kit` marketplace (e.g. for luca-
 | **specs-adherence-review** | "check specs", "adheres to principles?" | Checks changed code against CLAUDE.md rules |
 | **install-pre-commit-hooks** | "install hooks" | One-time hook setup: em-dash check, gitleaks, optional typecheck |
 
+## How it works
+
+### luca-ops-kit
+
+The plugin ships **meta-skills**: structured workflows for building, auditing, and improving procedures. You can use it standalone to create, audit, and govern your own skill library.
+
+**Who uses it:**
+
+| Role | What they do with it |
+|------|---------------------|
+| Manager | Points it at a procedure and asks what should become a skill |
+| Admin | Turns a repeated reporting task into a reusable workflow |
+| Salesperson | Converts a successful call-prep process into a skill |
+| Frontline manager | Builds an SOP from tacit know-how |
+| Local power user | Audits, consolidates, and governs the team's skill library |
+
+### luca-dev-kit
+
+Write "open pr" and Claude handles the rest: pre-PR quality gates (triple-review against principles, recurring bug patterns, and structural integrity), PR creation, and an autonomous Gemini review loop that fixes comments and re-triggers review until the PR is clean.
+
+## For holdco customers
+
+If your organization receives luca-ops-kit through a holding company, franchisor, or trade association, skills are delivered in layers. Your holdco curates domain skills (the actual business procedures for your industry) on top of luca-ops-kit's meta-skills, and your team can further adapt them to local context.
+
+| Layer | Who provides it | What it contains |
+|-------|----------------|-----------------|
+| luca-ops-kit | Luca Dellanna | Meta-skills: build, audit, and improve procedures |
+| Holdco layer | Your holding company, franchisor, or trade association | Domain skills tailored to your industry (e.g., onboarding checklists, compliance workflows, reporting templates) |
+| Partner layer | Your team | Local adaptations: company-specific terminology, approval chains, and tooling integrations |
+
 ## Disclaimer
 
-Same terms as luca-ops-kit above.
+These plugins (luca-ops-kit and luca-dev-kit) are for business use only, and are intended exclusively for businesses and professionals acting in the course of a trade or profession. By using them, you represent that you are not a consumer under Italian law (Article 3, Codice del Consumo). They are designed exclusively for use with Claude (Anthropic); any adaptation to other AI providers is unsupported and at the user's sole risk. They are provided "as-is", without warranty of any kind, express or implied.
+
+The plugins depend on third-party services — including Anthropic (Claude API) and Claude Code — that Luca Dellanna does not control. Changes to those services, including model deprecations, pricing changes, or discontinuation, are not Luca Dellanna's responsibility. The plugins run locally on your machine; Luca Dellanna does not collect or process your data.
+
+Outputs are generated by Anthropic Claude; the plugins orchestrate prompts but do not themselves produce content. AI-generated outputs may contain errors, fabrications, or hallucinations, and may appear authoritative but be factually wrong. You are solely responsible for reviewing all outputs before acting on them. These plugins are not a substitute for professional legal, financial, medical, or other expert advice; do not use them for legal filings, medical decisions, financial transactions, regulated activities, or high-risk AI applications (EU AI Act, Reg. 2024/1689) without independent expert review.
+
+To the maximum extent permitted by applicable law, and in any case limited to fees paid in the 12 months preceding the claim, Luca Dellanna accepts no liability for any loss, damage, or consequence — direct or indirect — arising from use of these plugins or reliance on their outputs. This includes losses caused by third-party service changes (Anthropic, Claude Code, etc.). Nothing in this disclaimer excludes liability that cannot be excluded under applicable law (including liability for fraud, gross negligence, or death or personal injury caused by negligence). Full terms will be published at luca-dellanna.com before commercial launch. This disclaimer is governed by Italian law; any disputes shall be resolved in the Italian courts.
+
+*Disclaimer v1.0 — 2026-05-10*
 
 ## License
 
-Same terms as luca-ops-kit above.
+Source-available, not open-source. You may inspect the repository and use it for personal evaluation. Commercial, client-facing, team, or organizational use requires a paid license. Contact [Luca@Luca-Dellanna.com](mailto:Luca@Luca-Dellanna.com) for more information.

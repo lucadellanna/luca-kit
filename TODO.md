@@ -9,6 +9,7 @@
   - Fill in Seller details (address, Partita IVA, email)
 - [ ] Publish final terms to a proper page on luca-dellanna.com (not just GitHub)
 - [ ] Update the disclaimer URL in README.md and both CLAUDE.md files to point to the published page
+- [ ] Shorten README disclaimer to a one-paragraph summary + link to the published full terms
 - [ ] Rename `TERMS-DRAFT.md` to `TERMS.md` once finalized
 - [ ] Remove "Status: Early access / Pre-release" banner from README.md
 - [ ] Implement two-checkbox acceptance on sales page (general + Art. 1341/1342 specific approval)
