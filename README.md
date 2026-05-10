@@ -73,3 +73,42 @@ The plugin ships **meta-skills**: structured workflows for building, auditing, a
 ## License
 
 Source-available, not open-source. You may inspect the repository and use it for personal evaluation. Commercial, client-facing, team, or organizational use requires a paid license. Contact [Luca@Luca-Dellanna.com](mailto:Luca@Luca-Dellanna.com) for more information.
+
+---
+
+# luca-dev-kit
+
+Developer workflow automation for Claude Code. Run "open pr" and Claude handles the rest: pre-PR quality gates, PR creation, and an autonomous Gemini review loop that fixes comments and re-triggers review until the PR is clean.
+
+## Installation
+
+Claude Code only. Requires GitHub CLI (`gh`) and [Gemini Code Assist](https://codeassist.google/) installed on the repo.
+
+If you already added the `lucadellanna/luca-ops-kit` marketplace (e.g. for luca-ops-kit), skip the first command.
+
+```
+/plugin marketplace add lucadellanna/luca-ops-kit
+/plugin install luca-dev-kit@lucadellanna
+```
+
+**To uninstall:**
+
+```
+/plugin uninstall luca-dev-kit@lucadellanna/luca-dev-kit
+```
+
+**To enable auto-updates:** Type `/plugin`, press Tab twice to open the Marketplaces tab, select `luca-dev-kit`, then select **Enable updates**.
+
+## Skills
+
+| Skill | Trigger | What it does |
+|---|---|---|
+| **open-pr** | "open pr", "create pr", "/open-pr" | Triple review, fix findings, typecheck, push, create PR, hand off to review-loop |
+| **review-loop** | Auto-invoked by open-pr; or "review loop" | Polls Gemini, classifies threads, applies fixes, re-triggers review, repeats until clean |
+| **triple-review** | "triple review" | Three-lens parallel review: principles, recurring bug patterns, structural integrity |
+| **specs-adherence-review** | "check specs", "adheres to principles?" | Checks changed code against CLAUDE.md rules |
+| **install-pre-commit-hooks** | "install hooks" | One-time hook setup: em-dash check, gitleaks, optional typecheck |
+
+## License
+
+Same terms as luca-ops-kit above.

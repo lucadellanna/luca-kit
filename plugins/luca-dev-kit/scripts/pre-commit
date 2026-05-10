@@ -1,0 +1,160 @@
+#!/bin/bash
+# luca-dev-kit pre-commit hook
+# Installed by luca-dev-kit:install-pre-commit-hooks
+# Catches em-dashes, potential secrets, and type errors before commit.
+set -euo pipefail
+
+REPO_ROOT=$(git rev-parse --show-toplevel)
+
+# ── 1. Em-dash check ──────────────────────────────────────────────────────────
+# Complements the Claude Code PreToolUse hook; catches manual terminal commits.
+EM_HITS=$(git diff --cached | python3 -c "
+import sys
+em = chr(0x2014)
+hits = [l[1:].rstrip() for l in sys.stdin
+        if l.startswith('+') and not l.startswith('+++') and em in l]
+for h in hits:
+    print(h)
+" 2>/dev/null)
+
+if [[ -n "$EM_HITS" ]]; then
+  echo "❌ Em dash (U+2014) found in staged changes. Replace with '--' or restructure." >&2
+  while IFS= read -r line; do echo "   $line" >&2; done <<< "$EM_HITS"
+  exit 1
+fi
+
+# ── 2. Secrets check (if gitleaks installed) ──────────────────────────────────
+if command -v gitleaks &>/dev/null; then
+  if ! gitleaks protect --staged --no-banner 2>/dev/null; then
+    echo "❌ gitleaks found potential secrets in staged changes." >&2
+    exit 1
+  fi
+fi
+
+# ── 3. Typecheck (with user preference + per-repo timing budget) ──────────────
+# All Python calls receive paths via env vars to prevent shell injection through
+# repo checkout paths containing single quotes.
+PREFS_FILE="$REPO_ROOT/.claude/cache/pre-commit-prefs.json"
+TIMING_FILE="$REPO_ROOT/.claude/cache/typecheck-timing.json"
+
+# Check user preference first. If prefs file is absent, skip and advise.
+TYPECHECK_WANTED=$(PREFS_FILE="$PREFS_FILE" python3 -c "
+import json, os, sys
+p = os.environ['PREFS_FILE']
+if not os.path.exists(p):
+    print('UNCONFIGURED')
+else:
+    try:
+        d = json.load(open(p))
+        print('1' if d.get('typecheck') else '')
+    except Exception:
+        print('UNCONFIGURED')
+" 2>/dev/null)
+
+if [[ "$TYPECHECK_WANTED" == "UNCONFIGURED" ]]; then
+  echo "ℹ️  Typecheck not configured: run luca-dev-kit:install-pre-commit-hooks to enable." >&2
+  TYPECHECK_WANTED=""
+fi
+
+SKIP_TYPECHECK=""
+if [[ -n "$TYPECHECK_WANTED" ]]; then
+  SKIP_TYPECHECK=$(TIMING_FILE="$TIMING_FILE" python3 -c "
+import json, os, sys
+p = os.environ['TIMING_FILE']
+if os.path.exists(p):
+    try:
+        d = json.load(open(p))
+        print('1' if d.get('skip_in_commit') else '')
+    except Exception:
+        print('')
+else:
+    print('')
+" 2>/dev/null)
+fi
+
+if [[ -n "$TYPECHECK_WANTED" && -z "$SKIP_TYPECHECK" ]]; then
+  # Detect package manager
+  if [[ -f "$REPO_ROOT/pnpm-lock.yaml" ]]; then PKG_RUNNER="pnpm"
+  elif [[ -f "$REPO_ROOT/yarn.lock" ]]; then PKG_RUNNER="yarn"
+  else PKG_RUNNER="npm"
+  fi
+
+  # Detect typecheck script in package.json
+  # Detect typecheck script key and validate its value before running.
+  # Validation prevents a malicious package.json from executing arbitrary code
+  # via a hijacked typecheck script name.
+  TYPECHECK_WARN=$(mktemp)
+  TYPECHECK_SCRIPT=$(REPO_ROOT="$REPO_ROOT" python3 -c "
+import json, os, re, sys
+
+SAFE_PREFIXES = ('tsc', 'vue-tsc', 'pyright', 'typescript', 'mypy', 'python -m mypy', 'python3 -m mypy', 'npx tsc', 'npx pyright', 'npx mypy', 'npx vue-tsc', 'pnpm tsc', 'pnpm pyright', 'pnpm mypy', 'pnpm vue-tsc', 'yarn tsc', 'yarn pyright', 'yarn mypy', 'yarn vue-tsc')
+UNSAFE_CHARS  = re.compile(r'[|;&\$\`><]')
+
+p = os.path.join(os.environ['REPO_ROOT'], 'package.json')
+if not os.path.exists(p):
+    sys.exit(1)
+
+scripts = json.load(open(p)).get('scripts', {})
+for k in ['typecheck', 'type-check', 'tsc']:
+    if k not in scripts:
+        continue
+    value = scripts[k].strip()
+    if UNSAFE_CHARS.search(value):
+        print(f'UNSAFE:{k}:{value}', file=sys.stderr)
+        sys.exit(2)
+    if not any(value == p or value.startswith(p + ' ') for p in SAFE_PREFIXES):
+        print(f'UNKNOWN:{k}:{value}', file=sys.stderr)
+        sys.exit(2)
+    print(k)
+    sys.exit(0)
+sys.exit(1)
+" 2>"$TYPECHECK_WARN") || {
+    WARN_CODE=$?
+    if [[ $WARN_CODE -eq 2 ]]; then
+      WARN=$(cat "$TYPECHECK_WARN")
+      echo "⚠️  Typecheck skipped: script value looks unusual: $WARN" >&2
+      echo "   Run typecheck manually before pushing." >&2
+    fi
+    TYPECHECK_SCRIPT=""
+  }
+  rm -f "$TYPECHECK_WARN"
+
+  START_MS=$(python3 -c "import time; print(int(time.time() * 1000))")
+
+  if [[ -n "$TYPECHECK_SCRIPT" ]]; then
+    "$PKG_RUNNER" run "$TYPECHECK_SCRIPT" 2>&1 || {
+      echo "❌ Type errors found. Fix before committing." >&2; exit 1
+    }
+  elif [[ -f "$REPO_ROOT/tsconfig.json" ]]; then
+    npx --no-install tsc --noEmit 2>&1 || {
+      echo "❌ TypeScript errors found. Fix before committing." >&2; exit 1
+    }
+  elif command -v mypy &>/dev/null && { [[ -f "$REPO_ROOT/mypy.ini" ]] || \
+    grep -q "^\[tool\.mypy\]" "$REPO_ROOT/pyproject.toml" 2>/dev/null; }; then
+    mypy . --no-error-summary 2>&1 || {
+      echo "❌ mypy errors found. Fix before committing." >&2; exit 1
+    }
+  fi
+
+  END_MS=$(python3 -c "import time; print(int(time.time() * 1000))")
+  ELAPSED=$(( END_MS - START_MS ))
+
+  # 30s threshold: generous for most projects; typecheck always runs in /open-pr regardless.
+  # Projects that regularly exceed this can reset via luca-dev-kit:install-pre-commit-hooks.
+  if [[ $ELAPSED -gt 30000 ]]; then
+    mkdir -p "$REPO_ROOT/.claude/cache"
+    TIMING_FILE="$TIMING_FILE" ELAPSED="$ELAPSED" python3 -c "
+import json, os
+p = os.environ['TIMING_FILE']
+tmp = p + '.tmp'
+with open(tmp, 'w') as f:
+    json.dump({'skip_in_commit': True,
+               'elapsed_ms': int(os.environ['ELAPSED']),
+               'reason': 'typecheck exceeded 30s budget'}, f)
+os.replace(tmp, p)
+"
+    echo "⚠️  Typecheck took $((ELAPSED / 1000))s: skipping in future commits. Still runs in /open-pr." >&2
+  fi
+fi
+
+exit 0
