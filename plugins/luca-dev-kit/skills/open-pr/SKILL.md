@@ -1,5 +1,5 @@
 ---
-name: Open PR
+name: open-pr
 description: Pre-PR quality gates + PR creation + autonomous review-loop handoff. Trigger: "open pr", "create pr", "/open-pr", or "ship". After invocation, no further user input is needed until review-loop exits or hits a stop condition.
 version: 0.1.0
 ---

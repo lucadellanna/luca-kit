@@ -1,5 +1,5 @@
 ---
-name: Review Loop
+name: review-loop
 description: Autonomous Gemini review loop. Polls for Gemini comments, classifies threads, applies fixes, re-triggers review, and repeats until clean or a stop condition fires. Invoked automatically by open-pr; can also be invoked manually with a PR number.
 version: 0.1.0
 ---

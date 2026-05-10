@@ -1,5 +1,5 @@
 ---
-name: Audit Skills
+name: audit-skills
 description: Audit the full skill library: detect overlapping skills across scopes and run a rotating quality review. Trigger on "audit skills", "review all skills", or "check skill library".
 version: 0.1.0
 ---

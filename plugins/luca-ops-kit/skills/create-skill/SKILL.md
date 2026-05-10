@@ -1,5 +1,5 @@
 ---
-name: Create Operational Skill
+name: create-skill
 description: Create a reusable Claude skill from a business procedure, SOP, wiki page, checklist, or verbal description of a recurring task. For non-technical teams turning operating knowledge into repeatable AI workflows.
 version: 0.2.0
 ---
@@ -68,7 +68,7 @@ Write a SKILL.md file with this structure:
 
 ```
 ---
-name: [Skill Name]
+name: [kebab-case-skill-name]
 description: [One line: when should this skill activate?]
 version: 0.1.0
 ---
@@ -101,7 +101,7 @@ Rules for the draft:
 - Include human-approval checkpoints before any action with real-world consequences.
 - State what the skill does NOT cover.
 - No boilerplate, filler, or examples the user didn't ask for.
-- Name the skill directory as kebab-case verb-noun (e.g., `review-invoice`, `onboard-client`).
+- Name the skill directory as kebab-case verb-noun (e.g., `review-invoice`, `onboard-client`). The frontmatter `name` field must be identical to the directory name (e.g., `name: review-invoice`). Conductor uses this field as the slash-command text; spaces or capital letters break invocation.
 - Never write CLI commands, install steps, or configuration syntax you're not certain is correct; flag uncertainty and ask whether to verify or omit.
 - Include a `## Self-reflection` section with the self-observation protocol one-liner, 2–5 MECE success criteria, and the standard loop (see CLAUDE.md). Exception: skills producing ephemeral, user-judged output (insights, suggestions, analysis) may omit the entire `## Self-reflection` section; document the omission in DESIGN.md.
 - Create a separate `DESIGN.md` file alongside `SKILL.md` with a `# Design decisions` table; document intentional trade-offs there so future audits don't penalise accepted choices. Leave the placeholder row if no decisions exist yet.

@@ -1,5 +1,5 @@
 ---
-name: List Skills
+name: list-skills
 description: List all installed skills with plugin, description, and line count. Trigger on "what skills do I have?", "list skills", or "show available workflows".
 version: 0.2.0
 ---
