@@ -90,7 +90,8 @@ def run(cmd):
 
 origin = run(['git', 'remote', 'get-url', 'origin'])
 if origin:
-    clean = origin.rstrip('/'); clean = clean[:-4] if clean.endswith('.git') else clean
+    clean = origin.rstrip('/')
+    clean = clean[:-4] if clean.endswith('.git') else clean
     slug = '__'.join(clean.replace(':', '/').split('/')[-2:])
 else:
     top = run(['git', 'rev-parse', '--show-toplevel'])
