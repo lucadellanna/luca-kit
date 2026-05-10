@@ -8,14 +8,13 @@ set -euo pipefail
 input=$(cat)
 
 # Extract fields using python3 (available on macOS; no jq dependency)
-eval "$(printf '%s' "$input" | python3 -c "
+eval "$(python3 -c "
 import sys, json, shlex
 try:
     d = json.load(sys.stdin)
     ti = d.get('tool_input') or {}
     fp = ti.get('file_path') or ''
     tn = d.get('tool_name') or ''
-    # For Edit: single new_string; for MultiEdit: concatenate all edits' new_strings
     edits = ti.get('edits') or []
     if edits:
         ns = ''.join((e.get('new_string') or '') for e in edits if isinstance(e, dict))
@@ -28,7 +27,7 @@ except Exception:
     print('file_path=\"\"')
     print('tool_name=\"\"')
     print('new_string_len=0')
-" 2>/dev/null)" || exit 0
+" <<< "$input" 2>/dev/null)" || exit 0
 
 [[ -z "$file_path" ]] && exit 0
 
