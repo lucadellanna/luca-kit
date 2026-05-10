@@ -15,10 +15,12 @@ Score an existing skill, improve it, and iterate until it meets quality standard
 | 1 | **Clarity & conciseness** | The skill's user-facing messages (what Claude says and asks during execution) are in plain language a non-technical user can act on without follow-up questions. SKILL.md technical content (code blocks, tool names, model tier directives, sub-agent spawns) is instruction for Claude to execute, not content shown to users; do not penalise it for non-technical readability. Length: nothing longer than needed. |
 | 2 | **Context discipline** | Asks clarifying questions before acting on incomplete or unvalidated context. Never assumes the user's situation or intent. |
 | 3 | **Security** | Every action with real-world consequences (file writes, sends, deletes, external calls) requires explicit user approval before proceeding. |
-| 4 | **Token efficiency** | Two sub-dimensions: (a) *document*: the SKILL.md text is lean, no redundant words or boilerplate; (b) *runtime*: the skill uses the appropriate model tier (Haiku for simple/fast steps, Sonnet for balanced work, Opus for complex reasoning), spawns sub-agents where they improve quality or speed and avoids them otherwise, and minimises unnecessary back-and-forth or verbose outputs. |
-| 5 | **Effectiveness** | Has a `## Self-reflection` section with the self-observation protocol reference and 2–5 criteria. Score on how *appropriate* (relevant to the skill's purpose) and *MECE* (mutually exclusive: no overlap; collectively exhaustive: together they fully capture "good output" for this skill) the criteria are. No section = 0. Missing self-observation reference or wrong/overlapping criteria = low. |
+| 4 | **Token efficiency** | Two sub-dimensions: (a) *document*: the SKILL.md text is lean, no redundant words or boilerplate; (b) *runtime*: the skill uses the appropriate model tier (Haiku for simple/fast steps, Sonnet for balanced work, Opus for complex reasoning), spawns sub-agents where they improve quality or speed and avoids them otherwise, minimises unnecessary back-and-forth or verbose outputs, and matches quality machinery to output type (scoring loops for durable artifacts; immediate presentation for ephemeral user-judged output). |
+| 5 | **Effectiveness** | Has a `## Self-reflection` section with the self-observation protocol reference and 2–5 criteria. Score on how *appropriate* (relevant to the skill's purpose) and *MECE* (mutually exclusive: no overlap; collectively exhaustive: together they fully capture "good output" for this skill) the criteria are. No section = 0 unless DESIGN.md documents the omission as an intentional choice for ephemeral-output skills (per the "match quality machinery to output type" principle). Missing self-observation reference or wrong/overlapping criteria = low. |
 | 6 | **Instruction explicitness** | Every action the skill instructs Claude to perform names the specific tool to use and the expected outcome, not just the goal. "Use Read to check if X exists; if the file is not found, proceed to Y" rather than "Check if X exists." Implied tool choices, ambiguous outcomes, or steps that assume Claude will infer the mechanism score low. |
 | 7 | **Design decision coverage** | Every intentional trade-off, non-obvious constraint, or deliberate limitation has a row in `DESIGN.md`. A reviewer seeing the skill cold should not be able to flag an intentional choice as a gap. Missing file = 0. File exists but omits obvious choices = low. |
+
+**Scaling.** These steps are defaults for the general case. For simple skills (few steps, low stakes, no code blocks), collapse or skip steps where the overhead would exceed the value. The agent or user may make this call without justification. The quality gates (human approval before acting, DESIGN.md for trade-offs) are not skippable.
 
 ## Step 1: Identify the target
 
@@ -53,7 +55,7 @@ List every potential improvement in one sentence each. Cover:
 
 - Gap fixes from Step 2
 - Novel opportunities (edge cases, interaction patterns, structural improvements not visible from the scores)
-- **Mandatory:** if no `## Self-reflection` section exists, adding one is always an improvement. If the section exists but lacks the self-observation protocol reference, adding it is always an improvement.
+- **Mandatory (unless DESIGN.md documents intentional omission for ephemeral-output skills):** if no `## Self-reflection` section exists and DESIGN.md does not justify the omission, adding one is always an improvement. If the section exists but lacks the self-observation protocol reference, adding it is always an improvement.
 
 For each item, mark it as one of:
 - **Fix**: genuine bug, missing safety control, or clear UX failure; requires a code change
