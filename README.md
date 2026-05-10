@@ -86,13 +86,7 @@ If you already added the `lucadellanna/luca-ops-kit` marketplace (e.g. for luca-
 
 ### luca-ops-kit
 
-The plugin ships **meta-skills**: structured workflows for building, auditing, and improving procedures. Domain skills (the actual business procedures for your industry) are curated and added by your holding company.
-
-| Layer | Who provides it | What it contains |
-|-------|----------------|-----------------|
-| luca-ops-kit | Luca Dellanna | Meta-skills for building and improving procedures |
-| Holdco layer | Your holding company, franchisor, or trade association | Domain skills for your industry |
-| Partner layer | Your team | Local adaptations of holdco domain skills |
+The plugin ships **meta-skills**: structured workflows for building, auditing, and improving procedures. You can use it standalone to create, audit, and govern your own skill library.
 
 **Who uses it:**
 
@@ -107,6 +101,16 @@ The plugin ships **meta-skills**: structured workflows for building, auditing, a
 ### luca-dev-kit
 
 Write "open pr" and Claude handles the rest: pre-PR quality gates (triple-review against principles, recurring bug patterns, and structural integrity), PR creation, and an autonomous Gemini review loop that fixes comments and re-triggers review until the PR is clean.
+
+## For holdco customers
+
+If your organization receives luca-ops-kit through a holding company, franchisor, or trade association, skills are delivered in layers. Your holdco curates domain skills (the actual business procedures for your industry) on top of luca-ops-kit's meta-skills, and your team can further adapt them to local context.
+
+| Layer | Who provides it | What it contains |
+|-------|----------------|-----------------|
+| luca-ops-kit | Luca Dellanna | Meta-skills: build, audit, and improve procedures |
+| Holdco layer | Your holding company, franchisor, or trade association | Domain skills tailored to your industry (e.g., onboarding checklists, compliance workflows, reporting templates) |
+| Partner layer | Your team | Local adaptations: company-specific terminology, approval chains, and tooling integrations |
 
 ## Disclaimer
 
