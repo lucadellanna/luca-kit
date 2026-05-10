@@ -31,7 +31,7 @@ except Exception:
 
 [[ -z "$file_path" ]] && exit 0
 
-basename=$(basename "$file_path")
+basename=$(basename -- "$file_path")
 
 case "$basename" in
   CLAUDE.md|AGENTS.md) ;;

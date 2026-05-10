@@ -1,7 +1,7 @@
 ---
 name: luca-ops-recommended-setup
 description: First-time setup wizard. Checks the user's Claude environment and offers to add an automation hook, three generic best-practice rules, and a privacy/backup checklist. Run once after installing luca-ops-kit.
-version: 0.1.0
+version: 0.2.0
 ---
 
 # Recommended Setup
