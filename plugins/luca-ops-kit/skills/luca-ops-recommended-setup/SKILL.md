@@ -1,6 +1,6 @@
 ---
 name: luca-ops-recommended-setup
-description: First-time setup wizard. Checks the user's Claude environment and offers to add two productivity hooks, three generic best-practice rules, and a privacy/backup checklist. Run once after installing luca-ops-kit.
+description: First-time setup wizard. Checks the user's Claude environment and offers to add an automation hook, three generic best-practice rules, and a privacy/backup checklist. Run once after installing luca-ops-kit.
 version: 0.1.0
 ---
 
@@ -30,7 +30,6 @@ Read `~/.claude/settings.json` and `~/.claude/CLAUDE.md`. If either file does no
 | Hook | Filename to search for | Status variable |
 |------|----------------------|-----------------|
 | Optimization hint | `optimization-hint.sh` | `hook1_present` |
-| Prompt word count | `prompt-word-count.sh` | `hook2_present` |
 
 **CLAUDE.md rule detection**: search CLAUDE.md text for each fingerprint comment:
 
@@ -40,7 +39,7 @@ Read `~/.claude/settings.json` and `~/.claude/CLAUDE.md`. If either file does no
 | Confirm irreversible | `<!-- luca-ops-kit:rule-confirm-irreversible -->` | `rule2_present` |
 | Clarifying question | `<!-- luca-ops-kit:rule-clarifying-question -->` | `rule3_present` |
 
-Carry these six status variables forward. Do not show this step to the user.
+Carry these five status variables forward. Do not show this step to the user.
 
 ## Step 3: Manual checklist
 
@@ -86,18 +85,16 @@ Track which rules were added in a list for the manifest (Step 6).
 
 ## Step 5: Offer hooks
 
-If both hooks are already present: tell the user "Your hooks are already configured." and skip to Step 6.
+If the hook is already present (`hook1_present` = true): tell the user "Your hooks are already configured." and skip to Step 6.
 
-Explain each missing hook in plain language:
+Explain the missing hook in plain language:
 
 **Optimization hint**: after any response that involved many steps, Claude adds a one-sentence note about whether the work could be turned into a reusable skill or pattern. Only fires when there is something worth flagging.
 
-**Clarity check on long prompts**: when you send a message longer than about 50 words, Claude checks whether the desired outcome is clear before diving in. Reduces back-and-forth on ambiguous requests.
+Use AskUserQuestion (multiSelect, options: "Add optimization hint hook", "Skip"):
+> "Would you like to enable this automatic improvement? The plugin's main features work fine without it."
 
-Use AskUserQuestion (multiSelect, pre-select missing hooks, include "Skip all hooks" option):
-> "Which of these automatic improvements would you like to enable? The plugin's main features work fine without them."
-
-If "Skip all hooks" is chosen, proceed to Step 6.
+If "Skip" is chosen, proceed to Step 6.
 
 **Pre-check for idempotent re-runs**: before spawning the reviewer, check whether each selected hook file already exists and is tagged as ours:
 
@@ -157,26 +154,6 @@ if test -f ~/.claude/hooks/<name>.sh; then head -2 ~/.claude/hooks/<name>.sh; el
 echo "If this response involved 8+ tool calls, append one 'Optimization hint' at the end (reusable skill, memory-worthy pattern, or workflow improvement). One sentence. Skip if exploratory or one-off. Skip if you already captured this pattern in this session (written to memory, code-review checklist, or a CLAUDE.md rule)."
 ```
 
-**Hook 2 script** (`~/.claude/hooks/prompt-word-count.sh`):
-```bash
-#!/bin/bash
-# luca-ops-kit:prompt-word-count:v1
-command -v python3 >/dev/null || exit 0
-word_count=$(cat | python3 -c "
-import sys, json
-try:
-    data = json.load(sys.stdin)
-    prompt = data.get('prompt', '') or data.get('user_prompt', '')
-    if not isinstance(prompt, str): prompt = ''
-    print(len(prompt.split()))
-except Exception:
-    pass
-" 2>/dev/null)
-if [ -n "$word_count" ] && [ "$word_count" -gt 50 ] 2>/dev/null; then
-  printf 'This prompt is ~%s words. Before starting: confirm the desired outcome is specific enough. If the goal is ambiguous, ask one clarifying question first.\n' "$word_count"
-fi
-exit 0
-```
 
 **settings.json atomic update**: use this Python pattern for each hook. A dedicated lock file (`settings.json.lock`) is used for synchronization so the lock persists across `os.replace()` calls on the settings file itself.
 ```python

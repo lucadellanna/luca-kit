@@ -1,0 +1,17 @@
+{
+  "description": "CLAUDE.md authoring quality gate: reviews edits for conciseness and context pollution",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/claude-md-tidy.sh\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

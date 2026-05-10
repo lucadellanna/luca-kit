@@ -59,7 +59,7 @@ The plugin ships **meta-skills**: structured workflows for building, auditing, a
 
 | Skill | What it does |
 |-------|-------------|
-| **luca-ops-recommended-setup** | First-run wizard: adds three best-practice rules to your Claude config and offers two automation hooks (skill-check reminder, long-prompt clarity check) |
+| **luca-ops-recommended-setup** | First-run wizard: adds three best-practice rules to your Claude config and offers an automation hook (optimization hint) |
 | **undo-setup** | Reverses everything /luca-ops-recommended-setup added (rules, hooks, and scripts) so you can cleanly uninstall the plugin |
 | **build-work-context** | Interviews you about your company and role, then saves a persistent profile so Claude doesn't need to ask "who do you work for?" every session |
 | **create-skill** | Turns a procedure, SOP, checklist, or verbal description into a ready-to-use skill file, scoring and improving it before saving |
@@ -69,6 +69,14 @@ The plugin ships **meta-skills**: structured workflows for building, auditing, a
 | **audit-claude** | Scans your CLAUDE.md and memory files for bloat and cross-file redundancy, proposes targeted cuts, and verifies nothing meaningful was lost |
 | **reflect** | After a session, extracts what went well, what went wrong, and what should become a memory update, skill improvement, or new skill |
 | **dream** | Mines your /reflect logs to surface patterns across sessions: recurring issues never fixed, memory contradictions, and improvements that keep coming up but never land |
+
+## Hooks
+
+Installed automatically with the plugin (no setup needed):
+
+| Hook | Event | What it does |
+|------|-------|-------------|
+| **claude-md-tidy** | PostToolUse (Edit/Write) | After any edit to a CLAUDE.md or AGENTS.md file, injects a 7-criterion review (conciseness, duplication, contradictions, scope, ephemerality, vague triggers, context pollution) with quantitative metrics |
 
 ## License
 
