@@ -91,10 +91,10 @@ Explain the missing hook in plain language:
 
 **Optimization hint**: after any response that involved many steps, Claude adds a one-sentence note about whether the work could be turned into a reusable skill or pattern. Only fires when there is something worth flagging.
 
-Use AskUserQuestion (multiSelect, options: "Add optimization hint hook", "Skip"):
+Use AskUserQuestion (singleSelect, options: "Yes, add it", "No thanks"):
 > "Would you like to enable this automatic improvement? The plugin's main features work fine without it."
 
-If "Skip" is chosen, proceed to Step 6.
+If "No thanks" is chosen, proceed to Step 6.
 
 **Pre-check for idempotent re-runs**: before spawning the reviewer, check whether each selected hook file already exists and is tagged as ours:
 
