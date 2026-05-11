@@ -54,32 +54,6 @@ Use `pr_number`, `round`, `trigger_ts`, `thread_hashes_prev` from the file.
 - Fetch PR creation time: `gh pr view <PR_NUM> --json createdAt -q '.createdAt'`
 - Set `round=0`, `trigger_ts=<createdAt>`, `thread_hashes_prev=null`
 
-**Gemini installation check (round 0 only):**
-
-On round 0, check whether Gemini has ever reviewed any PR in this repo. If not, warn immediately rather than silently timing out:
-
-```bash
-if [[ "$ROUND" -eq 0 ]]; then
-  PR_URL=$(gh pr view "$PR_NUM" --json url -q '.url')
-  OWNER=$(echo "$PR_URL" | cut -d'/' -f4)
-  REPO=$(echo "$PR_URL" | cut -d'/' -f5)
-  GEMINI_EVER="false"
-  for pn in $(gh api "/repos/$OWNER/$REPO/pulls?state=all&per_page=5" --jq '.[].number' 2>/dev/null); do
-    if gh api "/repos/$OWNER/$REPO/pulls/$pn/reviews" \
-      --jq '[.[].user.login? // "" ] | any(test("gemini-code-assist"))' 2>/dev/null | grep -q true; then
-      GEMINI_EVER="true"
-      break
-    fi
-  done
-  if [[ "$GEMINI_EVER" != "true" ]]; then
-    echo "⚠️  No Gemini Code Assist activity found in this repo."
-    echo "   If not installed, the loop will time out. Install at:"
-    echo "   https://github.com/$OWNER/$REPO/settings/installations"
-    echo "   Continuing anyway -- Gemini may be installed but not yet reviewed any PR."
-  fi
-fi
-```
-
 ## Loop (repeat until stop condition)
 
 ### A. Poll for Gemini review
@@ -296,20 +270,15 @@ Update `trigger_ts` in state file atomically. Loop back to step A.
 
 ```bash
 gh pr checks --watch --interval 10
-
-# Notify (macOS: safe to fail on Linux)
-afplay /System/Library/Sounds/Glass.aiff 2>/dev/null || true
-osascript -e "display notification \"PR #${PR_NUM} is clean: Gemini approved, CI green.\" with title \"luca-dev-kit\"" 2>/dev/null || true
 ```
+
+Use the `PushNotification` tool to notify: "PR #N is ready. Gemini approved and CI is green."
 
 Report: "PR #N is ready. Gemini approved and CI is green."
 
 ## EXIT STOP
 
-```bash
-afplay /System/Library/Sounds/Basso.aiff 2>/dev/null || true
-osascript -e 'display notification "Review loop stopped: action needed." with title "luca-dev-kit"' 2>/dev/null || true
-```
+Use the `PushNotification` tool to notify: "Review loop stopped: action needed. [one-line stop reason]"
 
 Report the specific stop condition and required action clearly.
 

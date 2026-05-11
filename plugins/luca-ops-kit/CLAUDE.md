@@ -2,15 +2,6 @@
 
 Runtime instructions active whenever this plugin's skills are in use.
 
-## First-run
-
-**Disclaimer (once per install):** At the very start of the session, before addressing any other request (skip if `mode: raw` is present in the opening message), check if `~/.claude/luca-ops-kit/disclaimer-v1.0-shown` exists. If it does not:
-1. Run `cat "$CLAUDE_PLUGIN_ROOT/DISCLAIMER.md"` and display the output verbatim.
-2. Run `mkdir -p ~/.claude/luca-ops-kit && echo "v1.0 shown $(date +%Y-%m-%d)" > ~/.claude/luca-ops-kit/disclaimer-v1.0-shown`
-3. Do not display it again this session.
-
-**Setup prompt:** After the disclaimer (if shown), before addressing any other request, if neither `~/.claude/luca-ops-kit/setup-complete` nor `~/.claude/luca-ops-kit/applied.json` exists, suggest running `/luca-ops-recommended-setup`. On a fresh install where both apply, show the disclaimer first, then the setup suggestion in the same response. If the user declines setup, do not suggest it again this session.
-
 ## Audience
 
 Users are non-technical staff inside partner companies. Skills must use plain language, guide users step-by-step, and never assume technical fluency.
@@ -48,5 +39,5 @@ Users are non-technical staff inside partner companies. Skills must use plain la
 - **Raw-mode data contract.** When a skill produces output another skill may need to consume as structured data, add a `mode: raw` clause at the top of the skill body: if `mode: raw` is passed in the opening message, return TSV/JSON and skip rendering. Never embed another skill's script inline; invoke in raw mode instead.
 - **Absolute paths in data output.** When a skill emits file paths as structured data (TSV, JSON), always normalize with `os.path.abspath()`. The consuming skill may run from a different working directory, so relative paths silently break the data contract.
 - **Sanitize at the boundary.** When emitting structured output (TSV, CSV, JSON), do all field escaping in a single pass at the output statement. Never scatter sanitization across helper functions: fields added later skip it and review catches the gap one field at a time.
-- **Manifest-as-source-of-truth for global-state writes.** When a skill writes to global state in multiple steps, record each write to a plugin-namespaced manifest (e.g., `~/.claude/<plugin>/applied.json`) before marking setup complete. The companion undo skill reads only the manifest; never re-scans user files; this ensures precise, safe reversal.
+- **Prefer self-identifying artifacts over manifests.** When a skill writes artifacts that can be detected by their content (e.g., fingerprinted lines in a config file), use detection-based undo rather than maintaining a separate manifest. Only use a manifest when artifacts are not self-identifying (e.g., binary files, entries without distinguishing markers).
 - **Typed agent spawns vs. model-tier spawns.** Skills may use either `subagent_type: <agent-type>` (a specialized agent with defined tools, e.g. `feature-dev:code-reviewer`) or a generic model-tier spawn (e.g. "spawn a Haiku sub-agent"). These are different primitives. Do not replace a typed agent spawn with a generic model tier: specialized agents have capabilities generic spawns lack. Automated reviewers (Gemini) may flag typed agent names as non-standard; pre-classify such suggestions as false positives unless the agent type does not exist in this environment.

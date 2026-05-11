@@ -2,13 +2,6 @@
 
 Runtime instructions active in every session where this plugin is installed.
 
-## First-run
-
-**Disclaimer (once per install):** At the very start of the session, before addressing any other request (skip if `mode: raw` is present in the opening message), check if `~/.claude/luca-dev-kit/disclaimer-v1.0-shown` exists. If it does not:
-1. Run `cat "$CLAUDE_PLUGIN_ROOT/DISCLAIMER.md"` and display the output verbatim.
-2. Run `mkdir -p ~/.claude/luca-dev-kit && echo "v1.0 shown $(date +%Y-%m-%d)" > ~/.claude/luca-dev-kit/disclaimer-v1.0-shown`
-3. Do not display it again this session.
-
 ## What this plugin does
 
 | Skill | Trigger | Purpose |

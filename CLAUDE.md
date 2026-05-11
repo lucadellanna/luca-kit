@@ -30,21 +30,24 @@ All skills in this plugin are meta-skills. When adding a skill, confirm it fits 
 plugins/luca-ops-kit/
   .claude-plugin/plugin.json    # Plugin manifest
   CLAUDE.md                     # Runtime instructions (ships with plugin)
-  skills/<name>/SKILL.md        # Runtime instructions (loaded on every execution)
+  commands/<name>.md            # Slash commands (explicit user-triggered actions)
+  skills/<name>/SKILL.md        # Skills (loaded on every execution)
   skills/<name>/DESIGN.md       # Design decisions (loaded only during audits)
+  design/<name>.md              # Design decisions for commands
+  hooks/hooks.json              # Plugin-level hooks (auto-installed)
+  hooks/<name>.sh               # Hook scripts
 ```
 
-Skill directories use kebab-case verb-noun names (e.g., `review-invoice`, `onboard-client`).
+Skill directories use kebab-case verb-noun names (e.g., `review-invoice`, `onboard-client`). Command files use kebab-case names (e.g., `undo-setup.md`).
 
 **All new skills must be created via `/create-skill`.** Never write SKILL.md files directly. The guided workflow ensures quality gates (elicitation, scoring, code review, audit) are applied consistently.
 
-No commands, agents, or hooks yet: skills only.
+**Commands vs skills:** Commands are explicit user-triggered actions (setup, teardown, one-shot operations). Skills are capabilities Claude applies as part of a workflow. If it should only fire when the user types `/name`, it's a command.
 
 **`plugins/luca-ops-kit/CLAUDE.md` is the plugin runtime manifest.** It ships with the plugin and is loaded into context on every session where the plugin is active. The root `CLAUDE.md` (this file) is developer-only and never reaches user machines. Authoring rule: anything Claude must know to execute the plugin's skills correctly on a user's machine belongs in `plugins/luca-ops-kit/CLAUDE.md`. This includes:
 - **Audience and persona context** -- who the users are; tone and assumed knowledge
 - **Runtime principles** -- plain language, guided workflows, human approval points, self-reflection, self-observation
-- **First-run behavior** -- proactive setup suggestions and session-level suppression
-- **Runtime inter-skill patterns** -- data contracts, manifest-as-source-of-truth, typed agent spawn rules
+- **Runtime inter-skill patterns** -- data contracts, typed agent spawn rules
 
 Authoring patterns, project structure notes, and quality gates (this file) stay in the root `CLAUDE.md` and are never duplicated into the plugin runtime manifest.
 
@@ -61,7 +64,7 @@ These apply when writing or editing skills, not at user runtime. They are enforc
 - **Incremental-edit Sonnet gate.** When a complex skill (multi-step orchestration, state management, inter-skill delegation) receives 3 or more incremental edits in one session, run one final independent Sonnet pass on the complete updated file before committing. In-context incremental review misses step-sequence bugs and edge cases that accumulate across edits.
 - **Pre-write review gate.** When a skill generates content that will be written to the user's system (scripts, config entries, generated files), run the code-reviewer sub-agent on the planned content before writing, not after. Apply any fixes in-context, then write the corrected version. Post-write review creates inconsistent state: the unfixed version is already on disk and registered, and rollback is unspecified.
 - **Opus security gate.** Fires when implementing any feature that: (a) writes to the user's global environment (settings.json, CLAUDE.md, hook scripts, global config), (b) adds or modifies shell scripts executed in the user's environment, or (c) rewrites security-sensitive logic (input validation, secret handling, auth). Run an Opus review pass on the full plan before writing code. In-context Sonnet review is anchored to already-accepted design decisions; Opus starting fresh treats them as open questions and catches what anchored review misses. This gate precedes the inline Sonnet review.
-- **Pre-push proactive scan for SKILL.md files with embedded code.** Before the first `git push` on any PR that modifies SKILL.md files containing Python or Bash code blocks, spawn an Opus sub-agent to carefully review only the added/modified code blocks against `~/.claude/code-review-checklist.md`. Quote offending lines and propose minimal fixes. This catches most issues in one pass instead of across multiple Gemini review rounds.
+- **Pre-push proactive scan for any `.md` files with embedded code.** Before the first `git push` on any PR that adds or modifies `.md` files (SKILL.md, command files, hook scripts, or any other markdown) containing Python or Bash code blocks, spawn an Opus sub-agent to review only the added/modified code blocks against `~/.claude/code-review-checklist.md`. Quote offending lines and propose minimal fixes. This catches most issues in one pass instead of across multiple Gemini review rounds. (Scope was widened from SKILL.md-only after 5 of 9 Gemini rounds flagged file I/O issues in command files that a pre-push scan would have caught.)
 - **DESIGN.md when rejecting a Gemini thread.** When a Gemini review thread is rejected as a design decision (not a bug), update `DESIGN.md` in the same commit. A documented decision prevents the same thread from being raised in subsequent review rounds.
 
 ## Setup command requirements
