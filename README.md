@@ -71,6 +71,7 @@ If you already added the `lucadellanna/luca-ops-kit` marketplace (e.g. for luca-
 | **audit-claude** | Scans your CLAUDE.md and memory files for bloat and cross-file redundancy, proposes targeted cuts, and verifies nothing meaningful was lost |
 | **reflect** | After a session, extracts what went well, what went wrong, and what should become a memory update, skill improvement, or new skill |
 | **dream** | Mines your /reflect logs to surface patterns across sessions: recurring issues never fixed, memory contradictions, and improvements that keep coming up but never land |
+| **setup-context-search** | *(Power users)* Installs [qmd](https://github.com/tobi/qmd) and configures it as an MCP server, giving Claude semantic search over your context files (customers, offerings, projects). Requires Node.js 22+ |
 
 ### luca-dev-kit
 
@@ -97,6 +98,22 @@ The plugin ships **meta-skills**: structured workflows for building, auditing, a
 | Salesperson | Converts a successful call-prep process into a skill |
 | Frontline manager | Builds an SOP from tacit know-how |
 | Local power user | Audits, consolidates, and governs the team's skill library |
+
+### Context search (optional, power users)
+
+As your context library grows (customers, offerings, projects, SOPs), finding the right file becomes harder. `/setup-context-search` installs [qmd](https://github.com/tobi/qmd), a local semantic search engine, and wires it into Claude as an MCP server. After setup, Claude can search your context files natively using keyword, semantic, or hybrid queries without you needing to remember file names or locations.
+
+**Requirements:** Node.js 22+, npm or bun, ~2.2 GB disk for local AI models (runs entirely on your machine, no cloud).
+
+**What it enables:**
+
+| Query type | Example | How it works |
+|---|---|---|
+| Keyword | "Find the Acme Corp file" | Fast BM25 full-text search |
+| Semantic | "Customers similar to Acme" | Vector similarity via local embeddings |
+| Hybrid | "Healthcare clients with active contracts" | Keyword + semantic + LLM re-ranking |
+
+Run `/setup-context-search` once; Claude gets the search tools permanently.
 
 ### luca-dev-kit
 
