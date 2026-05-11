@@ -63,8 +63,14 @@ if [[ "$ROUND" -eq 0 ]]; then
   PR_URL=$(gh pr view "$PR_NUM" --json url -q '.url')
   OWNER=$(echo "$PR_URL" | cut -d'/' -f4)
   REPO=$(echo "$PR_URL" | cut -d'/' -f5)
-  GEMINI_EVER=$(gh api "/repos/$OWNER/$REPO/pulls/$PR_NUM/reviews" \
-    --jq '[.[].user.login] | any(test("gemini-code-assist"))' 2>/dev/null || echo "false")
+  GEMINI_EVER="false"
+  for pn in $(gh api "/repos/$OWNER/$REPO/pulls?state=all&per_page=5" --jq '.[].number' 2>/dev/null); do
+    if gh api "/repos/$OWNER/$REPO/pulls/$pn/reviews" \
+      --jq '[.[].user.login] | any(test("gemini-code-assist"))' 2>/dev/null | grep -q true; then
+      GEMINI_EVER="true"
+      break
+    fi
+  done
   if [[ "$GEMINI_EVER" != "true" ]]; then
     echo "⚠️  No Gemini Code Assist activity found in this repo."
     echo "   If not installed, the loop will time out. Install at:"
@@ -144,7 +150,7 @@ Filter to unresolved Gemini threads only:
 ```bash
 jq '.data.repository.pullRequest.reviewThreads.nodes[]
     | select(.isResolved==false
-             and (.comments.nodes[0].author.login? // "" | test("gemini-code-assist")))'
+             and ((.comments.nodes[0]? // {}).author.login? // "" | test("gemini-code-assist")))'
 ```
 
 This prevents the loop from classifying or resolving comments from human reviewers.
