@@ -9,7 +9,9 @@ The hook uses a pattern like:
 eval "$(python3 -c "import shlex, sys; ..." <<< "$input")"
 ```
 
-This is intentional and safe: `shlex.quote()` escapes all values before `eval` runs. No unescaped user content is ever interpolated into the evaluated string, so there is no injection surface. Alternative patterns (heredocs, passing via env vars) are more verbose without adding safety.
+This is intentional and safe: `shlex.quote()` escapes all values before `eval` runs. No unescaped user content is ever interpolated into the evaluated string, so there is no injection surface.
+
+**stdin (here-string) over env var:** The JSON input is passed via `<<< "$input"` (bash here-string), not via an env var. This is deliberate: bash here-strings have no size limit, while env vars are subject to `ARG_MAX` on Linux (typically ~128 KB when combined with other env vars). Hook input can be large (e.g. a full file rewrite). Passing large data via env var risks silent truncation or failure. The here-string approach is safer for unbounded inputs.
 
 ## Silent exit on python3 failure
 
