@@ -12,4 +12,5 @@ if [[ "$COMMAND" != *"gh pr create"* ]]; then
 fi
 
 REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
-python3 "$REPO_ROOT/scripts/bump-plugin-versions.py"
+cd "$REPO_ROOT"
+python3 scripts/bump-plugin-versions.py
