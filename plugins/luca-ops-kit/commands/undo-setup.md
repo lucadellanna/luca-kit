@@ -114,7 +114,7 @@ Tell the user:
 
 During execution, follow the self-observation protocol (see CLAUDE.md Principles).
 
-Spawn a Haiku sub-agent. Read `$CLAUDE_PLUGIN_ROOT/commands/undo-setup.md` and pass its contents with the following instruction: "Score each criterion 0-10. For each, give a one-sentence rationale. Return a markdown table; no preamble.":
+Spawn a Haiku sub-agent. Pass the content of this command file with the following instruction: "Score each criterion 0-10. For each, give a one-sentence rationale. Return a markdown table; no preamble.":
 
 1. **Completeness**: every fingerprinted rule was found and removed, or its absence was correctly noted
 2. **Safety**: nothing was deleted without explicit user confirmation; atomic write prevented CLAUDE.md corruption

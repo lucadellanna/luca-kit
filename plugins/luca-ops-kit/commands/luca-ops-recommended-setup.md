@@ -108,7 +108,7 @@ Then present the full skill overview:
 
 During execution, follow the self-observation protocol (see CLAUDE.md Principles).
 
-Spawn a Haiku sub-agent. Read `$CLAUDE_PLUGIN_ROOT/commands/luca-ops-recommended-setup.md` and pass its contents with the following instruction: "Score this command run on each criterion 0-10. For each, give a one-sentence rationale. Return a markdown table; no preamble.":
+Spawn a Haiku sub-agent. Pass the content of this command file with the following instruction: "Score this command run on each criterion 0-10. For each, give a one-sentence rationale. Return a markdown table; no preamble.":
 
 1. **Detection accuracy**: every rule already present was correctly identified and skipped; every missing rule was correctly identified and offered
 2. **User communication**: explanations in Steps 3-4 are plain enough for a non-technical user to act on without follow-up questions; no developer jargon was surfaced
