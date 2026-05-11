@@ -55,9 +55,9 @@ max_para_lines=$(awk '
 hedging=$(grep -ciE '\b(try to|consider|prefer|might want to|you could|if possible)\b' "$file_path" || true)
 hedging=${hedging:-0}
 
-long_bullets=$(awk '/^[[:space:]]*[-*] / && length > 120 { count++ } END { print count+0 }' "$file_path")
+long_bullets=$(awk '/^[[:space:]]*([-*+]|[0-9]+[.]) / && length > 120 { count++ } END { print count+0 }' "$file_path")
 
-duplicate_lines=$({ grep -vE '^[[:space:]]*($|#|---|\|[-:| ]+\||`{3})' "$file_path" || true; } | sed 's/^[[:space:]]*//; s/[[:space:]]*$//' | sort | uniq -d | wc -l | tr -d ' ')
+duplicate_lines=$({ grep -vE '^[[:space:]]*($|#|---|\*{3}|_{3}|\|[-:| ]+\||`{3})' "$file_path" || true; } | sed 's/^[[:space:]]*//; s/[[:space:]]*$//' | sort | uniq -d | wc -l | tr -d ' ')
 
 # --- Diff context ---
 if [[ "$tool_name" == "Edit" || "$tool_name" == "MultiEdit" ]]; then
