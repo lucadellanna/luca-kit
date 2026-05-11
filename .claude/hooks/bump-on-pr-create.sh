@@ -5,7 +5,7 @@
 set -euo pipefail
 
 INPUT=$(cat)
-COMMAND=$(python3 -c "import sys, json; d=json.load(sys.stdin); print(d.get('tool_input', {}).get('command', ''))" <<< "$INPUT" 2>/dev/null || true)
+COMMAND=$(python3 -c "import sys, json; d=json.load(sys.stdin); print(d.get('tool_input', {}).get('command', ''))" <<< "$INPUT" || true)
 
 if [[ "$COMMAND" != *"gh pr create"* ]]; then
   exit 0

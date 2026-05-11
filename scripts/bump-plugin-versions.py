@@ -39,6 +39,11 @@ def main():
 
     if args.base:
         base_ref = args.base
+        branch = args.base[len("origin/"):] if args.base.startswith("origin/") else args.base
+        try:
+            run(["git", "fetch", "origin", branch, "--quiet"])
+        except subprocess.CalledProcessError:
+            pass
     else:
         try:
             env = {**os.environ, "LC_ALL": "C"}
@@ -88,7 +93,7 @@ def main():
         with open(plugin_json_path, encoding="utf-8") as f:
             data = json.load(f)
 
-        version = data.get("version", "")
+        version = data.get("version") or ""
         if not re.fullmatch(r"\d+\.\d+\.\d+", version):
             print(f"Skipping {plugin_json_path}: invalid version {version!r}", file=sys.stderr)
             continue
