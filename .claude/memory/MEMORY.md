@@ -2,6 +2,8 @@
 
 ## Workflow patterns
 
+- [PreToolUse hook blocks compound git commands](feedback_pretooluse_hook_compound_commands.md) — stage files in a separate Bash call; `git add && git commit` fails to stage when hook blocks on the commit
+
 **Bulk text substitution**: for find-and-replace with known search strings (e.g., em dash fixes), use a single Python script that opens/replaces/writes files directly from disk; no `Read` calls. `Read` loads content into context; Python `str.replace()` doesn't. Pattern: (1) one scan to identify occurrences, (2) one script fixing all files, (3) one verification scan.
 
 **Subagent delegation threshold**: delegate file read+analyze+write tasks to a subagent when (a) the file content you'd load into context exceeds the subagent spawn overhead, or (b) the semantic analysis is complex enough to benefit from a dedicated reasoning pass. Below that bar — short files, simple substring checks — do it entirely in an inline Python script that never loads content into context.
