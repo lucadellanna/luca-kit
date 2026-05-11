@@ -292,16 +292,15 @@ On Windows, replace `fcntl` with `msvcrt` for file locking, or skip locking:
 ### macOS/Linux:
 
 ```python
-import json, os, fcntl
+import json, os, sys
 
 path = os.path.expanduser("~/.claude/settings.json")
 lock_path = path + ".lock"
-qmd_path = "<QMD_PATH>"
+qmd_path = r"<QMD_PATH>"
 
 os.makedirs(os.path.dirname(path), exist_ok=True)
 
-with open(lock_path, "a") as lock_f:
-    fcntl.flock(lock_f, fcntl.LOCK_EX)
+def update_settings():
     try:
         with open(path) as f:
             content = f.read().strip()
@@ -309,12 +308,12 @@ with open(lock_path, "a") as lock_f:
     except FileNotFoundError:
         settings = {}
     except json.JSONDecodeError:
-        print("ERROR: ~/.claude/settings.json contains invalid JSON.")
-        raise SystemExit(1)
+        print(f"ERROR: {path} contains invalid JSON.")
+        sys.exit(1)
 
     if not isinstance(settings, dict):
-        print("ERROR: ~/.claude/settings.json is not a JSON object.")
-        raise SystemExit(1)
+        print(f"ERROR: {path} is not a JSON object.")
+        sys.exit(1)
 
     if not isinstance(settings.get("mcpServers"), dict):
         settings["mcpServers"] = {}
@@ -331,12 +330,20 @@ with open(lock_path, "a") as lock_f:
         f.flush()
         os.fsync(f.fileno())
     os.replace(tmp, path)
-    print("Done")
+
+if sys.platform != "win32":
+    try:
+        import fcntl
+        with open(lock_path, "a") as lock_f:
+            fcntl.flock(lock_f, fcntl.LOCK_EX)
+            update_settings()
+    except ImportError:
+        update_settings()
+else:
+    update_settings()
+
+print("Done")
 ```
-
-### Windows:
-
-Same logic but use `os.path.join(os.environ["USERPROFILE"], ".claude", "settings.json")` for the path and skip `fcntl` (use a simple try/except for concurrent access).
 
 Show the user what was written:
 
