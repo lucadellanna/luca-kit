@@ -41,7 +41,7 @@ fingerprints = [
 
 path = os.path.expanduser("~/.claude/CLAUDE.md")
 try:
-    with open(path) as f:
+    with open(path, encoding='utf-8') as f:
         lines = f.readlines()
 except FileNotFoundError:
     print("~/.claude/CLAUDE.md not found")
@@ -73,7 +73,7 @@ while i < len(filtered):
 
 tmp = path + ".tmp"
 try:
-    with open(tmp, "w") as tf:
+    with open(tmp, "w", encoding='utf-8') as tf:
         tf.writelines(result)
         tf.flush()
         os.fsync(tf.fileno())
