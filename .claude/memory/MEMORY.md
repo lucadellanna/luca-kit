@@ -2,7 +2,7 @@
 
 ## Workflow patterns
 
-- [PreToolUse hook blocks compound git commands](feedback_pretooluse_hook_compound_commands.md) — stage files in a separate Bash call; `git add && git commit` fails to stage when hook blocks on the commit
+**PreToolUse hook + compound git commands**: `git add && git commit` fails to stage when the hook fires on the full command string before any part runs. Always stage in a separate Bash call, verify clean, then commit.
 
 **Bulk text substitution**: for find-and-replace with known search strings (e.g., em dash fixes), use a single Python script that opens/replaces/writes files directly from disk; no `Read` calls. `Read` loads content into context; Python `str.replace()` doesn't. Pattern: (1) one scan to identify occurrences, (2) one script fixing all files, (3) one verification scan.
 
