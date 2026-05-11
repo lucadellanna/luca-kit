@@ -37,7 +37,8 @@ Gemini facts (as of May 2026):
 python3 -c "
 import json, sys
 try:
-    s = json.load(open('.claude/cache/review-loop-state.json'))
+    with open('.claude/cache/review-loop-state.json') as f:
+        s = json.load(f)
     assert isinstance(s.get('pr_number'), int)
     assert isinstance(s.get('round'), int) and s['round'] >= 0
     print(json.dumps(s, indent=2))
@@ -134,6 +135,7 @@ query($owner:String!, $repo:String!, $pr:Int!) {
 Parse `owner` and `repo` into shell variables. Use the PR URL (always the base repo) to avoid misidentifying the fork as the target in cross-repository PRs:
 ```bash
 PR_URL=$(gh pr view "$PR_NUM" --json url -q '.url')
+[[ -z "$PR_URL" ]] && echo "Failed to get PR URL" >&2 && exit 1
 OWNER=$(echo "$PR_URL" | cut -d'/' -f4)
 REPO=$(echo "$PR_URL" | cut -d'/' -f5)
 ```
@@ -197,15 +199,14 @@ Stop. Wait for user confirmation.
 
 ### F. Cycle detection
 
-Build a JSON array of `{"id": ..., "body": ...}` objects for each FIX thread (in order), then hash via env var -- never interpolate untrusted body content into Python source:
+Build a JSON array of `{"id": ..., "body": ...}` objects for each FIX thread (in order), then hash via stdin -- never interpolate untrusted body content into Python source, and avoid env vars for large payloads (MAX_ARG_STRLEN limit on Linux):
 
 ```bash
 # FIX_THREADS_JSON = '[{"id":"<id1>","body":"<body1>"},{"id":"<id2>","body":"<body2>"},...]'
-# Construct this JSON from the FIX thread list, then pass via env var:
-CURRENT_HASH=$(FIX_THREADS_JSON="$FIX_THREADS_JSON" python3 -c "
-import os, hashlib
-# Use python3 hashlib: md5sum is not available on stock macOS (only md5)
-data = os.environ['FIX_THREADS_JSON'].encode()
+# Pipe via stdin to avoid env var size limits:
+CURRENT_HASH=$(printf '%s' "$FIX_THREADS_JSON" | python3 -c "
+import sys, hashlib
+data = sys.stdin.read().encode()
 print(hashlib.sha256(data).hexdigest())
 ")
 ```

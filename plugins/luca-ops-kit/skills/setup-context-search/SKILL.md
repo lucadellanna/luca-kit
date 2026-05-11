@@ -278,7 +278,7 @@ After embedding completes, tell the user:
 
 Verify:
 ```bash
-$QMD_PATH status
+"$QMD_PATH" status
 ```
 
 Report the result (documents indexed, chunks embedded).
