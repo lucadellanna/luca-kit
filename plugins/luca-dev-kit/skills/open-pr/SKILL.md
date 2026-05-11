@@ -67,15 +67,7 @@ Wait for completion. Receive consolidated finding table with counts.
 
 **Re-run condition:** if pass 1 had ≥1 CRITICAL or ≥3 IMPORTANT findings, run `luca-dev-kit:triple-review` once more (pass 2). Apply any new CRITICAL/IMPORTANT fixes and commit. Hard cap: no pass 3.
 
-## Step 6: Pre-commit hook check (first run only)
-
-```bash
-grep -q "luca-dev-kit" "$(git rev-parse --show-toplevel)/.git/hooks/pre-commit" 2>/dev/null || echo "not-installed"
-```
-
-If not installed: invoke `luca-dev-kit:install-pre-commit-hooks`.
-
-## Step 7: Typecheck (always runs, ignores timing cache)
+## Step 6: Typecheck (always runs, ignores timing cache)
 
 Detect and run type checker:
 
@@ -90,7 +82,7 @@ Detect and run type checker:
 
 **On error: stop.** Do not push with type errors. Report the errors and ask user to fix.
 
-## Step 7b: SKILL.md script pre-review
+## Step 6b: SKILL.md script pre-review
 
 Check whether any modified SKILL.md files contain embedded code blocks:
 
@@ -116,7 +108,7 @@ Apply all CRITICAL fixes before proceeding. Log IMPORTANT/MINOR findings for the
 
 If `$SKILL_MD_WITH_CODE` is empty or `~/.claude/code-review-checklist.md` does not exist: skip this step.
 
-## Step 8: Push
+## Step 7: Push
 
 ```bash
 BRANCH=$(git branch --show-current)
@@ -129,7 +121,7 @@ else
 fi
 ```
 
-## Step 9: Create PR
+## Step 8: Create PR
 
 ```bash
 gh pr create --base "$BASE" \
@@ -149,7 +141,7 @@ EOF
 
 Capture PR number from output: `gh pr view --json number -q '.number'`
 
-## Step 10: Write state file and hand off
+## Step 9: Write state file and hand off
 
 Write `.claude/cache/review-loop-state.json` atomically (tmp + os.replace to prevent partial writes):
 
