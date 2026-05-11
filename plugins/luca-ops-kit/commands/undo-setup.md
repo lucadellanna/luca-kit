@@ -16,7 +16,7 @@ Read `~/.claude/CLAUDE.md`. Search for lines containing any of these fingerprint
 | Confirm irreversible | `<!-- luca-ops-kit:rule-confirm-irreversible -->` |
 | Clarifying question | `<!-- luca-ops-kit:rule-clarifying-question -->` |
 
-- If `~/.claude/CLAUDE.md` does not exist: tell the user "No CLAUDE.md found; nothing to undo." and stop.
+- If `~/.claude/CLAUDE.md` does not exist: tell the user "No CLAUDE.md found; no rules to remove." Clean up the marker (Step 4) and stop.
 - If no fingerprints are found: tell the user "No luca-ops-kit rules found in your CLAUDE.md. Nothing to undo." Clean up the marker (Step 4) and stop.
 
 ## Step 2: Show what will be removed
@@ -99,6 +99,7 @@ Use Bash:
 ```bash
 rm -f ~/.claude/luca-ops-kit/setup-complete
 rm -f ~/.claude/luca-ops-kit/applied.json
+rm -f ~/.claude/luca-ops-kit/disclaimer-v1.0-shown
 rmdir ~/.claude/luca-ops-kit 2>/dev/null || true
 ```
 
