@@ -63,7 +63,7 @@ Explain what each missing rule does, then ask which to add:
 Use AskUserQuestion (multiSelect, pre-select only missing rules):
 > "Which of these rules would you like to add to your global Claude settings?"
 
-Collect all selected rules and add them to the end of `~/.claude/CLAUDE.md` in a single atomic write (read full file → append all selected rules → write to path + ".tmp" → fsync → os.replace; never use open(..., 'a')). Create the file if absent. Create a `## Suggested defaults (luca-ops-kit)` section if absent. Include the fingerprint comment on the same line so undo-setup can find and remove it later:
+Collect all selected rules and add them to `~/.claude/CLAUDE.md` in a single atomic write (read full file → insert rules into the correct section → write to path + ".tmp" → fsync → os.replace; never use open(..., 'a')). Create the file if absent. If `## Suggested defaults (luca-ops-kit)` already exists, insert missing rules at the end of that section (before the next `##` heading, or end-of-file if it is the last section). If the section is absent, append it at the end of the file. Include the fingerprint comment on the same line so undo-setup can find and remove it later:
 
 ```
 - Before doing any multi-step task manually, check whether a skill exists that covers it. Use the skill if one is found. <!-- luca-ops-kit:rule-skills-first -->
@@ -71,7 +71,7 @@ Collect all selected rules and add them to the end of `~/.claude/CLAUDE.md` in a
 - If a request has multiple valid interpretations, ask one clarifying question before starting. Do not guess at intent. <!-- luca-ops-kit:rule-clarifying-question -->
 ```
 
-Write atomically: use Python with `path = os.path.expanduser("~/.claude/CLAUDE.md")`. Ensure the directory exists with `os.makedirs(os.path.dirname(path), exist_ok=True)`. Read the existing content using `encoding='utf-8'` (empty string if the file does not exist). If the content is non-empty and does not end with `\n`, append `\n` before adding the new section. Open the `.tmp` file with `encoding='utf-8'`, write, call `tf.flush()`, then `os.fsync(tf.fileno())`, and finally `os.replace(path + ".tmp", path)`. Skip any rule whose fingerprint already exists.
+Write atomically: use Python with `path = os.path.expanduser("~/.claude/CLAUDE.md")`. Ensure the directory exists with `os.makedirs(os.path.dirname(path), exist_ok=True)`. Read the existing content using `encoding='utf-8'` (empty string if the file does not exist). If the content is non-empty and does not end with `\n`, append `\n` before adding new content. Use `with open(path + ".tmp", "w", encoding="utf-8") as tf:` to write all content, call `tf.flush()`, then `os.fsync(tf.fileno())`, then outside the `with` block call `os.replace(path + ".tmp", path)`. Skip any rule whose fingerprint already exists.
 
 ## Step 5: Write marker and summarize
 
