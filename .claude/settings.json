@@ -1,4 +1,18 @@
 {
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/bump-on-pr-create.sh",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  },
   "permissions": {
     "allow": [
       "Skill(update-config)",
