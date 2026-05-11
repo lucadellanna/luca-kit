@@ -63,7 +63,7 @@ Explain what each missing rule does, then ask which to add:
 Use AskUserQuestion (multiSelect, pre-select only missing rules):
 > "Which of these rules would you like to add to your global Claude settings?"
 
-For each selected rule, add it to the end of `~/.claude/CLAUDE.md` using the atomic write pattern below (read full file → add content → write to .tmp → os.replace; never use open(..., 'a')). Create the file if absent. Create a `## Suggested defaults (luca-ops-kit)` section if absent. Include the fingerprint comment on the same line so undo-setup can find and remove it later:
+Collect all selected rules and add them to the end of `~/.claude/CLAUDE.md` in a single atomic write (read full file → append all selected rules → write to path + ".tmp" → fsync → os.replace; never use open(..., 'a')). Create the file if absent. Create a `## Suggested defaults (luca-ops-kit)` section if absent. Include the fingerprint comment on the same line so undo-setup can find and remove it later:
 
 ```
 - Before doing any multi-step task manually, check whether a skill exists that covers it. Use the skill if one is found. <!-- luca-ops-kit:rule-skills-first -->
@@ -71,7 +71,7 @@ For each selected rule, add it to the end of `~/.claude/CLAUDE.md` using the ato
 - If a request has multiple valid interpretations, ask one clarifying question before starting. Do not guess at intent. <!-- luca-ops-kit:rule-clarifying-question -->
 ```
 
-Write atomically: use Python with `os.path.expanduser("~/.claude/CLAUDE.md")` as the path. Write to `.tmp`, fsync, then `os.replace()` to the final path. If the file does not exist, start with an empty string as the current content (do not raise FileNotFoundError). Skip any rule whose fingerprint already exists.
+Write atomically: use Python with `path = os.path.expanduser("~/.claude/CLAUDE.md")`. Write to `path + ".tmp"`, fsync, then `os.replace(path + ".tmp", path)`. If the file does not exist, start with an empty string as the current content (do not raise FileNotFoundError). Skip any rule whose fingerprint already exists.
 
 ## Step 5: Write marker and summarize
 
