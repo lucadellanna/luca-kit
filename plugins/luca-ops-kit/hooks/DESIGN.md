@@ -19,6 +19,10 @@ If `python3` is unavailable or fails, the hook exits silently rather than printi
 
 `duplicate_lines`, `word_count`, and similar metrics are intentional approximations to guide review, not precision measurements. Structural elements (table separators, blank lines, comment markers) are excluded where feasible, but edge cases exist. The goal is to surface obvious bloat, not to enforce a hard threshold.
 
+## MultiEdit tool_input structure
+
+In Claude Code's `MultiEdit` tool, `file_path` is a top-level key in `tool_input` (not nested per-edit). The `edits` list contains `{old_string, new_string}` pairs only. The current file_path extraction (`ti.get('file_path')`) is therefore correct for both `Edit` and `MultiEdit`. No per-edit iteration is needed.
+
 ## hooks.json location
 
 `hooks.json` lives in the `hooks/` subdirectory alongside `claude-md-tidy.sh`, not at the plugin root. This is the correct Conductor plugin convention. Verified against the official Vercel plugin at `~/.claude/plugins/cache/claude-plugins-official/vercel/0.42.1/hooks/hooks.json`, which uses an identical `hooks/` subdirectory layout.
