@@ -296,7 +296,7 @@ import json, os, sys
 
 path = os.path.expanduser("~/.claude/settings.json")
 lock_path = path + ".lock"
-qmd_path = r"<QMD_PATH>"
+qmd_path = "<QMD_PATH>"
 
 os.makedirs(os.path.dirname(path), exist_ok=True)
 
