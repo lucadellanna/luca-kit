@@ -9,7 +9,7 @@ Run this once per machine after installing luca-dev-kit. Not needed in Conductor
 ## Step 1: Check if already run
 
 ```bash
-if test -f "$(git rev-parse --show-toplevel)/.git/.luca-dev-kit-setup"; then echo exists; else echo missing; fi
+if test -f "$(git rev-parse --git-dir)/.luca-dev-kit-setup"; then echo exists; else echo missing; fi
 ```
 
 If `exists`: tell the user setup was already completed and ask whether to re-run or skip. If skip, stop.
@@ -31,7 +31,7 @@ Inform the user:
 ## Step 4: Write marker and summarize
 
 ```bash
-touch "$(git rev-parse --show-toplevel)/.git/.luca-dev-kit-setup"
+touch "$(git rev-parse --git-dir)/.luca-dev-kit-setup"
 ```
 
 Tell the user what was done and that setup only needs to run once per machine.

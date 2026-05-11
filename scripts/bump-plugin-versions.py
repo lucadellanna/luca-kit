@@ -41,7 +41,10 @@ def main():
         base_ref = args.base
     else:
         try:
-            head_branch = run(["git", "remote", "show", "origin"]).splitlines()
+            env = {**os.environ, "LC_ALL": "C"}
+            head_branch = subprocess.check_output(
+                ["git", "remote", "show", "origin"], text=True, env=env
+            ).strip().splitlines()
             head_branch = next(l.split()[-1] for l in head_branch if "HEAD branch" in l)
         except (StopIteration, subprocess.CalledProcessError):
             head_branch = "main"
