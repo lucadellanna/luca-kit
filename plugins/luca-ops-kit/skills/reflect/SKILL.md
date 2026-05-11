@@ -71,7 +71,7 @@ Ask the user what to implement via AskUserQuestion (multiSelect: true) with the 
 
 ## Step 3: Act on Choices
 
-**Memory updates**: State the exact text (one or two lines), then write to `.claude/memory/MEMORY.md` under `## Preferences` or `## Context` (create file/section if needed). Terse entries only.
+**Memory updates**: Before writing, check whether the learning is already covered by an existing rule in global or project CLAUDE.md. If it is, skip the write and note which rule already covers it. Otherwise, state the exact text (one or two lines), then write to `.claude/memory/MEMORY.md` under `## Preferences` or `## Context` (create file/section if needed). Terse entries only.
 
 **New skills**: Run `/create-skill` with the proposed name, purpose, and trigger as context.
 

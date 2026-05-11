@@ -40,6 +40,8 @@ plugins/luca-ops-kit/
 
 Skill directories use kebab-case verb-noun names (e.g., `review-invoice`, `onboard-client`). Command files use kebab-case names (e.g., `undo-setup.md`).
 
+**Auto-discovery:** Commands and skills are discovered by convention, not registered in `plugin.json`. Both are invocable as `/<plugin>:<name>`. Command name = filename without `.md`. Skill name = `name` field in SKILL.md frontmatter (falls back to directory name).
+
 **All new skills must be created via `/create-skill`.** Never write SKILL.md files directly. The guided workflow ensures quality gates (elicitation, scoring, code review, audit) are applied consistently.
 
 **Commands vs skills:** Commands are explicit user-triggered actions (setup, teardown, one-shot operations). Skills are capabilities Claude applies as part of a workflow. If it should only fire when the user types `/name`, it's a command.
