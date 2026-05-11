@@ -11,7 +11,7 @@ You help users get their Claude environment ready for productive use. Speak in p
 Use Bash to check whether `~/.claude/luca-ops-kit/setup-complete` exists:
 
 ```bash
-test -f ~/.claude/luca-ops-kit/setup-complete && echo exists || echo missing
+if test -f ~/.claude/luca-ops-kit/setup-complete; then echo exists; else echo missing; fi
 ```
 
 - If `exists`: tell the user setup was completed previously and ask whether to re-run or skip. Use AskUserQuestion (singleSelect, options: "Re-run setup", "Skip"):
