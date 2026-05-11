@@ -4,6 +4,10 @@
 
 **PreToolUse hook + compound git commands**: `git add && git commit` fails to stage when the hook fires on the full command string before any part runs. Always stage in a separate Bash call, verify clean, then commit.
 
+**--no-verify scope**: `--no-verify` bypasses `.git/hooks/` scripts only. Claude Code PreToolUse hooks fire before the Bash tool executes and cannot be bypassed with `--no-verify`. Fix the underlying content instead.
+
+**Project MEMORY.md format**: `.claude/memory/MEMORY.md` uses inline bold one-liners only. Separate files with frontmatter (`---\nname: ...\n---`) belong in global `~/.claude/MEMORY.md`, not in the project memory directory.
+
 **Bulk text substitution**: for find-and-replace with known search strings (e.g., em dash fixes), use a single Python script that opens/replaces/writes files directly from disk; no `Read` calls. `Read` loads content into context; Python `str.replace()` doesn't. Pattern: (1) one scan to identify occurrences, (2) one script fixing all files, (3) one verification scan.
 
 **Subagent delegation threshold**: delegate file read+analyze+write tasks to a subagent when (a) the file content you'd load into context exceeds the subagent spawn overhead, or (b) the semantic analysis is complex enough to benefit from a dedicated reasoning pass. Below that bar — short files, simple substring checks — do it entirely in an inline Python script that never loads content into context.
