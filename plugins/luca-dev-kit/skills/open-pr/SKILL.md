@@ -1,5 +1,5 @@
 ---
-name: Open PR
+name: open-pr
 description: Pre-PR quality gates + PR creation + autonomous review-loop handoff. Trigger: "open pr", "create pr", "/open-pr", or "ship". After invocation, no further user input is needed until review-loop exits or hits a stop condition.
 version: 0.1.0
 ---
@@ -89,6 +89,32 @@ Detect and run type checker:
 6. Else: skip with note "No type checker detected."
 
 **On error: stop.** Do not push with type errors. Report the errors and ask user to fix.
+
+## Step 7b: SKILL.md script pre-review
+
+Check whether any modified SKILL.md files contain embedded code blocks:
+
+```bash
+SKILL_MD_WITH_CODE=$(git diff "origin/$BASE"...HEAD --name-only -- '**/SKILL.md' \
+  | while read -r f; do git diff "origin/$BASE"...HEAD -- "$f" | grep -qE '^\+```(bash|python|sh)' && echo "$f"; done)
+```
+
+If `$SKILL_MD_WITH_CODE` is non-empty: spawn an **Opus** sub-agent. Pass it:
+1. The git diff of each flagged SKILL.md: `git diff "origin/$BASE"...HEAD -- <path>`
+2. The full contents of `~/.claude/code-review-checklist.md` (read via Bash `cat`)
+3. This prompt:
+
+```
+Review only the added or modified code blocks (```bash, ```python, ```sh) in the SKILL.md diffs below.
+For each issue found: quote the exact offending line and propose a minimal fix.
+Check specifically against the checklist provided.
+Do not flag issues already present in unchanged lines.
+If no issues found, say so explicitly.
+```
+
+Apply all CRITICAL fixes before proceeding. Log IMPORTANT/MINOR findings for the PR body (step 9).
+
+If `$SKILL_MD_WITH_CODE` is empty or `~/.claude/code-review-checklist.md` does not exist: skip this step.
 
 ## Step 8: Push
 

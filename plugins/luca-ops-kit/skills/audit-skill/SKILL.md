@@ -1,6 +1,6 @@
 ---
-name: Audit Skill
-description: Use when asked to audit, review, or improve an existing skill file. Scores it on 5 quality dimensions, brainstorms and applies improvements, then iterates until the quality bar is met.
+name: audit-skill
+description: Use when asked to audit, review, or improve an existing skill file. Scores it on 7 quality dimensions, brainstorms and applies improvements, then iterates until the quality bar is met.
 version: 0.1.0
 ---
 
@@ -55,6 +55,7 @@ List every potential improvement in one sentence each. Cover:
 
 - Gap fixes from Step 2
 - Novel opportunities (edge cases, interaction patterns, structural improvements not visible from the scores)
+- **Mandatory:** if the frontmatter `name` field contains spaces or capital letters, fixing it to match the directory name in kebab-case is always a **Fix** item. Conductor uses this field as the slash-command text; a mismatched name breaks invocation.
 - **Mandatory (unless DESIGN.md documents intentional omission for ephemeral-output skills):** if no `## Self-reflection` section exists and DESIGN.md does not justify the omission, adding one is always an improvement. If the section exists but lacks the self-observation protocol reference, adding it is always an improvement.
 
 For each item, mark it as one of:

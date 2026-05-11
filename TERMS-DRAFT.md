@@ -1,6 +1,6 @@
-# Terms of Use — luca-ops-kit and luca-dev-kit
+# Terms of Use: luca-ops-kit and luca-dev-kit
 
-**DRAFT FOR LEGAL REVIEW — v1.0 draft — 2026-05-10**
+**DRAFT FOR LEGAL REVIEW (v1.0 draft, 2026-05-10)**
 
 > *Note to lawyer: Please review for compliance with the Italian Civil Code (in particular Arts. 1229, 1341, 1342 on clausole vessatorie and specific approval), the Codice del Consumo, GDPR (Reg. 2016/679), EU AI Act (Reg. 2024/1689), and Italian copyright law (Law 633/1941 as amended). Placeholders marked [X] require your input before publication.*
 
@@ -22,7 +22,7 @@ By purchasing or activating a license for luca-ops-kit or luca-dev-kit ("the Plu
 
 ---
 
-## 2. B2B only — no consumer sales
+## 2. B2B only: no consumer sales
 
 The Plugins are sold exclusively to businesses, professionals, and other entities acting in the course of a trade, business, craft, or profession (Article 3, Codice del Consumo, Legislative Decree 206/2005). By purchasing, the Customer represents and warrants that:
 
@@ -66,7 +66,7 @@ The Plugins are not a substitute for professional legal, financial, medical, or 
 
 ## 6. Third-party services
 
-The Plugins require, and depend on, services provided by third parties, including without limitation Anthropic (Claude API), Claude Code, and source control hosts such as GitHub. The Seller does not control these services and is not responsible for their availability, pricing, terms of service, content policies, output quality, security, or continued existence. Changes to third-party services that affect Plugin functionality — including model deprecations, API changes, rate limits, regional restrictions, account bans, or service discontinuation — are outside the Seller's control and do not entitle the Customer to any refund, credit, or remedy beyond what is expressly stated in these Terms.
+The Plugins require, and depend on, services provided by third parties, including without limitation Anthropic (Claude API), Claude Code, and source control hosts such as GitHub. The Seller does not control these services and is not responsible for their availability, pricing, terms of service, content policies, output quality, security, or continued existence. Changes to third-party services that affect Plugin functionality (including model deprecations, API changes, rate limits, regional restrictions, account bans, or service discontinuation) are outside the Seller's control and do not entitle the Customer to any refund, credit, or remedy beyond what is expressly stated in these Terms.
 
 ---
 
@@ -74,7 +74,7 @@ The Plugins require, and depend on, services provided by third parties, includin
 
 > *Note to lawyer: Please advise on appropriate EUR floor for clause 7(a) given the likely license fee range, and confirm whether the specific-approval requirement under Arts. 1341/1342 c.c. is satisfied by the purchase-page mechanism described in the Acceptance section below.*
 
-To the maximum extent permitted by applicable law, the aggregate liability of the Seller under or in connection with this contract — whether in contract, tort (including negligence), restitution, or otherwise — for all claims arising in any rolling twelve (12) month period shall not exceed the total fees paid by the Customer for the affected Plugin license in that period, and in any case shall not exceed EUR [X].
+To the maximum extent permitted by applicable law, the aggregate liability of the Seller under or in connection with this contract, whether in contract, tort (including negligence), restitution, or otherwise, for all claims arising in any rolling twelve (12) month period shall not exceed the total fees paid by the Customer for the affected Plugin license in that period, and in any case shall not exceed EUR [X].
 
 The Seller shall not be liable for:
 
@@ -104,7 +104,7 @@ The Customer shall not use the Plugins:
 
 (a) in violation of Anthropic's Usage Policies or applicable law;
 (b) for activities subject to export controls, sanctions, or restricted-party screening, without compliance with applicable rules;
-(c) in safety-critical, life-critical, or high-risk automated decision-making contexts — including those classified as "high-risk" under EU AI Act Regulation 2024/1689 — without independent qualified human review and validation;
+(c) in safety-critical, life-critical, or high-risk automated decision-making contexts (including those classified as "high-risk" under EU AI Act Regulation 2024/1689) without independent qualified human review and validation;
 (d) to generate content that is unlawful, defamatory, or infringing, or that processes special-category personal data (Article 9, GDPR) without an appropriate legal basis.
 
 **EU AI Act.** The Plugins are general-purpose orchestration tools and are not themselves high-risk AI systems under Regulation 2024/1689. The Customer is responsible for assessing whether its specific use case is high-risk and for fulfilling any obligations applicable to it as a deployer under that Regulation.
@@ -129,7 +129,7 @@ The Customer shall indemnify, defend, and hold harmless the Seller from and agai
 
 ## 12. Fees and refunds
 
-All fees are payable in advance and are non-refundable except where required by mandatory law. Because the Plugins are digital content delivered and made available immediately upon license activation, the Customer expressly acknowledges that it has received the digital content before the expiry of any applicable withdrawal period and waives any such right accordingly. (As a B2B customer under clause 2, the consumer right of withdrawal under Articles 52–58 of the Codice del Consumo does not in any event apply.) Initiation of a payment chargeback without first attempting good-faith resolution by email to [email address] is a material breach of this contract.
+All fees are payable in advance and are non-refundable except where required by mandatory law. Because the Plugins are digital content delivered and made available immediately upon license activation, the Customer expressly acknowledges that it has received the digital content before the expiry of any applicable withdrawal period and waives any such right accordingly. (As a B2B customer under clause 2, the consumer right of withdrawal under Articles 52-58 of the Codice del Consumo does not in any event apply.) Initiation of a payment chargeback without first attempting good-faith resolution by email to [email address] is a material breach of this contract.
 
 ---
 
@@ -187,7 +187,7 @@ These Terms are issued in English. Any translation provided is for convenience o
 
 ---
 
-## Acceptance — implementation instructions
+## Acceptance: implementation instructions
 
 > *Note to lawyer: Please confirm that the two-checkbox mechanism below satisfies the specific-approval requirement for clausole vessatorie under Articles 1341 and 1342 of the Italian Civil Code. Also advise on records-retention requirements (likely 10 years under Art. 2946 c.c. for ordinary contractual claims).*
 
@@ -197,20 +197,20 @@ At the point of purchase, collect and log:
 - Partita IVA (or equivalent VAT number)
 - Full name and job title of the individual accepting on behalf of the company
 - Timestamp, IP address, and browser user-agent
-- Exact version of the Terms accepted (e.g., "v1.0 — 2026-05-10")
+- Exact version of the Terms accepted (e.g., "v1.0, 2026-05-10")
 - States of both checkboxes below
 
-**Checkbox 1 — general acceptance:**
+**Checkbox 1: general acceptance:**
 > "On behalf of [Company], I confirm I have read and accept the Terms of Use (v1.0, dated 2026-05-10), and that I have authority to bind the company to these Terms."
 
-**Checkbox 2 — specific approval of unfair clauses (Art. 1341/1342 c.c.):**
+**Checkbox 2: specific approval of unfair clauses (Art. 1341/1342 c.c.):**
 > "Pursuant to Articles 1341 and 1342 of the Italian Civil Code, I specifically approve the following clauses: 4 (No warranty), 5 (AI output disclaimer), 7 (Limitation of liability), 9 (Acceptable use), 11 (Customer indemnification), 12 (Fees and refunds), 13 (Term and termination), and 19 (Governing law and exclusive forum)."
 
 **Email confirmation (send before activating the license):**
 > "Thank you for your purchase. To activate your license, please reply to this email with the following statement: 'On behalf of [Company], I confirm acceptance of the luca-ops-kit / luca-dev-kit Terms of Use v1.0 dated 2026-05-10.' We will activate your license on receipt."
 
-Retain all acceptance records for a minimum of [X — confirm with lawyer, likely 10] years.
+Retain all acceptance records for a minimum of [X, confirm with lawyer, likely 10] years.
 
 ---
 
-*Terms v1.0 draft — 2026-05-10 — FOR LEGAL REVIEW BEFORE PUBLICATION*
+*Terms v1.0 draft, 2026-05-10. FOR LEGAL REVIEW BEFORE PUBLICATION*

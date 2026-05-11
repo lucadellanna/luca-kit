@@ -1,5 +1,5 @@
 ---
-name: Install Pre-Commit Hooks
+name: install-pre-commit-hooks
 description: One-time installer of luca-dev-kit's git pre-commit hook (em-dash, secrets, typecheck). Invoked automatically by open-pr on first run. Safe to run manually.
 version: 0.1.0
 ---

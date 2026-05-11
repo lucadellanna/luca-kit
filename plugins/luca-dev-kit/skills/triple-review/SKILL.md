@@ -1,5 +1,5 @@
 ---
-name: Triple Review
+name: triple-review
 description: Three-lens parallel code review against principles, recurring bug patterns, and structural integrity. Invoked by open-pr before pushing; also usable standalone.
 version: 0.1.0
 ---

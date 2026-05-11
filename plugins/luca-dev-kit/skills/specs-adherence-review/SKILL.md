@@ -1,5 +1,5 @@
 ---
-name: Specs Adherence Review
+name: specs-adherence-review
 description: Review changed code for adherence to principles in ~/.claude/CLAUDE.md and local CLAUDE.md/AGENTS.md. Use before PRs, when user says "check specs", "adheres to principles?", or "specs review". Also invoked as Lens A by luca-dev-kit:triple-review.
 version: 0.1.0
 ---

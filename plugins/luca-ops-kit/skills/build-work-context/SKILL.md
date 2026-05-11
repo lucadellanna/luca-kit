@@ -1,5 +1,5 @@
 ---
-name: Build Work Context
+name: build-work-context
 description: Collect and save a durable company-and-role context file so Claude has the background it needs for every future task, without asking the same questions every session.
 version: 0.1.0
 ---
