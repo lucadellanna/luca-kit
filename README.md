@@ -49,6 +49,8 @@ If you already added the `lucadellanna/luca-ops-kit` marketplace (e.g. for luca-
 /plugin install luca-dev-kit@lucadellanna
 ```
 
+**After installing** (persistent local checkout only, not needed in Conductor): run `/luca-dev-recommended-setup` to install pre-commit hooks and review the Gemini Code Assist requirement for `review-loop`.
+
 **To uninstall:**
 
 ```
@@ -79,11 +81,12 @@ If you already added the `lucadellanna/luca-ops-kit` marketplace (e.g. for luca-
 
 | Skill | Trigger | What it does |
 |---|---|---|
+| **luca-dev-recommended-setup** | `/luca-dev-recommended-setup` | One-time setup: installs pre-commit hooks, notes Gemini Code Assist requirement. Run once per machine in persistent local checkouts. |
 | **open-pr** | "open pr", "create pr", "/open-pr" | Triple review, fix findings, typecheck, push, create PR, hand off to review-loop |
 | **review-loop** | Auto-invoked by open-pr; or "review loop" | Polls Gemini, classifies threads, applies fixes, re-triggers review, repeats until clean |
 | **triple-review** | "triple review" | Three-lens parallel review: principles, recurring bug patterns, structural integrity |
 | **specs-adherence-review** | "check specs", "adheres to principles?" | Checks changed code against CLAUDE.md rules |
-| **install-pre-commit-hooks** | "install hooks" | One-time hook setup: em-dash check, gitleaks, optional typecheck |
+| **install-pre-commit-hooks** | Invoked by luca-dev-recommended-setup | One-time hook setup: em-dash check, gitleaks, optional typecheck |
 
 ## Hooks
 
