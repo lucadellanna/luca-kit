@@ -24,7 +24,7 @@ jobs:
           AFTER: ${{ github.sha }}
         run: |
           python3 << 'EOF'
-          import glob, json, os, subprocess, sys
+          import glob, json, os, re, subprocess, sys
 
           def run(cmd):
               return subprocess.check_output(cmd, text=True).strip()
@@ -46,8 +46,9 @@ jobs:
 
           try:
               changed = run(['git', 'diff', f'{before}..{after}', '--name-only']).splitlines()
-          except subprocess.CalledProcessError:
-              sys.exit(0)
+          except subprocess.CalledProcessError as e:
+              print(f'git diff failed: {e}', file=sys.stderr)
+              sys.exit(1)
 
           bumped = []
 
@@ -70,10 +71,15 @@ jobs:
                   {f for f in ls_tree(after, prefix + 'hooks/') if f.endswith('.sh')}
               )
 
-              with open(plugin_json_path) as f:
+              with open(plugin_json_path, encoding='utf-8') as f:
                   data = json.load(f)
 
-              parts = data['version'].split('.')
+              version = data.get('version', '')
+              if not re.fullmatch(r'\d+\.\d+\.\d+', version):
+                  print(f'Skipping {plugin_json_path}: invalid version {version!r}', file=sys.stderr)
+                  continue
+
+              parts = version.split('.')
               if structural:
                   parts[1] = str(int(parts[1]) + 1)
                   parts[2] = '0'
@@ -82,7 +88,7 @@ jobs:
               data['version'] = '.'.join(parts)
 
               tmp = plugin_json_path + '.tmp'
-              with open(tmp, 'w') as f:
+              with open(tmp, 'w', encoding='utf-8') as f:
                   json.dump(data, f, indent=2)
                   f.write('\n')
               os.replace(tmp, plugin_json_path)
