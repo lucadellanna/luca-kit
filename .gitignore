@@ -2,3 +2,4 @@
 .claude/scheduled_tasks.lock
 .claude/audit-skills-state.json
 .claude/cache/
+__pycache__/
