@@ -214,3 +214,7 @@ Retain all acceptance records for a minimum of [X, confirm with lawyer, likely 1
 ---
 
 *Terms v1.0 draft, 2026-05-10. FOR LEGAL REVIEW BEFORE PUBLICATION*
+
+---
+
+> **IMPORTANT:** After renaming, moving, or restructuring this file, verify it does not break how `luca-dellanna.com/plugins` dynamically fetches the Terms. Check the fetch URL/path is still valid before publishing.
