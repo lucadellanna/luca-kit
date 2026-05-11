@@ -95,9 +95,8 @@ Detect and run type checker:
 Check whether any modified SKILL.md files contain embedded code blocks:
 
 ```bash
-SKILL_MD_WITH_CODE=$(git diff "origin/$BASE"...HEAD --name-only \
-  | grep 'SKILL\.md$' \
-  | while read f; do git diff "origin/$BASE"...HEAD -- "$f" | grep -qE '^\+```(bash|python|sh)' && echo "$f"; done)
+SKILL_MD_WITH_CODE=$(git diff "origin/$BASE"...HEAD --name-only -- '**/SKILL.md' \
+  | while read -r f; do git diff "origin/$BASE"...HEAD -- "$f" | grep -qE '^\+```(bash|python|sh)' && echo "$f"; done)
 ```
 
 If `$SKILL_MD_WITH_CODE` is non-empty: spawn an **Opus** sub-agent. Pass it:
