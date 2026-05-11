@@ -8,7 +8,7 @@ Show the user what this plugin offers. Read descriptions dynamically from disk s
 
 ## Step 1: Collect commands
 
-Use Glob to find all `.md` files in `${CLAUDE_PLUGIN_ROOT}/commands/`. For each file except `help.md` (this command), read the first 5 lines and extract the `description` field from the YAML frontmatter. Also extract the filename (without `.md`) as the command name.
+Use Glob to find all `.md` files in `${CLAUDE_PLUGIN_ROOT}/commands/`. For each file, read the first 5 lines and extract the `description` field from the YAML frontmatter. Also extract the filename (without `.md`) as the command name.
 
 ## Step 2: Collect skills
 
