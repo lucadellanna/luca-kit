@@ -270,20 +270,15 @@ Update `trigger_ts` in state file atomically. Loop back to step A.
 
 ```bash
 gh pr checks --watch --interval 10
-
-# Notify (macOS: safe to fail on Linux)
-afplay /System/Library/Sounds/Glass.aiff 2>/dev/null || true
-osascript -e "display notification \"PR #${PR_NUM} is clean: Gemini approved, CI green.\" with title \"luca-dev-kit\"" 2>/dev/null || true
 ```
+
+Use the `PushNotification` tool to notify: "PR #N is ready. Gemini approved and CI is green."
 
 Report: "PR #N is ready. Gemini approved and CI is green."
 
 ## EXIT STOP
 
-```bash
-afplay /System/Library/Sounds/Basso.aiff 2>/dev/null || true
-osascript -e 'display notification "Review loop stopped: action needed." with title "luca-dev-kit"' 2>/dev/null || true
-```
+Use the `PushNotification` tool to notify: "Review loop stopped: action needed. [one-line stop reason]"
 
 Report the specific stop condition and required action clearly.
 
