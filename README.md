@@ -94,7 +94,7 @@ Installed automatically with the plugin (no setup needed):
 | Hook | Event | What it does |
 |------|-------|-------------|
 | **claude-md-tidy** | PostToolUse (Edit/Write) | After any edit to a CLAUDE.md or AGENTS.md file, injects a 7-criterion review (conciseness, duplication, contradictions, scope, ephemerality, vague triggers, context pollution) with quantitative metrics |
-| **optimization-hint** | UserPromptSubmit | After responses involving 8+ tool calls, suggests reusable skills, memory-worthy patterns, or workflow improvements in one sentence |
+| **optimization-hint** | UserPromptSubmit | On every prompt, reminds Claude to append a one-sentence optimization hint if the prior response involved 8+ tool calls (reusable skill, memory-worthy pattern, or workflow improvement) |
 
 ## How it works
 

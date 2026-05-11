@@ -21,10 +21,10 @@ Read `~/.claude/CLAUDE.md`. Search for lines containing any of these fingerprint
 
 ## Step 2: Show what will be removed
 
-Display each fingerprinted line that was found. Use AskUserQuestion (open text):
-> "These rules will be removed from your CLAUDE.md. Type 'yes' to confirm, or 'cancel' to stop."
+Display each fingerprinted line that was found. Use AskUserQuestion (singleSelect, options: "Yes, remove them", "Cancel"):
+> "These rules will be removed from your CLAUDE.md."
 
-Only proceed on explicit "yes" (case-insensitive). Any other response: stop without making changes.
+Only proceed on "Yes, remove them". If "Cancel": stop without making changes.
 
 ## Step 3: Remove rules from CLAUDE.md
 
@@ -113,7 +113,7 @@ Tell the user:
 
 During execution, follow the self-observation protocol (see CLAUDE.md Principles).
 
-Spawn a Haiku sub-agent to score this run (0-10 each), with instruction: "Score each criterion 0-10. For each, give a one-sentence rationale. Return a markdown table; no preamble.":
+Spawn a Haiku sub-agent. Read `$CLAUDE_PLUGIN_ROOT/commands/undo-setup.md` and pass its contents with the following instruction: "Score each criterion 0-10. For each, give a one-sentence rationale. Return a markdown table; no preamble.":
 
 1. **Completeness**: every fingerprinted rule was found and removed, or its absence was correctly noted
 2. **Safety**: nothing was deleted without explicit user confirmation; atomic write prevented CLAUDE.md corruption

@@ -14,7 +14,7 @@ Use Bash to check whether `~/.claude/luca-ops-kit/setup-complete` exists:
 test -f ~/.claude/luca-ops-kit/setup-complete && echo exists || echo missing
 ```
 
-- If `exists`: tell the user setup was completed previously and ask whether to re-run or skip. Use AskUserQuestion (multiSelect, options: "Re-run setup", "Skip"):
+- If `exists`: tell the user setup was completed previously and ask whether to re-run or skip. Use AskUserQuestion (singleSelect, options: "Re-run setup", "Skip"):
   > "You've already run setup. Would you like to re-run it or skip?"
   If Skip, stop.
 - If `missing`: continue to Step 2.
@@ -35,7 +35,7 @@ Carry these three status variables forward. Do not show this step to the user.
 
 ## Step 3: Manual checklist
 
-If this is a re-run (Step 1 detected the marker), use AskUserQuestion (multiSelect, options: "Yes, show tips", "Skip"):
+If this is a re-run (Step 1 detected the marker), use AskUserQuestion (singleSelect, options: "Yes, show tips", "Skip"):
 > "Would you like to see the first-time setup tips again?"
 If "Skip": proceed to Step 4 without showing the checklist.
 
@@ -71,7 +71,7 @@ For each selected rule, add it to the end of `~/.claude/CLAUDE.md` using the ato
 - If a request has multiple valid interpretations, ask one clarifying question before starting. Do not guess at intent. <!-- luca-ops-kit:rule-clarifying-question -->
 ```
 
-Write atomically: use Python to write to `~/.claude/CLAUDE.md.tmp`, fsync, then `os.replace()` to the final path. If the file does not exist, start with an empty string as the current content (do not raise FileNotFoundError). Skip any rule whose fingerprint already exists.
+Write atomically: use Python with `os.path.expanduser("~/.claude/CLAUDE.md")` as the path. Write to `.tmp`, fsync, then `os.replace()` to the final path. If the file does not exist, start with an empty string as the current content (do not raise FileNotFoundError). Skip any rule whose fingerprint already exists.
 
 ## Step 5: Write marker and summarize
 
@@ -108,7 +108,7 @@ Then present the full skill overview:
 
 During execution, follow the self-observation protocol (see CLAUDE.md Principles).
 
-Spawn a Haiku sub-agent. Pass it the full contents of this command file and the following instruction: "Score this command run on each criterion 0-10. For each, give a one-sentence rationale. Return a markdown table; no preamble.":
+Spawn a Haiku sub-agent. Read `$CLAUDE_PLUGIN_ROOT/commands/luca-ops-recommended-setup.md` and pass its contents with the following instruction: "Score this command run on each criterion 0-10. For each, give a one-sentence rationale. Return a markdown table; no preamble.":
 
 1. **Detection accuracy**: every rule already present was correctly identified and skipped; every missing rule was correctly identified and offered
 2. **User communication**: explanations in Steps 3-4 are plain enough for a non-technical user to act on without follow-up questions; no developer jargon was surfaced
