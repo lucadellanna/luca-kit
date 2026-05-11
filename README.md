@@ -26,7 +26,9 @@ Install in Claude Code, Cowork, or both; if you use both apps, follow each proce
 
 **Claude Cowork:** Left sidebar → Customize → Plugins → Personal → **+** → Add marketplace → `lucadellanna/luca-ops-kit` → click on it → Install
 
-**To uninstall:** If you ran `/luca-ops-recommended-setup`, run `/undo-setup` first to remove hooks and rules it added to your global Claude config. Then:
+**After installing**, run `/luca-ops-recommended-setup` to add best-practice rules and see a privacy/backup checklist.
+
+**To uninstall:** If you ran `/luca-ops-recommended-setup`, run `/undo-setup` first to remove rules it added to your global Claude config. Then:
 
 ```
 /plugin uninstall luca-ops-kit@lucadellanna/luca-ops-kit
@@ -61,8 +63,8 @@ If you already added the `lucadellanna/luca-ops-kit` marketplace (e.g. for luca-
 
 | Skill | What it does |
 |-------|-------------|
-| **luca-ops-recommended-setup** | First-run wizard: adds three best-practice rules to your Claude config and offers an automation hook (optimization hint) |
-| **undo-setup** | Reverses everything /luca-ops-recommended-setup added (rules, hooks, and scripts) so you can cleanly uninstall the plugin |
+| **luca-ops-recommended-setup** | First-run wizard: adds three best-practice rules to your Claude config |
+| **undo-setup** | Reverses everything /luca-ops-recommended-setup added so you can cleanly uninstall the plugin |
 | **build-work-context** | Interviews you about your company and role, then saves a persistent profile so Claude doesn't need to ask "who do you work for?" every session |
 | **create-skill** | Turns a procedure, SOP, checklist, or verbal description into a ready-to-use skill file, scoring and improving it before saving |
 | **list-skills** | Lists every installed skill with its plugin, one-line description, and file size in a single table |
@@ -92,6 +94,7 @@ Installed automatically with the plugin (no setup needed):
 | Hook | Event | What it does |
 |------|-------|-------------|
 | **claude-md-tidy** | PostToolUse (Edit/Write) | After any edit to a CLAUDE.md or AGENTS.md file, injects a 7-criterion review (conciseness, duplication, contradictions, scope, ephemerality, vague triggers, context pollution) with quantitative metrics |
+| **optimization-hint** | UserPromptSubmit | After responses involving 8+ tool calls, suggests reusable skills, memory-worthy patterns, or workflow improvements in one sentence |
 
 ## How it works
 

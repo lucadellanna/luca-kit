@@ -1,5 +1,5 @@
 {
-  "description": "CLAUDE.md authoring quality gate: reviews edits for conciseness and context pollution",
+  "description": "Plugin-level hooks: CLAUDE.md quality gate and optimization hints",
   "hooks": {
     "PostToolUse": [
       {
@@ -9,6 +9,18 @@
             "type": "command",
             "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/claude-md-tidy.sh\"",
             "timeout": 10
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/optimization-hint.sh\"",
+            "timeout": 5
           }
         ]
       }
