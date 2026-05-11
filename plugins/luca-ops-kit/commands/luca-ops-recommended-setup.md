@@ -71,7 +71,7 @@ Collect all selected rules and add them to `~/.claude/CLAUDE.md` in a single ato
 - If a request has multiple valid interpretations, ask one clarifying question before starting. Do not guess at intent. <!-- luca-ops-kit:rule-clarifying-question -->
 ```
 
-Write atomically: use Python with `path = os.path.expanduser("~/.claude/CLAUDE.md")`. Ensure the directory exists with `os.makedirs(os.path.dirname(path), exist_ok=True)`. Read the existing content using `encoding='utf-8'` (empty string if the file does not exist). If the content is non-empty and does not end with `\n`, append `\n` before adding new content. Use `with open(path + ".tmp", "w", encoding="utf-8") as tf:` to write all content, call `tf.flush()`, then `os.fsync(tf.fileno())`, then outside the `with` block call `os.replace(path + ".tmp", path)`. Skip any rule whose fingerprint already exists.
+Write atomically: use Python with `path = os.path.expanduser("~/.claude/CLAUDE.md")`. Ensure the directory exists with `os.makedirs(os.path.dirname(path), exist_ok=True)`. Read the existing content using `encoding='utf-8'` (empty string if the file does not exist). When creating a new section at the end of a non-empty file, ensure the content ends with `\n\n` (two newlines) before the section header for proper markdown blank-line separation. When inserting rules into an existing section, one `\n` before the rule is sufficient. Use `with open(path + ".tmp", "w", encoding="utf-8") as tf:` to write all content, call `tf.flush()`, then `os.fsync(tf.fileno())`, then outside the `with` block call `os.replace(path + ".tmp", path)`. Skip any rule whose fingerprint already exists.
 
 ## Step 5: Write marker and summarize
 
