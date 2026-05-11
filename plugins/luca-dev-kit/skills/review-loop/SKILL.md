@@ -142,7 +142,7 @@ Filter to unresolved Gemini threads only:
 ```bash
 jq '.data.repository.pullRequest.reviewThreads.nodes[]
     | select(.isResolved==false
-             and (.comments.nodes[0]?.author.login | test("gemini-code-assist")))'
+             and (.comments.nodes[0].author.login? // "" | test("gemini-code-assist")))'
 ```
 
 This prevents the loop from classifying or resolving comments from human reviewers.

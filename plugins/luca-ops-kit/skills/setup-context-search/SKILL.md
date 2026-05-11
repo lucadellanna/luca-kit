@@ -202,7 +202,7 @@ If this fails (exit code != 0 or produces a "bindings" error), try platform-spec
 - macOS (npm): `/opt/homebrew/bin/qmd --version`
 - macOS (Homebrew node): `/usr/local/bin/qmd --version`
 - Linux (npm): `/usr/local/bin/qmd --version`
-- Windows (npm): `%APPDATA%\npm\qmd --version`
+- Windows (npm): `"$APPDATA/npm/qmd" --version`
 
 Use the **first path that succeeds** as `$QMD_PATH`. Store the full absolute path (e.g., `/opt/homebrew/bin/qmd`), not the bare command name. This path is used for all subsequent steps and for the MCP config.
 
@@ -212,7 +212,7 @@ If no path succeeds, tell the user: "Installation didn't complete successfully. 
 
 After version check passes, test that native modules work:
 ```bash
-$QMD_PATH status 2>&1
+"$QMD_PATH" status 2>&1
 ```
 
 If this produces a bindings error (mentioning `better_sqlite3.node` or `node-llama-cpp`): native modules weren't built. Tell user:
@@ -247,14 +247,14 @@ mkdir -p "<expanded_path>"
 
 Create the collection:
 ```bash
-$QMD_PATH collection add "<expanded_path>" --name business-context --mask "**/*.md"
+"$QMD_PATH" collection add "<expanded_path>" --name business-context --mask "**/*.md"
 ```
 
 If this fails with "already exists": the collection was created in a previous run. Use AskUserQuestion (options: "Keep existing collection", "Remove and recreate"):
 
 Scan the filesystem to populate the index:
 ```bash
-$QMD_PATH update
+"$QMD_PATH" update
 ```
 
 Report the file count to the user (parse "Indexed: N new" from output). If 0 files found, warn:
@@ -268,7 +268,7 @@ Use AskUserQuestion (options: "Start embedding now", "I'll run `qmd update && qm
 
 If now:
 ```bash
-$QMD_PATH embed
+"$QMD_PATH" embed
 ```
 
 This may take several minutes. Tell the user it's running and to wait.
@@ -304,7 +304,8 @@ with open(lock_path, "a") as lock_f:
     fcntl.flock(lock_f, fcntl.LOCK_EX)
     try:
         with open(path) as f:
-            settings = json.load(f)
+            content = f.read().strip()
+            settings = json.loads(content) if content else {}
     except FileNotFoundError:
         settings = {}
     except json.JSONDecodeError:
@@ -370,7 +371,7 @@ Show the summary:
 ## Step 11: Write marker
 
 ```bash
-mkdir -p ~/.claude/luca-ops-kit && echo "qmd $($QMD_PATH --version 2>/dev/null) configured $(date +%Y-%m-%d)" > ~/.claude/luca-ops-kit/context-search-configured
+mkdir -p ~/.claude/luca-ops-kit && echo "qmd $("$QMD_PATH" --version 2>/dev/null) configured $(date +%Y-%m-%d)" > ~/.claude/luca-ops-kit/context-search-configured
 ```
 
 ## Error handling
