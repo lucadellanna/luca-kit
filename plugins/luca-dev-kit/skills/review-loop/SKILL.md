@@ -37,7 +37,8 @@ Gemini facts (as of May 2026):
 python3 -c "
 import json, sys
 try:
-    s = json.load(open('.claude/cache/review-loop-state.json'))
+    with open('.claude/cache/review-loop-state.json') as f:
+        s = json.load(f)
     assert isinstance(s.get('pr_number'), int)
     assert isinstance(s.get('round'), int) and s['round'] >= 0
     print(json.dumps(s, indent=2))
@@ -62,8 +63,14 @@ if [[ "$ROUND" -eq 0 ]]; then
   PR_URL=$(gh pr view "$PR_NUM" --json url -q '.url')
   OWNER=$(echo "$PR_URL" | cut -d'/' -f4)
   REPO=$(echo "$PR_URL" | cut -d'/' -f5)
-  GEMINI_EVER=$(gh api /repos/"$OWNER"/"$REPO"/pulls?state=all\&per_page=10 \
-    --jq '[.[].user.login] | any(. == "gemini-code-assist")' 2>/dev/null || echo "false")
+  GEMINI_EVER="false"
+  for pn in $(gh api "/repos/$OWNER/$REPO/pulls?state=all&per_page=5" --jq '.[].number' 2>/dev/null); do
+    if gh api "/repos/$OWNER/$REPO/pulls/$pn/reviews" \
+      --jq '[.[].user.login? // "" ] | any(test("gemini-code-assist"))' 2>/dev/null | grep -q true; then
+      GEMINI_EVER="true"
+      break
+    fi
+  done
   if [[ "$GEMINI_EVER" != "true" ]]; then
     echo "⚠️  No Gemini Code Assist activity found in this repo."
     echo "   If not installed, the loop will time out. Install at:"
@@ -110,7 +117,7 @@ The script exits 0 (found), 1 (not yet), or 2 (tool/parse failure). Treat exit 2
 
 ```bash
 REVIEW_STATE=$(gh pr view "$PR_NUM" --json reviews -q '
-  .reviews | map(select(.author.login == "gemini-code-assist")) | last | .state
+  .reviews | map(select(.author.login? // "" | test("gemini-code-assist"))) | last | .state
 ')
 ```
 
@@ -134,6 +141,7 @@ query($owner:String!, $repo:String!, $pr:Int!) {
 Parse `owner` and `repo` into shell variables. Use the PR URL (always the base repo) to avoid misidentifying the fork as the target in cross-repository PRs:
 ```bash
 PR_URL=$(gh pr view "$PR_NUM" --json url -q '.url')
+[[ -z "$PR_URL" ]] && echo "Failed to get PR URL" >&2 && exit 1
 OWNER=$(echo "$PR_URL" | cut -d'/' -f4)
 REPO=$(echo "$PR_URL" | cut -d'/' -f5)
 ```
@@ -142,7 +150,7 @@ Filter to unresolved Gemini threads only:
 ```bash
 jq '.data.repository.pullRequest.reviewThreads.nodes[]
     | select(.isResolved==false
-             and .comments.nodes[0]?.author.login == "gemini-code-assist")'
+             and ((.comments.nodes[0]? // {}).author.login? // "" | test("gemini-code-assist")))'
 ```
 
 This prevents the loop from classifying or resolving comments from human reviewers.
@@ -197,15 +205,14 @@ Stop. Wait for user confirmation.
 
 ### F. Cycle detection
 
-Build a JSON array of `{"id": ..., "body": ...}` objects for each FIX thread (in order), then hash via env var -- never interpolate untrusted body content into Python source:
+Build a JSON array of `{"id": ..., "body": ...}` objects for each FIX thread (in order), then hash via stdin -- never interpolate untrusted body content into Python source, and avoid env vars for large payloads (MAX_ARG_STRLEN limit on Linux):
 
 ```bash
 # FIX_THREADS_JSON = '[{"id":"<id1>","body":"<body1>"},{"id":"<id2>","body":"<body2>"},...]'
-# Construct this JSON from the FIX thread list, then pass via env var:
-CURRENT_HASH=$(FIX_THREADS_JSON="$FIX_THREADS_JSON" python3 -c "
-import os, hashlib
-# Use python3 hashlib: md5sum is not available on stock macOS (only md5)
-data = os.environ['FIX_THREADS_JSON'].encode()
+# Pipe via stdin to avoid env var size limits:
+CURRENT_HASH=$(printf '%s' "$FIX_THREADS_JSON" | python3 -c "
+import sys, hashlib
+data = sys.stdin.read().encode()
 print(hashlib.sha256(data).hexdigest())
 ")
 ```

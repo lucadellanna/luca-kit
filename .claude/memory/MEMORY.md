@@ -16,6 +16,12 @@
 
 **Raw-mode inter-skill data contract**: any skill that produces data another skill may consume must support `mode: raw` in the opening message: return structured TSV/JSON output, skip rendering. Never embed another skill's script inline; invoke in raw mode instead. Established in `list-skills` v0.2.
 
+## Setup skill patterns
+
+**pnpm v10+ blocks native module builds.** pnpm v10+ silently skips native build scripts (`better-sqlite3`, `node-llama-cpp`, etc.) by default for security. The only fix is `pnpm approve-builds -g`, which is an interactive terminal menu that can't be automated. For any setup skill installing npm packages with native modules: default to npm, warn before pnpm, and verify the binary functionally (not just `--version`) after install.
+
+**Always `os.makedirs` before writing to `~/.claude/` paths.** On fresh installs, `~/.claude/` may not exist. Any Python code that opens files or lock files in that directory must call `os.makedirs(os.path.dirname(path), exist_ok=True)` first, or the skill fails on first-time users.
+
 ## Plugin development
 
 **Cache vs workspace layering**: when developing luca-ops-kit in a Conductor workspace while the plugin is also installed, skill invocations (e.g. `/luca-ops-kit:reflect`) run from `~/.claude/plugins/cache/`, not the workspace. Workspace edits are invisible to running skills until the plugin is republished and reinstalled.

@@ -17,7 +17,7 @@ fi
 
 REVIEW=$(gh pr view "$PR_NUM" --json reviews -q '
   .reviews
-  | map(select(.author.login == "gemini-code-assist"))
+  | map(select(.author.login? // "" | test("gemini-code-assist")))
   | last
   | select(. != null)
 ') || { echo "Failed to fetch PR reviews" >&2; exit 2; }
