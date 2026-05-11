@@ -63,7 +63,7 @@ Explain what each missing rule does, then ask which to add:
 Use AskUserQuestion (multiSelect, pre-select only missing rules):
 > "Which of these rules would you like to add to your global Claude settings?"
 
-Collect all selected rules and add them to `~/.claude/CLAUDE.md` in a single atomic write (read full file → insert rules into the correct section → write to path + ".tmp" → fsync → os.replace; never use open(..., 'a')). Create the file if absent. If `## Suggested defaults (luca-ops-kit)` already exists, insert missing rules at the end of that section (before the next `##` heading, or end-of-file if it is the last section). If the section is absent, append it at the end of the file. Include the fingerprint comment on the same line so undo-setup can find and remove it later:
+Collect all selected rules and add them to `~/.claude/CLAUDE.md` in a single atomic write (read full file → insert rules into the correct section → write to path + ".tmp" → fsync → os.replace; never use open(..., 'a')). Create the file if absent. If `## Suggested defaults (luca-ops-kit)` already exists, insert missing rules at the end of that section (before the next heading starting with `#`, or end-of-file if it is the last section). If the section is absent, append it at the end of the file. Include the fingerprint comment on the same line so undo-setup can find and remove it later:
 
 ```
 - Before doing any multi-step task manually, check whether a skill exists that covers it. Use the skill if one is found. <!-- luca-ops-kit:rule-skills-first -->
