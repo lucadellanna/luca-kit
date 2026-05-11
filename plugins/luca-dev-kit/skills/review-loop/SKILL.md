@@ -66,7 +66,7 @@ if [[ "$ROUND" -eq 0 ]]; then
   GEMINI_EVER="false"
   for pn in $(gh api "/repos/$OWNER/$REPO/pulls?state=all&per_page=5" --jq '.[].number' 2>/dev/null); do
     if gh api "/repos/$OWNER/$REPO/pulls/$pn/reviews" \
-      --jq '[.[].user.login] | any(test("gemini-code-assist"))' 2>/dev/null | grep -q true; then
+      --jq '[.[].user.login? // "" ] | any(test("gemini-code-assist"))' 2>/dev/null | grep -q true; then
       GEMINI_EVER="true"
       break
     fi
@@ -117,7 +117,7 @@ The script exits 0 (found), 1 (not yet), or 2 (tool/parse failure). Treat exit 2
 
 ```bash
 REVIEW_STATE=$(gh pr view "$PR_NUM" --json reviews -q '
-  .reviews | map(select(.author.login | test("gemini-code-assist"))) | last | .state
+  .reviews | map(select(.author.login? // "" | test("gemini-code-assist"))) | last | .state
 ')
 ```
 
