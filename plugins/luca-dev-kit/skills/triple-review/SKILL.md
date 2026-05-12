@@ -24,6 +24,8 @@ git diff "origin/$BASE"...HEAD                         # full diff for sub-agent
 
 If diff is empty: report "Nothing to review vs $BASE" and stop.
 
+**Pass the full, unabbreviated diff to every sub-agent.** Never summarize, truncate, or paraphrase it. Abbreviated diffs cause false positives (e.g., flagging missing code that was present but cut from the prompt) and false negatives (missing issues in omitted sections).
+
 ## Step 2: Spawn three Sonnet sub-agents in parallel
 
 Send all three Agent tool calls in a single message so they run concurrently.
