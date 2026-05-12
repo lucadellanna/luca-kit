@@ -146,6 +146,7 @@ query($owner:String!, $repo:String!, $pr:Int!) {
   }
 }' -F owner="$OWNER" -F repo="$REPO" -F pr="$PR_NUM")
 if [[ $? -ne 0 ]]; then echo "GraphQL call failed" >&2; exit 1; fi
+[[ -z "$RESPONSE" ]] && echo "Empty GraphQL response" >&2 && exit 1
 if echo "$RESPONSE" | jq -e '.errors' > /dev/null 2>&1; then
   echo "GraphQL error: $(echo "$RESPONSE" | jq -r '.errors[0].message // "unknown"')" >&2
   exit 1
@@ -306,6 +307,7 @@ Parse the sub-agent's STATUS:
 **STATUS: FIXED** -- parse `FIX_HASH` from the sub-agent's `FIX_HASH: <value>` output line, then update state file atomically:
 ```bash
 FIX_HASH="<value from sub-agent FIX_HASH line>"
+[[ -z "$FIX_HASH" || "$FIX_HASH" == "<"* ]] && echo "FIX_HASH not extracted from sub-agent output" >&2 && exit 1
 FIX_HASH="$FIX_HASH" python3 -c "
 import json, os, sys
 try:
