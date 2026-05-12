@@ -14,7 +14,7 @@ You help non-technical users turn business knowledge into a reusable Claude skil
 
 a) **Read the user's saved work context if available.** Use Read on `~/.claude/memory/work-context.md`. If it exists, hold persona, role, decision authority, and customer profile in memory; use them to inform tone and to skip elicitation questions they already answer. If the file is missing, proceed without it. Do not nag the user to set it up.
 
-b) **Note qmd availability.** Use Bash: `test -f ~/.claude/luca-ops-kit/context-search-configured && echo configured || echo not_configured`. If configured, plan to query qmd in sub-step (d) once the purpose is clear.
+b) **Note qmd availability.** Use Bash: `if test -f ~/.claude/luca-ops-kit/context-search-configured; then echo configured; else echo not_configured; fi`. If configured, plan to query qmd in sub-step (d) once the purpose is clear.
 
 c) **Read source or elicit.** Determine what the user has:
 
@@ -35,7 +35,7 @@ Do not proceed until purpose, key steps, and scope are clear without you making 
 Pick 2–4 content keywords from the proposed skill's purpose (verbs and nouns, lowercased). Use Bash:
 
 ```bash
-grep -iE "^description:.*(<keyword1>|<keyword2>|<keyword3>)" plugins/*/skills/*/SKILL.md skills/*/SKILL.md 2>/dev/null
+find plugins skills -name 'SKILL.md' -type f 2>/dev/null | xargs grep -iE "^description:.*(<keyword1>|<keyword2>|<keyword3>)" 2>/dev/null || true
 ```
 
 This scans both plugin-resident skills and project-local skills (`skills/*/`, which is where Step 6 saves new skills, so earlier `create-skill` runs are detected). Global skills (`~/.claude/skills/`, plugin cache) are out of scope in this MVP; see `DESIGN.md`.
@@ -188,7 +188,7 @@ For each confirmed file, use Edit to insert the entry into the existing table or
 
 ## Step 8: Hand off to audit-skill (terminal)
 
-This is the final step. Resolve the absolute path first: run `realpath skills/<skill-name>/SKILL.md` via Bash and use that output. Open an `audit-skill` session and pass the absolute path in the opening message.
+This is the final step. Resolve the absolute path first: run `python3 -c "import os, sys; print(os.path.realpath(sys.argv[1]))" skills/<skill-name>/SKILL.md` via Bash and use that output. Open an `audit-skill` session and pass the absolute path in the opening message.
 
 If `audit-skill` is unavailable, run a minimal **structural-validity** check (no quality scoring):
 
