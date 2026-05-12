@@ -17,7 +17,7 @@ for f in "$PLUGIN/commands"/*.md; do
   if [ -n "$section" ]; then
     printf "%s\n\n" "$section"
   else
-    desc=$(awk '/^---$/{c++;next} c==1 && /^description:/{sub(/^description:[[:space:]]*/,""); print; exit}' "$f")
+    desc=$(awk '/^---$/{c++;next} c==1 && /^description:/{sub(/^description:[[:space:]]*/,""); gsub(/^["\047]+|["\047]+$/,""); print; exit}' "$f")
     [ -n "$desc" ] && printf "**\`/luca-ops-kit:%s\`** %s\n\n" "$name" "$desc"
   fi
 done
