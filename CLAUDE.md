@@ -28,14 +28,17 @@ All skills in this plugin are meta-skills. When adding a skill, confirm it fits 
 
 ```
 plugins/luca-ops-kit/
-  .claude-plugin/plugin.json    # Plugin manifest
-  CLAUDE.md                     # Runtime instructions (ships with plugin)
-  commands/<name>.md            # Slash commands (explicit user-triggered actions)
-  skills/<name>/SKILL.md        # Skills (loaded on every execution)
-  skills/<name>/DESIGN.md       # Design decisions (loaded only during audits)
-  design/<name>.md              # Design decisions for commands
-  hooks/hooks.json              # Plugin-level hooks (auto-installed)
-  hooks/<name>.sh               # Hook scripts
+  .claude-plugin/plugin.json     # Plugin manifest
+  CLAUDE.md                      # Runtime instructions (ships with plugin)
+  commands/<name>.md             # Slash commands (explicit user-triggered actions)
+  skills/<name>/SKILL.md         # Skills (loaded on every execution)
+  skills/<name>/DESIGN.md        # Design decisions (loaded only during audits)
+  skills/<name>/REQUIREMENTS.md  # Quality contract (loaded by audit-skill)
+  skills/<name>/HELP.md          # One-paragraph user-facing description (read by /help)
+  design/<name>.md               # Design decisions for commands
+  checklists/<name>.md           # Cross-cutting rules referenced from multiple skills
+  hooks/hooks.json               # Plugin-level hooks (auto-installed)
+  hooks/<name>.sh                # Hook scripts
 ```
 
 Skill directories use kebab-case verb-noun names (e.g., `review-invoice`, `onboard-client`). Command files use kebab-case names (e.g., `undo-setup.md`).
@@ -68,6 +71,7 @@ These apply when writing or editing skills, not at user runtime. They are enforc
 - **Opus security gate.** Fires when implementing any feature that: (a) writes to the user's global environment (settings.json, CLAUDE.md, hook scripts, global config), (b) adds or modifies shell scripts executed in the user's environment, or (c) rewrites security-sensitive logic (input validation, secret handling, auth). Run an Opus review pass on the full plan before writing code. In-context Sonnet review is anchored to already-accepted design decisions; Opus starting fresh treats them as open questions and catches what anchored review misses. This gate precedes the inline Sonnet review.
 - **Pre-push proactive scan for any `.md` files with embedded code.** Before the first `git push` on any PR that adds or modifies `.md` files (SKILL.md, command files, hook scripts, or any other markdown) containing Python or Bash code blocks, spawn an Opus sub-agent to review only the added/modified code blocks against `~/.claude/code-review-checklist.md`. Quote offending lines and propose minimal fixes. This catches most issues in one pass instead of across multiple Gemini review rounds. (Scope was widened from SKILL.md-only after 5 of 9 Gemini rounds flagged file I/O issues in command files that a pre-push scan would have caught.)
 - **DESIGN.md when rejecting a Gemini thread.** When a Gemini review thread is rejected as a design decision (not a bug), update `DESIGN.md` in the same commit. A documented decision prevents the same thread from being raised in subsequent review rounds.
+- **Plugin-internal references use `${CLAUDE_PLUGIN_ROOT}`, not repo-relative paths.** Inside markdown content (SKILL.md, REQUIREMENTS.md, DESIGN.md, checklists), any reference to the plugin's own files must use `${CLAUDE_PLUGIN_ROOT}/<rest-of-path>`. Repo-relative paths like `plugins/<plugin>/...` only resolve in the source repo; after `claude plugin install`, the plugin moves to `~/.claude/plugins/cache/<marketplace>/<plugin>/<version>/` and the repo-relative path no longer exists on the user's machine. `${CLAUDE_PLUGIN_ROOT}` resolves to the plugin's actual root at consumer runtime, so the reference works in both development and deployment.
 
 ## Setup command requirements
 
