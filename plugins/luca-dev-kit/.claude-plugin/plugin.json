@@ -1,6 +1,6 @@
 {
   "name": "luca-dev-kit",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Developer workflow automation: pre-PR quality gates, autonomous Gemini review loop, and pre-commit hook management for Claude Code projects.",
   "author": {
     "name": "Luca Dellanna",
