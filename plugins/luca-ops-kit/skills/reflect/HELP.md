@@ -1,0 +1,1 @@
+**`reflect`** analyzes the current conversation to extract what went well, what went wrong, and what should become a memory update, skill improvement, or new skill. **Example:** "Examine our full conversation for mistakes you made and feedback I gave you, then implement the learnings so you'll be more effective next time." → `/luca-ops-kit:reflect`.

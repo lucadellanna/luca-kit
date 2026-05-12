@@ -154,6 +154,10 @@ Show the user the final SKILL.md. Use AskUserQuestion (open text) to ask for exp
 
 On approval: use Bash to create the directory `skills/<skill-name>/`, then use Write to save the SKILL.md draft to `skills/<skill-name>/SKILL.md`, and use Write again to save the DESIGN.md draft to `skills/<skill-name>/DESIGN.md`.
 
+Also write `skills/<skill-name>/HELP.md` using Write. The file contains one plain-text paragraph with no heading or frontmatter:
+
+**`<skill-name>`** <one sentence: what it does and who would use it>. **Example:** "<concrete scenario from the user's Step 1 source>" → `/<skill-name>`.
+
 ## Step 8: Audit the new skill
 
 Open an `audit-skill` session and provide the absolute path to the saved skill file in the opening message. Resolve it first: run `realpath skills/<skill-name>/SKILL.md` via Bash and use that output. If `audit-skill` is unavailable, note "audit-skill not found; skipping quality audit." and continue to Self-reflection.
