@@ -11,7 +11,7 @@ Installs the luca-dev-kit pre-commit hook into the current repo's `.git/hooks/`.
 ## Step 1: Check if already installed
 
 ```bash
-grep -q "luca-dev-kit" "$(git rev-parse --show-toplevel)/.git/hooks/pre-commit" 2>/dev/null \
+grep -q "luca-dev-kit" "$(git rev-parse --git-common-dir)/hooks/pre-commit" 2>/dev/null \
   && echo "installed" || echo "not-installed"
 ```
 
@@ -23,6 +23,7 @@ Check for framework-managed hooks: these have their own config files and will ov
 
 ```bash
 REPO_ROOT=$(git rev-parse --show-toplevel)
+GIT_HOOKS=$(git rev-parse --git-common-dir)/hooks
 
 if [[ -d "$REPO_ROOT/.husky" ]]; then
   echo "HUSKY"
@@ -52,11 +53,11 @@ Stop.
 ## Step 3: Check for existing bare hook
 
 ```bash
-[[ -f "$REPO_ROOT/.git/hooks/pre-commit" ]] && echo "exists" || echo "none"
+[[ -f "$GIT_HOOKS/pre-commit" ]] && echo "exists" || echo "none"
 ```
 
 If `exists` and does NOT contain `luca-dev-kit`:
-- Back up first: `cp "$REPO_ROOT/.git/hooks/pre-commit" "$REPO_ROOT/.git/hooks/pre-commit.bak.$(date +%s)"`
+- Back up first: `cp "$GIT_HOOKS/pre-commit" "$GIT_HOOKS/pre-commit.bak.$(date +%s)"`
 - Tell user: "Found existing pre-commit hook: backed up to `pre-commit.bak.<ts>`. I will append luca-dev-kit checks to it."
 - Mode: append (step 5b).
 
@@ -104,16 +105,16 @@ Verify `$PLUGIN_DIR/scripts/pre-commit` exists before proceeding. If it does not
 
 **5a: Fresh write:**
 ```bash
-cp "$PLUGIN_DIR/scripts/pre-commit" "$REPO_ROOT/.git/hooks/pre-commit"
-chmod +x "$REPO_ROOT/.git/hooks/pre-commit"
+cp "$PLUGIN_DIR/scripts/pre-commit" "$GIT_HOOKS/pre-commit"
+chmod +x "$GIT_HOOKS/pre-commit"
 ```
 
 **5b: Append to existing hook:**
 ```bash
 # Ensure file ends with a newline before appending
-REPO_ROOT="$REPO_ROOT" python3 -c "
+GIT_HOOKS="$GIT_HOOKS" python3 -c "
 import os
-p = os.path.join(os.environ['REPO_ROOT'], '.git/hooks/pre-commit')
+p = os.path.join(os.environ['GIT_HOOKS'], 'pre-commit')
 with open(p, 'rb+') as f:
     f.seek(0, 2)
     if f.tell() > 0:
@@ -121,7 +122,7 @@ with open(p, 'rb+') as f:
         if f.read(1) != b'\n':
             f.write(b'\n')
 "
-cat >> "$REPO_ROOT/.git/hooks/pre-commit" << HOOKEOF
+cat >> "$GIT_HOOKS/pre-commit" << HOOKEOF
 
 # ── luca-dev-kit checks ──────────────────────────────────────────────────────
 source "$PLUGIN_DIR/scripts/pre-commit"
@@ -130,7 +131,7 @@ HOOKEOF
 
 After writing, verify the hook contains `luca-dev-kit` (sanity check):
 ```bash
-grep -q "luca-dev-kit" "$REPO_ROOT/.git/hooks/pre-commit" || {
+grep -q "luca-dev-kit" "$GIT_HOOKS/pre-commit" || {
   echo "❌ Hook write failed: luca-dev-kit marker not found after install." >&2; exit 1
 }
 ```
