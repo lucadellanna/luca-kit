@@ -96,7 +96,7 @@ During execution, follow the self-observation protocol (see CLAUDE.md Principles
 
 [2–5 MECE success criteria go here.]
 
-Follow the self-reflection loop defined in CLAUDE.md (Haiku sub-agent scoring, average ≥ 9.5, max 3 iterations, draft a SKILL.md edit if any criterion stays below 8).
+Spawn a Haiku sub-agent to score each criterion 0–10. If the average is below 9.5, revise the output and re-score (max 3 iterations; stop if the score plateaus). If any criterion remains below 8, draft a concise SKILL.md edit to prevent recurrence, show it to the user, and apply on approval.
 ```
 
 Also draft a `DESIGN.md` alongside, with a `# Design decisions` table for any intentional trade-offs. Leave the placeholder row if no decisions exist yet.
@@ -190,7 +190,7 @@ For each confirmed file, use Edit to insert the entry into the existing table or
 
 This is the final step. Resolve the absolute path first: run `realpath skills/<skill-name>/SKILL.md` via Bash and use that output. Open an `audit-skill` session and pass the absolute path in the opening message.
 
-If `audit-skill` is unavailable, run a minimal inline check:
+If `audit-skill` is unavailable, run a minimal **structural-validity** check (no quality scoring):
 
 - Frontmatter parses as valid YAML and contains `name`, `description`, and `version`.
 - The `name` value matches the directory name exactly.
