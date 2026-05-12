@@ -37,7 +37,7 @@ Gemini facts (as of May 2026):
 python3 -c "
 import json, sys
 try:
-    with open('.claude/cache/review-loop-state.json') as f:
+    with open('.claude/cache/review-loop-state.json', encoding='utf-8') as f:
         s = json.load(f)
     assert isinstance(s.get('pr_number'), int)
     assert isinstance(s.get('round'), int) and s['round'] >= 0
@@ -60,12 +60,13 @@ Use `pr_number`, `round`, `trigger_ts`, `thread_hashes_prev` from the file.
   ```
 - Write the state file immediately (do not defer):
   ```bash
-  python3 -c "
+  PR_NUM=<PR_NUM> CREATED_AT=<createdAt> python3 -c "
   import json, os
-  state = {'pr_number': <PR_NUM>, 'round': 0, 'trigger_ts': '<createdAt>', 'thread_hashes_prev': None}
+  state = {'pr_number': int(os.environ['PR_NUM']), 'round': 0, 'trigger_ts': os.environ['CREATED_AT'], 'thread_hashes_prev': None}
   tmp = '.claude/cache/review-loop-state.json.tmp'
-  with open(tmp, 'w') as f:
+  with open(tmp, 'w', encoding='utf-8') as f:
       json.dump(state, f, indent=2)
+      f.write('\n')
   os.replace(tmp, '.claude/cache/review-loop-state.json')
   print('State file created.')
   "
@@ -311,13 +312,14 @@ FIX_HASH="<value from sub-agent FIX_HASH line>"
 FIX_HASH="$FIX_HASH" python3 -c "
 import json, os, sys
 try:
-    with open('.claude/cache/review-loop-state.json') as f:
+    with open('.claude/cache/review-loop-state.json', encoding='utf-8') as f:
         state = json.load(f)
     state['round'] = state.get('round', 0) + 1
     state['thread_hashes_prev'] = os.environ['FIX_HASH']
     tmp = '.claude/cache/review-loop-state.json.tmp'
-    with open(tmp, 'w') as f:
+    with open(tmp, 'w', encoding='utf-8') as f:
         json.dump(state, f, indent=2)
+        f.write('\n')
     os.replace(tmp, '.claude/cache/review-loop-state.json')
     print(json.dumps(state, indent=2))
 except Exception as e:
