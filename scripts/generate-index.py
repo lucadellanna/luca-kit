@@ -128,6 +128,7 @@ def generate():
 
 
 def main():
+    os.chdir(run(["git", "rev-parse", "--show-toplevel"]))
     content = generate()
     index_path = "INDEX.md"
 
