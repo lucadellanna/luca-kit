@@ -26,7 +26,7 @@ def get_skill_info(path):
                 m = re.search(r'^description:\s*[">]?\s*(.+)$', content[3:end], re.M)
                 if m:
                     desc = m.group(1).strip().strip('"\'').replace('\t', ' ')
-        help_path = os.path.join(os.path.dirname(path), 'HELP.md')
+        help_path = os.path.join(os.path.dirname(os.path.abspath(path)), 'HELP.md')
         if os.path.isfile(help_path):
             with open(help_path, 'r', encoding='utf-8') as f:
                 first = next((l.strip() for l in f if l.strip()), '')

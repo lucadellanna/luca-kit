@@ -14,7 +14,12 @@ for f in "$PLUGIN/commands"/*.md; do
   name=$(basename "$f" .md)
   [ "$name" = "help" ] && continue
   section=$(awk '/^## Help$/{found=1;next} found && /^## /{exit} found{print}' "$f" | awk 'NF{p=1} p')
-  [ -n "$section" ] && printf "%s\n\n" "$section"
+  if [ -n "$section" ]; then
+    printf "%s\n\n" "$section"
+  else
+    desc=$(awk '/^---$/{c++;next} c==1 && /^description:/{sub(/^description:[[:space:]]*/,""); print; exit}' "$f")
+    [ -n "$desc" ] && printf "**\`/luca-ops-kit:%s\`** %s\n\n" "$name" "$desc"
+  fi
 done
 
 printf "### Skills\n\n"
