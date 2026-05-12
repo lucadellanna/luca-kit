@@ -134,7 +134,7 @@ If invoked, pass the SKILL.md text, the DESIGN.md text, and this prompt:
 >
 > For each issue found, quote the offending text and propose a minimal fix. If no issues are found, say so explicitly.
 
-Apply any fixes to the draft before proceeding.
+Apply any fixes to the draft before proceeding. If the `feature-dev:code-reviewer` sub-agent is unavailable, skip this step and note "code-reviewer not available; skipping correctness check."
 
 ## Step 6: Confirm and save
 
@@ -196,4 +196,4 @@ If `audit-skill` is unavailable, run a minimal inline check:
 - The `name` value matches the directory name exactly.
 - The file contains at least one numbered step.
 
-Report any failures. Do not attempt further iteration: the user can re-run `audit-skill` later or rerun `create-skill` with new feedback.
+Report any failures. Tell the user explicitly: "This fallback verifies structural validity only; it does NOT satisfy the REQUIREMENTS.md scoring contract (average ≥ 9.5). Re-run `audit-skill` when available before treating the skill as quality-checked." Do not attempt further iteration: the user can re-run `audit-skill` later or rerun `create-skill` with new feedback.

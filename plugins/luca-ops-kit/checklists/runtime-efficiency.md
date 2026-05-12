@@ -88,7 +88,7 @@ Consumers: `audit-skill` (scoring `Runtime efficiency` in `REQUIREMENTS.md`), `c
 
 ### 19. Large inline scripts in SKILL.md
 - **Pattern**: Python or Bash code blocks ≥30 lines embedded in the SKILL.md body.
-- **Fix**: Move to `plugins/<plugin>/scripts/<name>.py` (or `.sh`) and invoke via Bash. Avoid loading the script into model context on every run.
+- **Fix**: Move to `${CLAUDE_PLUGIN_ROOT}/scripts/<name>.py` (or `.sh`) and invoke via Bash. Avoid loading the script into model context on every run.
 
 ### 20. Large embedded data in SKILL.md
 - **Pattern**: JSON, TSV, or example data ≥20 lines in SKILL.md.
