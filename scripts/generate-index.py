@@ -90,6 +90,7 @@ def generate():
         "",
     ]
 
+    indexed_files = set()
     for plugin_name, plugin_dir in zip(plugin_names, plugin_dirs):
         plugin_json = os.path.join(plugin_dir, ".claude-plugin/plugin.json")
         version = ""
@@ -105,11 +106,13 @@ def generate():
             "|---|---|",
         ]
         prefix = plugin_dir.rstrip("/") + "/"
-        for f in sorted(f for f in tracked if f.startswith(prefix)):
+        plugin_tracked = sorted(f for f in tracked if f.startswith(prefix))
+        for f in plugin_tracked:
             lines.append(f"| `{f}` | {annotate(f, plugin_name)} |")
+            indexed_files.add(f)
         lines.append("")
 
-    root_files = sorted(f for f in tracked if not f.startswith("plugins/") and f != "INDEX.md")
+    root_files = sorted(f for f in tracked if f not in indexed_files and f != "INDEX.md")
     if root_files:
         lines += [
             "## Repository root",
@@ -130,7 +133,7 @@ def main():
 
     abs_path = os.path.abspath(index_path)
     tmp = abs_path + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
+    with open(tmp, "w", encoding="utf-8", newline="\n") as f:
         f.write(content)
     os.replace(tmp, abs_path)
 

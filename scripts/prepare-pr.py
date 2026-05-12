@@ -30,7 +30,7 @@ def main():
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("--base", default=None, help="Base ref for bump-plugin-versions (default: origin/main)")
+    parser.add_argument("--base", default=None, help="Base ref for bump-plugin-versions (default: origin/<HEAD branch>)")
     args = parser.parse_args()
 
     base_args = ["--base", args.base] if args.base else []
