@@ -207,7 +207,7 @@ At the point of purchase, collect and log:
 > "Pursuant to Articles 1341 and 1342 of the Italian Civil Code, I specifically approve, on behalf of myself or my organization, the following clauses: 4 (No warranty), 5 (AI output disclaimer), 7 (Limitation of liability), 9 (Acceptable use), 11 (Customer indemnification), 12 (Fees and refunds), 13 (Term and termination), and 19 (Governing law and exclusive forum)."
 
 **Email confirmation (send before activating the license):**
-> "Thank you for your registration. To activate your license, please reply to this email with the following statement: 'On behalf of myself or my organization, I confirm acceptance of the luca-ops-kit / luca-dev-kit Terms of Use (v1.0, dated 2026-05-10).' We will activate your license on receipt."
+> "Thank you for your registration. To activate your license, please reply to this email with the following statement: 'On behalf of myself or my organization, I confirm I have read and accept the luca-ops-kit / luca-dev-kit Terms of Use (v1.0, dated 2026-05-10), and that I have authority to bind myself or my organization to these Terms.' We will activate your license on receipt."
 
 Retain all acceptance records for a minimum of [X, confirm with lawyer, likely 10] years.
 
