@@ -103,6 +103,12 @@ Then present the full skill overview:
 > | `/audit-claude` | Scans your CLAUDE.md and memory files for bloat and redundancy, proposes targeted cuts, and verifies nothing meaningful was lost |
 > | `/reflect` | After a session, extracts what went well, what went wrong, and what should become a memory update, skill improvement, or new skill |
 > | `/dream` | Mines your `/reflect` logs to surface patterns across sessions: recurring issues, memory contradictions, and improvements that keep coming up |
+>
+> *SUGGESTION:* Run `/luca-ops-kit:help` to familiarize yourself with all available commands and skills.
+
+## Help
+
+**`/luca-ops-kit:luca-ops-recommended-setup`** is a first-time setup wizard that adds best-practice rules to your Claude environment and walks you through a privacy and backup checklist. **Example:** "I'm setting up Claude for my team for the first time" → `/luca-ops-kit:luca-ops-recommended-setup`.
 
 ## Self-reflection
 

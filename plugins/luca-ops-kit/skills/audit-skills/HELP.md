@@ -1,0 +1,1 @@
+**`audit-skills`** scans your full skill library to detect overlapping skills across plugins and runs a rotating quality review on individual skills over time. **Example:** "I have twenty skills and want to know which ones are redundant or stale" → `/luca-ops-kit:audit-skills`.

@@ -110,6 +110,10 @@ Tell the user:
 - Which were already absent (if any)
 - "You can now uninstall luca-ops-kit."
 
+## Help
+
+**`/luca-ops-kit:undo-setup`** removes all rules added by `/luca-ops-recommended-setup`, leaving your Claude environment exactly as it was before setup. **Example:** "I want to uninstall luca-ops-kit cleanly" → `/luca-ops-kit:undo-setup`.
+
 ## Self-reflection
 
 During execution, follow the self-observation protocol (see CLAUDE.md Principles).

@@ -1,0 +1,1 @@
+**`create-skill`** guides you through turning a recurring business procedure, SOP, or verbal description into a ready-to-use Claude workflow, complete with quality gates and approval checkpoints. **Example:** "We run the same client onboarding checklist every week; turn it into a skill" → `/luca-ops-kit:create-skill`.

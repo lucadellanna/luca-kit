@@ -55,7 +55,8 @@ List every potential improvement in one sentence each. Cover:
 
 - Gap fixes from Step 2
 - Novel opportunities (edge cases, interaction patterns, structural improvements not visible from the scores)
-- **Mandatory:** if the frontmatter `name` field contains spaces or capital letters, fixing it to match the directory name in kebab-case is always a **Fix** item. Conductor uses this field as the slash-command text; a mismatched name breaks invocation.
+- **Mandatory:** if the frontmatter `name` field contains spaces or capital letters, fixing it to match the directory name in kebab-case is always a **Fix** item.
+- **Mandatory:** if no `HELP.md` exists in the skill directory (check with Bash `test -f <skill-dir>/HELP.md && echo exists || echo missing`), creating one is always a **Fix** item. HELP.md format: bold skill name, one sentence of what it does and who uses it, and a concrete example: `"<scenario>"` → `/<invocation>` (derive from the skill path: `/<plugin>:<name>` for plugin skills, `/<name>` for local or global skills).
 - **Mandatory (unless DESIGN.md documents intentional omission for ephemeral-output skills):** if no `## Self-reflection` section exists and DESIGN.md does not justify the omission, adding one is always an improvement. If the section exists but lacks the self-observation protocol reference, adding it is always an improvement.
 
 For each item, mark it as one of:

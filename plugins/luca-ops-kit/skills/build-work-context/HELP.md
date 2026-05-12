@@ -1,0 +1,1 @@
+**`build-work-context`** interviews you about your company and role, then saves a persistent context file so Claude always has the background it needs without you re-explaining each session. **Example:** "Every conversation I have to tell Claude what my company does" → `/luca-ops-kit:build-work-context`.

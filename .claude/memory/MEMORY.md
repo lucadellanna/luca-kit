@@ -30,6 +30,10 @@
 
 **Always `os.makedirs` before writing to `~/.claude/` paths.** On fresh installs, `~/.claude/` may not exist. Any Python code that opens files or lock files in that directory must call `os.makedirs(os.path.dirname(path), exist_ok=True)` first, or the skill fails on first-time users.
 
+## luca-dev-kit authoring
+
+**install-pre-commit-hooks audience**: target non-technical users who may not know git. No tool names (gitleaks, tsc, Husky), no file paths, no technical jargon in any user-facing messages. Applies to any luca-dev-kit skill invoked via `luca-dev-recommended-setup`. Use plain English: "saves code" not "commits", "automated checks" not "pre-commit hooks".
+
 ## Plugin development
 
 **Cache vs workspace layering**: when developing luca-ops-kit in a Conductor workspace while the plugin is also installed, skill invocations (e.g. `/luca-ops-kit:reflect`) run from `~/.claude/plugins/cache/`, not the workspace. Workspace edits are invisible to running skills until the plugin is republished and reinstalled.

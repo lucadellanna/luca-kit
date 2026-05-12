@@ -1,0 +1,1 @@
+**`audit-skill`** scores an existing skill against several quality dimensions, proposes concrete improvements, and iterates until the quality bar is met. **Example:** "The create-invoice skill keeps asking unnecessary questions; fix it" → `/luca-ops-kit:audit-skill`.
