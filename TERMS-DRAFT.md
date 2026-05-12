@@ -74,7 +74,7 @@ The Plugins require, and depend on, services provided by third parties, includin
 
 > *Note to lawyer: Please advise on appropriate EUR floor for clause 7(a) given the likely license fee range, and confirm whether the specific-approval requirement under Arts. 1341/1342 c.c. is satisfied by the purchase-page mechanism described in the Acceptance section below.*
 
-To the maximum extent permitted by applicable law, the aggregate liability of the Seller under or in connection with this contract, whether in contract, tort (including negligence), restitution, or otherwise, for all claims arising in any rolling twelve (12) month period shall not exceed the total fees paid by the Customer for the affected Plugin license in that period, and in any case shall not exceed EUR [X].
+To the maximum extent permitted by applicable law, the aggregate liability of the Seller under or in connection with this contract, whether in contract, tort (including negligence), restitution, or otherwise, for all claims arising in any rolling twelve (12) month period shall not exceed the greater of (a) the total fees actually paid by the Customer for the affected Plugin license in that period, or (b) EUR [X].
 
 The Seller shall not be liable for:
 
@@ -129,13 +129,13 @@ The Customer shall indemnify, defend, and hold harmless the Seller from and agai
 
 ## 12. Fees and refunds
 
-All fees are payable in advance and are non-refundable except where required by mandatory law. Because the Plugins are digital content delivered and made available immediately upon license activation, the Customer expressly acknowledges that it has received the digital content before the expiry of any applicable withdrawal period and waives any such right accordingly. (As a B2B customer under clause 2, the consumer right of withdrawal under Articles 52-58 of the Codice del Consumo does not in any event apply.) Initiation of a payment chargeback without first attempting good-faith resolution by email to [email address] is a material breach of this contract.
+Where fees apply, all fees are payable in advance and are non-refundable except where required by mandatory law. Where a license is granted at no charge, the Seller may revoke or modify the license at any time without liability. Because the Plugins are digital content delivered and made available immediately upon license activation, the Customer expressly acknowledges that it has received the digital content before the expiry of any applicable withdrawal period and waives any such right accordingly. (As a B2B customer under clause 2, the consumer right of withdrawal under Articles 52-58 of the Codice del Consumo does not in any event apply.) Where fees have been charged, initiation of a payment chargeback without first attempting good-faith resolution by email to [email address] is a material breach of this contract.
 
 ---
 
 ## 13. Term and termination
 
-The license is granted for the Term. The Seller may terminate the license immediately on written notice if:
+The license is granted for the Term. Where the license is granted at no charge, the Seller may also revoke or modify it at any time in accordance with clause 12. The Seller may terminate the license immediately on written notice if:
 
 (a) the Customer fails to pay fees when due;
 (b) the Customer materially breaches any provision of these Terms and (where the breach is capable of remedy) fails to remedy it within 14 days of written notice; or
@@ -193,21 +193,21 @@ These Terms are issued in English. Any translation provided is for convenience o
 
 At the point of purchase, collect and log:
 
-- Company legal name and registered address
-- Partita IVA (or equivalent VAT number)
-- Full name and job title of the individual accepting on behalf of the company
+- Legal name (company name or full name of the individual professional) and registered address
+- Partita IVA (or equivalent VAT number), if applicable
+- Full name and job title of the individual accepting (and, if acting on behalf of an organization, the organization's name)
 - Timestamp, IP address, and browser user-agent
 - Exact version of the Terms accepted (e.g., "v1.0, 2026-05-10")
 - States of both checkboxes below
 
 **Checkbox 1: general acceptance:**
-> "On behalf of [Company], I confirm I have read and accept the Terms of Use (v1.0, dated 2026-05-10), and that I have authority to bind the company to these Terms."
+> "I confirm, on behalf of myself or my organization, that I have read and accept the Terms of Use (v1.0, dated 2026-05-10), and that I have authority to bind myself or my organization to these Terms."
 
 **Checkbox 2: specific approval of unfair clauses (Art. 1341/1342 c.c.):**
-> "Pursuant to Articles 1341 and 1342 of the Italian Civil Code, I specifically approve the following clauses: 4 (No warranty), 5 (AI output disclaimer), 7 (Limitation of liability), 9 (Acceptable use), 11 (Customer indemnification), 12 (Fees and refunds), 13 (Term and termination), and 19 (Governing law and exclusive forum)."
+> "Pursuant to Articles 1341 and 1342 of the Italian Civil Code, I specifically approve, on behalf of myself or my organization, the following clauses: 4 (No warranty), 5 (AI output disclaimer), 7 (Limitation of liability), 9 (Acceptable use), 11 (Customer indemnification), 12 (Fees and refunds, if applicable), 13 (Term and termination), and 19 (Governing law and exclusive forum)."
 
 **Email confirmation (send before activating the license):**
-> "Thank you for your purchase. To activate your license, please reply to this email with the following statement: 'On behalf of [Company], I confirm acceptance of the luca-ops-kit / luca-dev-kit Terms of Use v1.0 dated 2026-05-10.' We will activate your license on receipt."
+> "Thank you for your registration. To activate your license, please reply to this email with the following statement: 'On behalf of myself or my organization, I confirm acceptance of the luca-ops-kit / luca-dev-kit Terms of Use v1.0 dated 2026-05-10.' We will activate your license on receipt."
 
 Retain all acceptance records for a minimum of [X, confirm with lawyer, likely 10] years.
 
