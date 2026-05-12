@@ -14,7 +14,15 @@ import subprocess
 
 
 def run(cmd):
-    return subprocess.check_output(cmd, text=True).strip()
+    try:
+        return subprocess.check_output(cmd, text=True, stderr=subprocess.PIPE).strip()
+    except subprocess.CalledProcessError as e:
+        cmd_str = " ".join(cmd)
+        stderr = e.stderr.strip() if e.stderr else ""
+        msg = f"Command failed: {cmd_str}"
+        if stderr:
+            msg += f"\n{stderr}"
+        raise SystemExit(msg) from None
 
 
 def annotate(path, plugin_name):
@@ -96,7 +104,11 @@ def generate():
         version = ""
         if os.path.exists(plugin_json):
             with open(plugin_json, encoding="utf-8") as f:
-                version = json.load(f).get("version", "")
+                try:
+                    data = json.load(f)
+                except json.JSONDecodeError:
+                    data = {}
+                version = data.get("version", "") if isinstance(data, dict) else ""
 
         version_str = f" (v{version})" if version else ""
         lines += [
@@ -145,6 +157,7 @@ def main():
         ["git", "diff", "--cached", "--quiet", "--", index_path], check=False
     )
     if diff.returncode == 0:
+        subprocess.run(["git", "reset", "HEAD", "--", index_path], check=False)
         print("INDEX.md is up to date.")
         return
 
