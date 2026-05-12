@@ -110,7 +110,7 @@ For **round 1+** (fix just pushed, `/gemini review` just posted):
 1. Compute adaptive delay from the last commit's diff size:
    ```bash
    if git rev-parse HEAD~1 > /dev/null 2>&1; then
-     LINES_CHANGED=$(git diff --numstat HEAD~1 | awk '{s+=$1+$2} END {print s+0}')
+     LINES_CHANGED=$(git diff --numstat HEAD~1 HEAD | awk '{s+=$1+$2} END {print s+0}')
    else
      LINES_CHANGED=999  # HEAD~1 unavailable; use conservative 240s delay
    fi
@@ -233,9 +233,10 @@ If all threads are REJECT or ALREADY_FIXED:
 
 ## Phase 3: Cycle detection
 
-Build a JSON array of {"id": ..., "body": ...} for each FIX thread (in order), then hash via
-stdin -- never interpolate untrusted body content into Python source:
+Build a JSON array of {"id": ..., "body": ...} for each FIX thread (in order), assign it, then
+hash via stdin -- never interpolate untrusted body content into Python source:
 ```bash
+FIX_THREADS_JSON='[{"id":"<id1>","body":"<body1>"},{"id":"<id2>","body":"<body2>"},...]'
 CURRENT_HASH=$(printf '%s' "$FIX_THREADS_JSON" | python3 -c "
 import sys, hashlib
 data = sys.stdin.read().encode()
