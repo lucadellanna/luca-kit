@@ -128,10 +128,11 @@ def main():
     content = generate()
     index_path = "INDEX.md"
 
-    tmp = index_path + ".tmp"
+    abs_path = os.path.abspath(index_path)
+    tmp = abs_path + ".tmp"
     with open(tmp, "w", encoding="utf-8") as f:
         f.write(content)
-    os.replace(tmp, index_path)
+    os.replace(tmp, abs_path)
 
     subprocess.run(["git", "add", index_path], check=True)
 
