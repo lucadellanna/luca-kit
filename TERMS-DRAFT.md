@@ -72,9 +72,9 @@ The Plugins require, and depend on, services provided by third parties, includin
 
 ## 7. Limitation of liability
 
-> *Note to lawyer: Please advise on appropriate EUR floor for clause 7(a) given the likely license fee range, and confirm whether the specific-approval requirement under Arts. 1341/1342 c.c. is satisfied by the purchase-page mechanism described in the Acceptance section below.*
+> *Note to lawyer: Please confirm whether the specific-approval requirement under Arts. 1341/1342 c.c. is satisfied by the purchase-page mechanism described in the Acceptance section below.*
 
-To the maximum extent permitted by applicable law, the aggregate liability of the Seller under or in connection with this contract, whether in contract, tort (including negligence), restitution, or otherwise, for all claims arising in any rolling twelve (12) month period shall not exceed the greater of (a) the total fees actually paid by the Customer for the affected Plugin license in that period, or (b) EUR [X].
+To the maximum extent permitted by applicable law, the aggregate liability of the Seller under or in connection with this contract, whether in contract, tort (including negligence), restitution, or otherwise, for all claims arising in any rolling twelve (12) month period shall not exceed the total fees actually paid by the Customer for the affected Plugin license in that period.
 
 The Seller shall not be liable for:
 
