@@ -195,7 +195,7 @@ At the point of purchase, collect and log:
 
 - Legal name (company name or full name of the individual professional) and registered address
 - Partita IVA (or equivalent VAT number), if applicable
-- Full name and job title of the individual accepting (and, if acting on behalf of an organization, the organization's name)
+- Full name and job title (if applicable) of the individual accepting (and, if acting on behalf of an organization, the organization's name)
 - Timestamp, IP address, and browser user-agent
 - Exact version of the Terms accepted (e.g., "v1.0, 2026-05-10")
 - States of both checkboxes below
