@@ -68,7 +68,6 @@
 | `.github/workflows/DESIGN.md` | GitHub Actions design decisions |
 | `.gitignore` |  |
 | `CLAUDE.md` | Developer instructions |
-| `INDEX.md` |  |
 | `LICENSE` | License |
 | `README.md` | Project README |
 | `TERMS-DRAFT.md` |  |
