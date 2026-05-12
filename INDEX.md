@@ -33,7 +33,7 @@
 | `plugins/luca-ops-kit/design/help.md` | Design decisions: `/luca-ops-kit:help` command |
 | `plugins/luca-ops-kit/design/luca-ops-recommended-setup.md` | Design decisions: `/luca-ops-kit:luca-ops-recommended-setup` command |
 | `plugins/luca-ops-kit/design/undo-setup.md` | Design decisions: `/luca-ops-kit:undo-setup` command |
-| `plugins/luca-ops-kit/hooks/DESIGN.md` |  |
+| `plugins/luca-ops-kit/hooks/DESIGN.md` | Design decisions: hooks |
 | `plugins/luca-ops-kit/hooks/claude-md-tidy.sh` | Hook script |
 | `plugins/luca-ops-kit/hooks/hooks.json` | Hook registry |
 | `plugins/luca-ops-kit/hooks/optimization-hint.sh` | Hook script |
@@ -66,10 +66,10 @@
 | `.claude/memory/MEMORY.md` | Agent memory index |
 | `.claude/settings.json` | Claude Code settings |
 | `.github/workflows/DESIGN.md` | GitHub Actions design decisions |
-| `.gitignore` |  |
+| `.gitignore` | Git ignore rules |
 | `CLAUDE.md` | Developer instructions |
 | `LICENSE` | License |
 | `README.md` | Project README |
-| `TERMS-DRAFT.md` |  |
+| `TERMS-DRAFT.md` | Terms draft |
 | `TODO.md` | Work tracking |
 | `scripts/bump-plugin-versions.py` | Script: bump-plugin-versions.py |
