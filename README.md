@@ -98,6 +98,8 @@ Installed automatically with the plugin (no setup needed):
 |------|-------|-------------|
 | **claude-md-tidy** | PostToolUse (Edit/Write) | After any edit to a CLAUDE.md or AGENTS.md file, injects a 7-criterion review (conciseness, duplication, contradictions, scope, ephemerality, vague triggers, context pollution) with quantitative metrics |
 | **optimization-hint** | UserPromptSubmit | On every prompt, reminds Claude to append a one-sentence optimization hint if the prior response involved 8+ tool calls (reusable skill, memory-worthy pattern, or workflow improvement) |
+| **stop-apology-check** | Stop | When the response contains a self-correction phrase (e.g. "you're right", "my mistake", "I missed") without a `★ rule-update` widget, rule-file edit, error-log append, or explicit one-off escape, blocks the stop and asks Claude to apply the Error → rule update contract. Forces meta-cognitive learning to actually happen instead of being deferred. See `plugins/luca-ops-kit/CLAUDE.md` for the full contract. |
+| **hedge-scan** | PostToolUse (Edit/Write/MultiEdit) | On edits to rule-like files (CLAUDE.md, SKILL.md, hook scripts, command files), warns when added list-item lines contain hedge words ("try to", "consider", "prefer", "should probably"). Strips quoted spans first, so hedge words used as quoted examples are not flagged. Enforces the "rules must use imperative language" principle. |
 
 ## How it works
 
