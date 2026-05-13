@@ -85,9 +85,11 @@ cat ~/.claude/code-review-checklist.md 2>/dev/null
 ```bash
 # Per-class counts within the date window (default 90d)
 SINCE=$(python3 -c "import datetime; print((datetime.date.today() - datetime.timedelta(days=90)).isoformat())")
-awk -F' \\| ' -v since="$SINCE" '$1 >= since {print $2}' ~/.claude/error-log.md 2>/dev/null \
-  | sort | uniq -c | sort -rn | head -30
-# head -30 caps to the 30 most frequent classes; sufficient for any realistic error log
+if [[ -n "$SINCE" && -f ~/.claude/error-log.md ]]; then
+  awk -F' \\| ' -v since="$SINCE" '$1 >= since {print $2}' ~/.claude/error-log.md \
+    | sort | uniq -c | sort -rn | head -30
+  # head -30 caps to the 30 most frequent classes; sufficient for any realistic error log
+fi
 ```
 If any class has count ≥ 3, load the full log entries for that class for analysis.
 
