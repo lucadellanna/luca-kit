@@ -114,9 +114,10 @@ Self-reflection and cross-session learning tools. Runtime instructions are in `p
 - `reflect`: conversational analysis skill; no durable per-user artifacts beyond the session log and memory writes the user explicitly approves.
 - `dream`: cross-session pattern mining; reads reflect logs, writes nothing without user approval.
 
-## Hook
+## Hooks
 
 - `optimization-hint`: `UserPromptSubmit` hook. Stateless: echoes a single-line instruction to Claude on every prompt submission. No file I/O.
+- `terms-acceptance-check`: `SessionStart` hook. Checks `~/.claude/luca-ops-kit/terms-accepted-v1.json`; echoes a one-time nag to Claude's context when absent. Silent when `$CLAUDE_CODE_REMOTE` is set or no controlling terminal exists (`/dev/tty` guard).
 
 ## Authoring notes
 
