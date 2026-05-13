@@ -45,6 +45,7 @@ with open(transcript_path, encoding="utf-8") as f:
         last_tool_uses = tool_uses
 
 cleaned = re.sub(r"```[\s\S]*?```", "", last_text)
+cleaned = re.sub(r"```[\s\S]*$", "", cleaned)  # strip unclosed fences
 cleaned = "\n".join(l for l in cleaned.split("\n") if not l.lstrip().startswith(">"))
 
 apology_re = re.compile(
@@ -56,14 +57,14 @@ if not apology_re.search(cleaned):
     sys.exit(0)
 
 escape_phrases = ("genuinely unpredictable", "no class applies", "one-off", "single typo")
-has_escape = any(p in cleaned.lower() for p in escape_phrases)
-has_widget = bool(re.search(r"`★\s*rule-update\s*─+`", last_text))
+has_escape = any(p in last_text.lower() for p in escape_phrases)  # check raw: escape in code block still counts
+has_widget = bool(re.search(r"`★\s*rule-update\s*─+`[\s\S]+?`─+`", last_text))
 
 rule_patterns = [r"CLAUDE\.md$", r"SKILL\.md$", r"/hooks/.*\.(sh|py|md)$",
                  r"code-review-checklist\.md$", r"/commands/.*\.md$"]
 error_log_re = re.compile(r"error-log\.md")
 
-write_op_re = re.compile(r"(>>|\btee\b|(?<![>])>(?![>]))")
+write_op_re = re.compile(r"(>>|\btee\s+-a\b|(?<![>])>(?![>]))")
 
 has_rule_edit = False
 has_log_append = False
@@ -92,9 +93,13 @@ for tu in last_tool_uses:
                 if error_log_re.search(fp):
                     has_log_append = True
     elif name == "Bash":
-        if error_log_re.search(cmd) and write_op_re.search(cmd):
+        # For redirects (> >>), check the TARGET (right of last >) not the source
+        rhs = cmd[cmd.rfind(">") + 1:] if ">" in cmd else ""
+        if (rhs and error_log_re.search(rhs)) or (re.search(r"\btee\s+-a\b", cmd) and error_log_re.search(cmd)):
             has_log_append = True
-        if any(re.search(p, cmd) for p in rule_patterns) and (write_op_re.search(cmd) or bool(re.search(r"\bsed\s+-[^ ]*i", cmd))):
+        if (rhs and any(re.search(p, rhs) for p in rule_patterns)) or \
+           (re.search(r"\bsed\s+-[^ ]*i", cmd) and any(re.search(p, cmd) for p in rule_patterns)) or \
+           (re.search(r"\btee\s+-a\b", cmd) and any(re.search(p, cmd) for p in rule_patterns)):
             has_rule_edit = True
 
 has_structural_scope = bool(re.search(r"Scope:.*structural", last_text, re.IGNORECASE))
