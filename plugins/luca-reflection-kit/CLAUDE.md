@@ -27,6 +27,7 @@ Same Claude Code users as luca-ops-kit: non-technical staff, managers, and power
 | Command | What it does |
 |---|---|
 | **/luca-reflection-kit:accept-terms** | Prints the interim notice, asks the user via AskUserQuestion, writes `~/.claude/luca-ops-kit/terms-accepted-v1.json` on acknowledgment with `{"version": "1.0", "accepted_at": "<ISO 8601>"}`. On "Not right now", removes the marker if it exists. Always re-prompts; re-run = re-decide. |
+| **/luca-reflection-kit:luca-reflection-recommended-setup** | Asks once whether to save private session notes after each /reflect. Writes `~/.claude/reflect-logs/.enabled` or `.disabled`. Re-running always re-prompts. |
 
 ## Hooks
 

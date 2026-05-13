@@ -46,6 +46,7 @@ Installed automatically with the plugin (no setup needed):
 | Command | What it does |
 |---|---|
 | **/luca-reflection-kit:accept-terms** | Shows the interim notice for Luca's plugins and records your decision locally. One-time per Claude install. No server calls. |
+| **/luca-reflection-kit:luca-reflection-recommended-setup** | Configure session notes for /reflect. Decides once whether to save private logs to your computer. |
 
 ## License
 
