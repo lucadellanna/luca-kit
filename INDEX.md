@@ -20,7 +20,7 @@
 | `plugins/luca-dev-kit/skills/specs-adherence-review/SKILL.md` | `/luca-dev-kit:specs-adherence-review` skill |
 | `plugins/luca-dev-kit/skills/triple-review/SKILL.md` | `/luca-dev-kit:triple-review` skill |
 
-## Plugin: luca-ops-kit (v0.3.2)
+## Plugin: luca-ops-kit (v0.3.3)
 
 | Path | Role |
 |---|---|

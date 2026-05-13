@@ -50,6 +50,7 @@ Scan areas (skip any that have no signal; never write filler findings):
 - **Workflow patterns**: repeated sequences, procedures done more than twice
 - **Knowledge gaps**: things Claude got wrong or the user had to supply
 - **User workflow**: steps the user took repeatedly or awkwardly that a skill or process change could streamline
+- **Unnecessary questions**: moments where Claude asked the user for input that Claude could and should have decided itself (e.g. asking which of two equivalent approaches to use, asking for confirmation on a low-stakes reversible action, asking for information already inferable from context). For each instance: identify what Claude asked, what decision rule would have avoided the question, and whether a skill or CLAUDE.md rule should encode that rule.
 
 Classify each finding into one action category:
 
