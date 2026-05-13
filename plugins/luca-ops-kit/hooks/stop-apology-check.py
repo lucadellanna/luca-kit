@@ -94,10 +94,12 @@ for tu in last_tool_uses:
     elif name == "Bash":
         if error_log_re.search(cmd) and write_op_re.search(cmd):
             has_log_append = True
-        if any(re.search(p, cmd) for p in rule_patterns):
+        if any(re.search(p, cmd) for p in rule_patterns) and (write_op_re.search(cmd) or "sed" in cmd):
             has_rule_edit = True
 
-if has_escape or (has_widget and has_rule_edit and has_log_append):
+has_structural_scope = bool(re.search(r"Scope:.*structural", last_text, re.IGNORECASE))
+
+if has_escape or (has_widget and has_log_append and (has_rule_edit or has_structural_scope)):
     sys.exit(0)
 
 reason = (
