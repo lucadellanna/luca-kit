@@ -43,7 +43,7 @@ Two-phase, single-file code review that catches file-specific bugs the standard 
 
 1. **Determine checklist source.**
    - User supplied a checklist inline: use it; jump to Step 3.
-   - User supplied a checklist path: use Read to load it, then Bash `wc -c < "$path"` (byte count, not line count) to confirm the file is non-empty. If the byte count is 0 or Read failed, stop and report. Jump to Step 3.
+   - User supplied a checklist path: use Read to load it. If the file is empty or Read failed, stop and report. Jump to Step 3.
    - Otherwise: continue to Step 2.
 
 2. **Derive the checklist (main agent).** Read the target file in full. Write 5 to 15 checklist items.
@@ -83,12 +83,12 @@ Two-phase, single-file code review that catches file-specific bugs the standard 
 
 4. **Parse and present findings.**
    - If the output contains the line `ERROR: cannot read file`: stop and surface the error.
-   - If the output contains a `FINDINGS:` line: take everything after that line; identify finding blocks by locating lines that match the pattern `[Area name] - BUG` (starts with `[`, contains `] - BUG`). Each such line opens a new block; count these as the parsed finding count. If the count of `[`-starting lines does not match the count of `] - BUG` lines (non-conforming format), re-spawn ONCE with the same prompt verbatim. If the second attempt also produces a mismatch, show the raw output to the user and stop.
+   - If the output contains a `FINDINGS:` line: take everything after that line; identify finding blocks by locating lines that match the pattern `[Area name] - BUG` (starts with `[`, contains `] - BUG`). Each such line opens a new block; count these as the parsed finding count.
    - If the output does NOT contain `FINDINGS:` (malformed): re-spawn ONCE with the same prompt verbatim. If the second attempt is also malformed, show the raw output to the user and stop.
    - If the parsed finding count is 0: report "no bugs found" and stop.
-   - If the parsed finding count is >=1: present findings in batches of at most 3 using `AskUserQuestion` with `multiSelect: true`. Prefix each call's question with the batch range and total (e.g., "Findings 1-3 of 7 - select which to apply"). Each call includes up to 3 finding options (area name + failure mode) plus an "Apply none" option as the 4th. If the user selects "Apply none", stop immediately. Otherwise present the next batch. Do not auto-select.
+   - If the parsed finding count is >=1: present findings in batches of at most 3 using `AskUserQuestion` with `multiSelect: true`. Prefix each call's question with the batch range and total (e.g., "Findings 1-3 of 7 - select which to apply"). Each call includes up to 3 finding options (area name + failure mode) plus a "Stop and discard all" option as the 4th. If the user selects "Stop and discard all", stop immediately. If the user submits without selecting any finding and without selecting "Stop and discard all", skip that batch and present the next. Do not auto-select.
 
-5. **Apply approved fixes.** If the user selected "Apply none" or made no selection: stop. Otherwise, apply findings in line-number order (earliest first). For each approved finding:
+5. **Apply approved fixes.** If the user selected "Stop and discard all" or no findings were approved across all batches: stop. Otherwise, apply findings in line-number order (earliest first). For each approved finding:
    - **Uniqueness pre-flight.** Before each Edit, Grep the file for `old_string` using literal (fixed-string) matching -- pass `-F` if invoking grep directly, or use the Grep tool's literal mode to avoid metacharacter interpretation (since `old_string` may contain regex metacharacters such as `*`, `[`, `.`, `(`, `)`). If count > 1, extend `old_string` with 2 to 3 surrounding lines and re-check; repeat up to 3 expansions, then ask the user which occurrence via `AskUserQuestion` if still non-unique. If count is 0, the subagent paraphrased rather than quoted verbatim: re-read the file at the reported line number, locate the closest matching code, and ask the user via `AskUserQuestion` to confirm the literal text before proceeding.
    - **Adjacency check.** If a later finding targets lines already edited or directly adjacent, ask the user via `AskUserQuestion` whether to apply, skip, or re-derive it; never auto-merge.
    - Apply each Edit one at a time. Re-read the file before subsequent Edits.
@@ -109,7 +109,7 @@ This skill does NOT cover: multi-file review, diff review, style/convention enfo
 
 During execution, follow the self-observation protocol (see `${CLAUDE_PLUGIN_ROOT}/CLAUDE.md`, Principles).
 
-**Skip condition.** If no findings were applied in Step 5 (either because none were parsed, or the user selected "Apply none"), skip the rest of this section. The scorer requires applied `old_string -> new_string` pairs; without them, the Fix correctness criterion is unscoreable.
+**Skip condition.** If no findings were applied in Step 5 (either because none were parsed, or the user selected "Stop and discard all"), skip the rest of this section. The scorer requires applied `old_string -> new_string` pairs; without them, the Fix correctness criterion is unscoreable.
 
 When at least one finding was applied, spawn a Haiku sub-agent. Pass it: (a) this SKILL.md, (b) the final checklist used, (c) the subagent's raw output, (d) the list of applied Edits as `old_string -> new_string` pairs. Score each criterion 0 to 10. If the average is below 9.5 or any criterion remains below 8, draft a concise SKILL.md edit to prevent recurrence, show it to the user, and apply on approval.
 
