@@ -66,7 +66,7 @@
 | `plugins/luca-ops-kit/skills/setup-context-search/HELP.md` |  |
 | `plugins/luca-ops-kit/skills/setup-context-search/SKILL.md` | `/luca-ops-kit:setup-context-search` skill |
 
-## Plugin: luca-reflection-kit (v0.2.0)
+## Plugin: luca-reflection-kit (v0.2.1)
 
 | Path | Role |
 |---|---|
