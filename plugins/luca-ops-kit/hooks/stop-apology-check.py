@@ -64,10 +64,9 @@ rule_patterns = [r"CLAUDE\.md$", r"SKILL\.md$", r"/hooks/.*\.(sh|py|md)$",
                  r"code-review-checklist\.md$", r"/commands/.*\.md$"]
 error_log_re = re.compile(r"error-log\.md")
 
-write_op_re = re.compile(r"(>>|\btee\s+-a\b|(?<![>])>(?![>]))")
-
 has_rule_edit = False
 has_log_append = False
+rule_patterns_unanchored = [p.replace("$", "") for p in rule_patterns]
 for tu in last_tool_uses:
     name = tu.get("name", "")
     inp = tu.get("input", {}) or {}
@@ -94,12 +93,12 @@ for tu in last_tool_uses:
                     has_log_append = True
     elif name == "Bash":
         # For redirects (> >>), check the TARGET (right of last >) not the source
-        rhs = cmd[cmd.rfind(">") + 1:] if ">" in cmd else ""
+        rhs = cmd[cmd.rfind(">") + 1:].strip() if ">" in cmd else ""
         if (rhs and error_log_re.search(rhs)) or (re.search(r"\btee\s+-a\b", cmd) and error_log_re.search(cmd)):
             has_log_append = True
         if (rhs and any(re.search(p, rhs) for p in rule_patterns)) or \
-           (re.search(r"\bsed\s+-[^ ]*i", cmd) and any(re.search(p, cmd) for p in rule_patterns)) or \
-           (re.search(r"\btee\s+-a\b", cmd) and any(re.search(p, cmd) for p in rule_patterns)):
+           (re.search(r"\bsed\s+-[^ ]*i", cmd) and any(re.search(p, cmd) for p in rule_patterns_unanchored)) or \
+           (re.search(r"\btee\s+-a\b", cmd) and any(re.search(p, cmd) for p in rule_patterns_unanchored)):
             has_rule_edit = True
 
 has_structural_scope = bool(re.search(r"Scope:.*structural", last_text, re.IGNORECASE))
