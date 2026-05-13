@@ -123,3 +123,4 @@ Self-reflection and cross-session learning tools. Runtime instructions are in `p
 - Skills in this plugin must never auto-apply changes to user memory, CLAUDE.md, or other plugins' skill files. All writes require explicit user confirmation via AskUserQuestion.
 - The `optimization-hint.sh` hook is intentionally minimal (a single `echo`). Any behavior change must remain side-effect-free (no file writes, no network calls).
 - Session logs written by `reflect` go to `~/.claude/reflect-logs/`: this path is user-owned, not plugin-owned. The plugin reads these logs; it does not manage them.
+- Any hook that surfaces a consent command (e.g., `terms-acceptance-check`) must instruct Claude to *inform* the user and wait for them to invoke the command. Claude must never invoke a consent command itself; auto-invocation coerces the acknowledgment.
