@@ -77,6 +77,7 @@
 | `plugins/luca-reflection-kit/hooks/hooks.json` | Hook registry |
 | `plugins/luca-reflection-kit/hooks/optimization-hint.sh` | Hook script |
 | `plugins/luca-reflection-kit/hooks/terms-acceptance-check.sh` | Hook script |
+| `plugins/luca-reflection-kit/scripts/config.py` | Script: config.py |
 | `plugins/luca-reflection-kit/scripts/terms-accept.py` | Script: terms-accept.py |
 | `plugins/luca-reflection-kit/scripts/terms-revoke.py` | Script: terms-revoke.py |
 | `plugins/luca-reflection-kit/skills/dream/DESIGN.md` | Design decisions: `/luca-reflection-kit:dream` |
@@ -102,6 +103,7 @@
 | `README.md` | Project README |
 | `TERMS-DRAFT.md` | Terms draft |
 | `TODO.md` | Work tracking |
+| `docs/hook-patterns.md` |  |
 | `scripts/bump-plugin-versions.py` | Script: bump-plugin-versions.py |
 | `scripts/generate-index.py` | Script: generate-index.py |
 | `scripts/prepare-pr.py` | Script: prepare-pr.py |
