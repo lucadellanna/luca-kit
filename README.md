@@ -6,8 +6,9 @@ This marketplace ships two Claude plugins:
 
 | Plugin | Audience | Purpose |
 |--------|----------|---------|
-| **luca-ops-kit** | Organizations and individuals | Craft reusable skills, maintain a self-improving setup, and extract lasting learnings from every session |
+| **luca-ops-kit** | Organizations and individuals | Craft reusable skills, maintain a self-improving setup, and govern your Claude skill library |
 | **luca-dev-kit** | Developers | Pre-PR quality gates, autonomous Gemini review loop, and pre-commit hook management |
+| **luca-reflection-kit** | Anyone | Self-reflection and cross-session learning: scan conversations for improvement points and mine recurring patterns |
 
 Most companies and people using AI are stuck at the "clever individual prompts" stage: useful experiments, inconsistent execution, little reuse, and no lasting memory. These plugins provide guided workflows to make good procedures explicit and reusable, so know-how doesn't stay trapped in individual heads or chat histories.
 
@@ -59,6 +60,21 @@ If you already added the `lucadellanna/luca-ops-kit` marketplace (e.g. for luca-
 
 **To enable auto-updates:** Type `/plugin`, press Tab twice to open the Marketplaces tab, select `luca-dev-kit`, then select **Enable updates**.
 
+### luca-reflection-kit
+
+```
+/plugin marketplace add lucadellanna/luca-ops-kit
+/plugin install luca-reflection-kit@lucadellanna
+```
+
+**To uninstall:**
+
+```
+/plugin uninstall luca-reflection-kit@lucadellanna/luca-reflection-kit
+```
+
+> **Migration note for existing users:** The marketplace was renamed from `luca-ops-kit` to `lucadellanna`. The `reflect` and `dream` skills and the `optimization-hint` hook have moved to the separate `luca-reflection-kit` plugin. To migrate: remove the old marketplace (`/plugin marketplace remove luca-ops-kit`), re-add it under the new name (`/plugin marketplace add lucadellanna/luca-ops-kit`), and install `luca-reflection-kit` separately as shown above.
+
 ## Skills
 
 ### luca-ops-kit
@@ -73,8 +89,6 @@ If you already added the `lucadellanna/luca-ops-kit` marketplace (e.g. for luca-
 | **audit-skill** | Scores a single skill against 7 quality dimensions (clarity, security, instruction explicitness, and more), proposes improvements, and iterates until the bar is met |
 | **audit-skills** | Scans your whole skill library for overlapping skills, then audits a rotating batch of 3 so every skill gets reviewed over time |
 | **audit-claude** | Scans your CLAUDE.md and memory files for bloat and cross-file redundancy, proposes targeted cuts, and verifies nothing meaningful was lost |
-| **reflect** | After a session, extracts what went well, what went wrong, and what should become a memory update, skill improvement, or new skill |
-| **dream** | Mines your /reflect logs to surface patterns across sessions: recurring issues never fixed, memory contradictions, and improvements that keep coming up but never land |
 | **setup-context-search** | *(Power users)* Installs [qmd](https://github.com/tobi/qmd) and configures it as an MCP server, giving Claude semantic search over your context files (customers, offerings, projects). Requires Node.js 22+ |
 
 ### luca-dev-kit
@@ -98,9 +112,21 @@ Installed automatically with the plugin (no setup needed):
 | Hook | Event | What it does |
 |------|-------|-------------|
 | **claude-md-tidy** | PostToolUse (Edit/Write) | After any edit to a CLAUDE.md or AGENTS.md file, injects a 7-criterion review (conciseness, duplication, contradictions, scope, ephemerality, vague triggers, context pollution) with quantitative metrics |
-| **optimization-hint** | UserPromptSubmit | On every prompt, reminds Claude to append a one-sentence optimization hint if the prior response involved 8+ tool calls (reusable skill, memory-worthy pattern, or workflow improvement) |
 | **stop-apology-check** | Stop | When the response contains a self-correction phrase (e.g. "you're right", "my mistake", "I missed") without a `★ rule-update` widget, rule-file edit, error-log append, or explicit one-off escape, blocks the stop and asks Claude to apply the Error → rule update contract. Forces meta-cognitive learning to actually happen instead of being deferred. See `plugins/luca-ops-kit/CLAUDE.md` for the full contract. |
 | **hedge-scan** | PostToolUse (Edit/Write/MultiEdit) | On edits to rule-like files (CLAUDE.md, SKILL.md, hook scripts, command files), warns when added list-item lines contain hedge words ("try to", "consider", "prefer", "should probably"). Strips quoted spans first, so hedge words used as quoted examples are not flagged. Enforces the "rules must use imperative language" principle. |
+
+### luca-reflection-kit
+
+| Skill | What it does |
+|-------|-------------|
+| **reflect** | After a session, extracts what went well, what went wrong, and what should become a memory update, skill improvement, or new skill |
+| **dream** | Mines your /reflect logs to surface patterns across sessions: recurring issues never fixed, memory contradictions, and improvements that keep coming up but never land |
+
+#### Hooks
+
+| Hook | Event | What it does |
+|------|-------|-------------|
+| **optimization-hint** | UserPromptSubmit | On every prompt, reminds Claude to append a one-sentence optimization hint if the prior response involved 8+ tool calls (reusable skill, memory-worthy pattern, or workflow improvement) |
 
 ## How it works
 
@@ -150,7 +176,7 @@ If your organization receives luca-ops-kit through a holding company, franchisor
 
 ## Disclaimer
 
-These plugins (luca-ops-kit and luca-dev-kit) are for business use only, and are intended exclusively for businesses and professionals acting in the course of a trade or profession. By using them, you represent that you are not a consumer under Italian law (Article 3, Codice del Consumo). They are designed exclusively for use with Claude (Anthropic); any adaptation to other AI providers is unsupported and at the user's sole risk. They are provided "as-is", without warranty of any kind, express or implied.
+These plugins (luca-ops-kit, luca-dev-kit, and luca-reflection-kit) are for business use only, and are intended exclusively for businesses and professionals acting in the course of a trade or profession. By using them, you represent that you are not a consumer under Italian law (Article 3, Codice del Consumo). They are designed exclusively for use with Claude (Anthropic); any adaptation to other AI providers is unsupported and at the user's sole risk. They are provided "as-is", without warranty of any kind, express or implied.
 
 The plugins depend on third-party services (including Anthropic (Claude API) and Claude Code) that Luca Dellanna does not control. Changes to those services, including model deprecations, pricing changes, or discontinuation, are not Luca Dellanna's responsibility. The plugins run locally on your machine; Luca Dellanna does not collect or process your data.
 

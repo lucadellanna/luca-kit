@@ -18,7 +18,7 @@ Users are non-technical staff inside partner companies. Skills must use plain la
 
 **Scope guardrail:** improve productivity, consistency, training, documentation, and low-stakes decision support. Never automate high-stakes decisions; always include human approval points for consequential outputs.
 
-**Meta-skill triggers:** always explicit by name (e.g., `/create-skill`, `/reflect`). Never task-context triggered.
+**Meta-skill triggers:** always explicit by name (e.g., `/create-skill`, `/audit-skill`). Never task-context triggered.
 
 ## Principles
 

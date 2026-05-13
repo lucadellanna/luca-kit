@@ -1,5 +1,5 @@
 {
-  "name": "luca-ops-kit",
+  "name": "lucadellanna",
   "owner": {
     "name": "Luca Dellanna"
   },
@@ -13,6 +13,11 @@
       "name": "luca-dev-kit",
       "source": "./plugins/luca-dev-kit",
       "description": "Developer workflow automation: pre-PR quality gates, autonomous Gemini review loop, and pre-commit hook management"
+    },
+    {
+      "name": "luca-reflection-kit",
+      "source": "./plugins/luca-reflection-kit",
+      "description": "Self-reflection and cross-session learning skills: scan conversations for improvement points, mine recurring patterns, and surface optimization hints"
     }
   ]
 }
