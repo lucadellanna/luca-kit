@@ -49,6 +49,7 @@ Two-phase, single-file code review that catches file-specific bugs the standard 
 2. **Derive the checklist (main agent).** Read the target file in full. Write 5 to 15 checklist items.
    - The main agent does this, not a subagent. The main agent reads the file once; the subagent receives only the path and the checklist, never the file content. See DESIGN.md.
    - Each item names a *specific failure mode* in this specific file. Format: `<area>: <failure mode>, e.g., <concrete example tied to a line, function, or invariant>`.
+   - Prioritize execution-path items: for each data transformation, shell invocation, conditional branch, and user-facing label in the file, ask "what breaks at the boundary?" Specifically look for: delimiter or metacharacter assumptions in parsing steps; missing flags in shell/grep invocations; ambiguous option labels in multi-choice prompts; redundant tool calls where context already holds the needed value; and empty/falsy/zero-count edge cases in each conditional branch.
 
 3. **Spawn the execution subagent.** Use the Agent tool with:
    - `subagent_type`: `general-purpose`
