@@ -69,9 +69,17 @@ Ask the user what to implement via AskUserQuestion (multiSelect: true) with the 
 
 ## Step 4: Log session
 
-Runs after Step 3. Silent skip (no action, no message) only if `~/.claude/reflect-logs/.enabled` is absent; the script handles that check itself.
+Runs after Step 3.
 
-Check python3 first:
+First, check whether session notes are enabled:
+
+```bash
+ls ~/.claude/reflect-logs/.enabled 2>/dev/null && echo "enabled" || echo "skip"
+```
+
+If `skip`, stop silently. Do not check for python3 or run the script.
+
+If `enabled`, check python3:
 
 ```bash
 command -v python3 >/dev/null 2>&1 && echo "ok" || echo "missing"
