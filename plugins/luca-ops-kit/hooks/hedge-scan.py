@@ -18,22 +18,36 @@ if tool_name not in ("Edit", "Write", "MultiEdit"):
     sys.exit(0)
 
 tool_input = payload.get("tool_input", {}) or {}
-file_path = tool_input.get("file_path", "") or ""
-if not file_path:
-    sys.exit(0)
 
 rule_patterns = [r"CLAUDE\.md$", r"SKILL\.md$", r"/hooks/.*\.(sh|py|md)$",
                  r"code-review-checklist\.md$", r"/commands/.*\.md$"]
-if not any(re.search(p, file_path) for p in rule_patterns):
-    sys.exit(0)
 
 if tool_name == "Edit":
+    file_path = tool_input.get("file_path", "") or ""
+    if not file_path or not any(re.search(p, file_path) for p in rule_patterns):
+        sys.exit(0)
     added = tool_input.get("new_string", "") or ""
 elif tool_name == "Write":
+    file_path = tool_input.get("file_path", "") or ""
+    if not file_path or not any(re.search(p, file_path) for p in rule_patterns):
+        sys.exit(0)
     added = tool_input.get("content", "") or ""
 else:
+    # MultiEdit: file_path is per-edit, not top-level; only include new_string from matching edits
     edits = tool_input.get("edits", []) or []
-    added = "\n".join((e.get("new_string", "") or "") for e in edits if isinstance(e, dict))
+    matching_parts = []
+    matched_files = []
+    for e in edits:
+        if not isinstance(e, dict):
+            continue
+        fp = e.get("file_path", "") or ""
+        if fp and any(re.search(p, fp) for p in rule_patterns):
+            matching_parts.append(e.get("new_string", "") or "")
+            matched_files.append(fp)
+    if not matching_parts:
+        sys.exit(0)
+    added = "\n".join(matching_parts)
+    file_path = ", ".join(matched_files)
 
 added = re.sub(r"```[\s\S]*?```", "", added)
 

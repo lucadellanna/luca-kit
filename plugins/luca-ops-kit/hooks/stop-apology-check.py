@@ -63,20 +63,36 @@ rule_patterns = [r"CLAUDE\.md$", r"SKILL\.md$", r"/hooks/.*\.(sh|py|md)$",
                  r"code-review-checklist\.md$", r"/commands/.*\.md$"]
 error_log_re = re.compile(r"error-log\.md")
 
+write_op_re = re.compile(r"(>>|tee\s+-a|(?<![>])>(?![>]))")
+
 has_rule_edit = False
 has_log_append = False
 for tu in last_tool_uses:
     name = tu.get("name", "")
     inp = tu.get("input", {}) or {}
-    # Use `or` chain without default="" so an explicit null value doesn't mask the fallback
-    fp_raw = inp.get("file_path") or inp.get("notebook_path")
-    fp = fp_raw if isinstance(fp_raw, str) else ""
     cmd = inp.get("command", "") or ""
-    if name in ("Edit", "Write", "MultiEdit") and fp:
-        if any(re.search(p, fp) for p in rule_patterns):
-            has_rule_edit = True
-    if name == "Bash":
-        if error_log_re.search(cmd):
+    if name in ("Edit", "Write"):
+        # Use `or` chain without default="" so an explicit null value doesn't mask the fallback
+        fp_raw = inp.get("file_path") or inp.get("notebook_path")
+        fp = fp_raw if isinstance(fp_raw, str) else ""
+        if fp:
+            if any(re.search(p, fp) for p in rule_patterns):
+                has_rule_edit = True
+            if error_log_re.search(fp):
+                has_log_append = True
+    elif name == "MultiEdit":
+        for edit in inp.get("edits", []) or []:
+            if not isinstance(edit, dict):
+                continue
+            fp_raw = edit.get("file_path") or ""
+            fp = fp_raw if isinstance(fp_raw, str) else ""
+            if fp:
+                if any(re.search(p, fp) for p in rule_patterns):
+                    has_rule_edit = True
+                if error_log_re.search(fp):
+                    has_log_append = True
+    elif name == "Bash":
+        if error_log_re.search(cmd) and write_op_re.search(cmd):
             has_log_append = True
         if any(re.search(p, cmd) for p in rule_patterns):
             has_rule_edit = True
@@ -88,7 +104,7 @@ reason = (
     "Self-correction phrase detected with no rule-update widget, rule-file edit, "
     "error-log append, or one-off escape. Before stopping, render this widget verbatim "
     "(backticks around the framing lines are required for machine detection):\n\n"
-    "`★ rule-update ───────────────────────────────────────────────`\n"
+    "`★ rule-update ─────────────────────────────────`\n"
     "Error class: <name the class, not the instance>\n"
     "Rule: <imperative sentence preventing all instances>\n"
     "Scope: <file to edit>\n"

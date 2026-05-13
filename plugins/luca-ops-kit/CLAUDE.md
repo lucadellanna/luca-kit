@@ -39,7 +39,7 @@ Users are non-technical staff inside partner companies. Skills must use plain la
 **Error → rule update (non-negotiable).** Enforced by the plugin's `stop-apology-check.py` Stop hook.
 
 Triggers (any of):
-1. Self-correction phrases appear in your output: "you're right", "good catch", "my mistake", "I shouldn't have", "the issue was", "I missed", "I should have".
+1. Self-correction phrases appear in your output: "you're right", "good catch", "my mistake", "I shouldn't have", "the issue was", "I missed", "I should have", "I apologize", "I apologise".
 2. User points out a mistake, inefficiency, or wrong assumption.
 3. A tool returns an error, or returns output that wasted a round (looked useful, was not), and the cause is a reusable pattern (wrong invocation, missing setup, predictable failure mode). Single transient failures with no pattern do not trigger.
 
