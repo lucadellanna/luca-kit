@@ -1,4 +1,4 @@
-# luca-ops-kit & luca-dev-kit
+# Luca's plugins
 
 > **Status: Early access / Pre-release.** These plugins are under active development. Features may change, break, or be removed without notice. Not ready for production use.
 
