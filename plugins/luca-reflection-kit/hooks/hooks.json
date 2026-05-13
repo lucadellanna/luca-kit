@@ -1,6 +1,18 @@
 {
-  "description": "Reflection plugin hooks: optimization-hint reminder after high-tool-count turns.",
+  "description": "Reflection plugin hooks: terms-acceptance reminder on SessionStart, optimization-hint reminder on UserPromptSubmit.",
   "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/terms-acceptance-check.sh\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
     "UserPromptSubmit": [
       {
         "matcher": "*",

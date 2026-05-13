@@ -114,12 +114,14 @@ Self-reflection and cross-session learning tools. Runtime instructions are in `p
 - `reflect`: conversational analysis skill; no durable per-user artifacts beyond the session log and memory writes the user explicitly approves.
 - `dream`: cross-session pattern mining; reads reflect logs, writes nothing without user approval.
 
-## Hook
+## Hooks
 
 - `optimization-hint`: `UserPromptSubmit` hook. Stateless: echoes a single-line instruction to Claude on every prompt submission. No file I/O.
+- `terms-acceptance-check`: `SessionStart` hook. Checks `~/.claude/luca-ops-kit/terms-accepted-v1.json`; echoes a one-time nag to Claude's context when absent. Silent when `$CLAUDE_CODE_REMOTE` is set or no controlling terminal exists (`/dev/tty` guard).
 
 ## Authoring notes
 
 - Skills in this plugin must never auto-apply changes to user memory, CLAUDE.md, or other plugins' skill files. All writes require explicit user confirmation via AskUserQuestion.
 - The `optimization-hint.sh` hook is intentionally minimal (a single `echo`). Any behavior change must remain side-effect-free (no file writes, no network calls).
 - Session logs written by `reflect` go to `~/.claude/reflect-logs/`: this path is user-owned, not plugin-owned. The plugin reads these logs; it does not manage them.
+- Any hook that surfaces a consent command (e.g., `terms-acceptance-check`) must instruct Claude to *inform* the user and wait for them to invoke the command. Claude must never invoke a consent command itself; auto-invocation coerces the acknowledgment.

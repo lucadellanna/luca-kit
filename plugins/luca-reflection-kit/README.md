@@ -15,15 +15,15 @@ If you already added the `lucadellanna/luca-ops-kit` marketplace (e.g. for luca-
 
 **Claude Cowork:** Left sidebar → Customize → Plugins → Personal → **+** → Add marketplace → `lucadellanna/luca-ops-kit` → click on it → Install `luca-reflection-kit`
 
+**To enable auto-updates (Claude Code):** Type `/plugin`, press Tab twice to open the Marketplaces tab, select `luca-reflection-kit`, then select **Enable updates**.
+
+**To enable auto-updates (Cowork):** Left sidebar → Customize → Browse Plugins → Personal → luca-reflection-kit → **···** → Sync automatically
+
 **To uninstall:**
 
 ```
 /plugin uninstall luca-reflection-kit@lucadellanna/luca-reflection-kit
 ```
-
-**To enable auto-updates (Claude Code):** Type `/plugin`, press Tab twice to open the Marketplaces tab, select `luca-reflection-kit`, then select **Enable updates**.
-
-**To enable auto-updates (Cowork):** Left sidebar → Customize → Browse Plugins → Personal → luca-reflection-kit → **···** → Sync automatically
 
 ## Skills
 
@@ -32,13 +32,20 @@ If you already added the `lucadellanna/luca-ops-kit` marketplace (e.g. for luca-
 | **reflect** | After a session, extracts what went well, what went wrong, and what should become a memory update, skill improvement, or new skill |
 | **dream** | Mines your /reflect session logs to surface patterns across sessions: recurring issues never fixed, memory contradictions, and improvements that keep coming up but never land |
 
-## Hook
+## Hooks
 
 Installed automatically with the plugin (no setup needed):
 
 | Hook | Event | What it does |
 |------|-------|-------------|
 | **optimization-hint** | UserPromptSubmit | On every prompt, reminds Claude to append a one-sentence optimization hint if the prior response involved 8+ tool calls (reusable skill, memory-worthy pattern, or workflow improvement) |
+| **terms-acceptance-check** | SessionStart | Reminds the user (via Claude) to run `/luca-reflection-kit:accept-terms` if no acknowledgment is recorded yet. Silent once acknowledged, and silent in non-interactive sessions (`claude -p`, agent SDK, CI). |
+
+## Commands
+
+| Command | What it does |
+|---|---|
+| **/luca-reflection-kit:accept-terms** | Shows the interim notice for Luca's plugins and records your decision locally. One-time per Claude install. No server calls. |
 
 ## License
 
