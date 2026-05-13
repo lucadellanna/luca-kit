@@ -71,6 +71,23 @@ This works when invoked as `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/terms-accept.
 
 ---
 
+## Hooks vs. Claude Bash calls: performance tradeoff
+
+A hook runs directly in the harness before Claude generates a response -- no LLM round-trip. A Claude-initiated Bash call requires a generation cycle to decide to call the tool, plus the round-trip. For any check whose result Claude needs at the start of a skill, a hook is faster from the user's perspective.
+
+**When a hook is worth the complexity:**
+- The check is a simple file-existence or flag read (no interactive branching needed)
+- The skill runs frequently enough that the latency is noticeable
+- The hook fires on a matching event that already runs (e.g., UserPromptSubmit) so no new event wiring is needed
+
+**When to keep it as a Bash call:**
+- The check result determines whether to ask the user something interactively (hooks can inject text but cannot use AskUserQuestion)
+- The simpler fix is to move the check inside an existing script that already runs later in the skill
+
+**Alternative to a new hook:** if a skill already runs a Python script later (e.g., a logging step), move the check to the top of that script. Eliminates the Bash call with zero new infrastructure.
+
+---
+
 ## Step 0: binary pre-flight in commands
 
 Any slash command that shells out to an external binary (python3, node, etc.) must verify the binary exists before showing the user any UI:
