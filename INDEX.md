@@ -27,6 +27,7 @@
 | `plugins/luca-ops-kit/.claude-plugin/plugin.json` | Plugin manifest |
 | `plugins/luca-ops-kit/CLAUDE.md` | Runtime instructions (ships with plugin) |
 | `plugins/luca-ops-kit/DISCLAIMER.md` | Disclaimer |
+| `plugins/luca-ops-kit/checklists/runtime-efficiency.md` |  |
 | `plugins/luca-ops-kit/commands/help.md` | `/luca-ops-kit:help` command |
 | `plugins/luca-ops-kit/commands/luca-ops-recommended-setup.md` | `/luca-ops-kit:luca-ops-recommended-setup` command |
 | `plugins/luca-ops-kit/commands/undo-setup.md` | `/luca-ops-kit:undo-setup` command |
@@ -53,6 +54,7 @@
 | `plugins/luca-ops-kit/skills/build-work-context/SKILL.md` | `/luca-ops-kit:build-work-context` skill |
 | `plugins/luca-ops-kit/skills/create-skill/DESIGN.md` | Design decisions: `/luca-ops-kit:create-skill` |
 | `plugins/luca-ops-kit/skills/create-skill/HELP.md` |  |
+| `plugins/luca-ops-kit/skills/create-skill/REQUIREMENTS.md` |  |
 | `plugins/luca-ops-kit/skills/create-skill/SKILL.md` | `/luca-ops-kit:create-skill` skill |
 | `plugins/luca-ops-kit/skills/dream/DESIGN.md` | Design decisions: `/luca-ops-kit:dream` |
 | `plugins/luca-ops-kit/skills/dream/HELP.md` |  |
