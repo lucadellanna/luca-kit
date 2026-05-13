@@ -43,7 +43,7 @@ Two-phase, single-file code review that catches file-specific bugs the standard 
 
 1. **Determine checklist source.**
    - User supplied a checklist inline: use it; jump to Step 3.
-   - User supplied a checklist path: use Read to load it, then Bash `wc -l < <path>` to confirm the line count is greater than 0. If the file is empty or Read failed, stop and report. Jump to Step 3.
+   - User supplied a checklist path: use Read to load it, then Bash `wc -c < "$path"` (byte count, not line count) to confirm the file is non-empty. If the byte count is 0 or Read failed, stop and report. Jump to Step 3.
    - Otherwise: continue to Step 2.
 
 2. **Derive the checklist (main agent).** Read the target file in full. Write 5 to 15 checklist items.
@@ -86,7 +86,7 @@ Two-phase, single-file code review that catches file-specific bugs the standard 
    - If the output contains a `FINDINGS:` line: take everything after that line; split into blocks starting with `[`. Each block is one finding.
    - If the output does NOT contain `FINDINGS:` (malformed): re-spawn ONCE with the same prompt verbatim. If the second attempt is also malformed, show the raw output to the user and stop.
    - If the parsed finding count is 0: report "no bugs found" and stop.
-   - If the parsed finding count is >=1: use `AskUserQuestion` with `multiSelect: true`, one option per finding (area name + failure mode as the option text), plus an "Apply none" option. Do not auto-select.
+   - If the parsed finding count is >=1: present findings in batches of at most 3 using `AskUserQuestion` with `multiSelect: true`. Each call includes up to 3 finding options (area name + failure mode) plus an "Apply none (stop)" option as the 4th. If the user selects "Apply none (stop)", stop immediately. Otherwise present the next batch. Do not auto-select.
 
 5. **Apply approved fixes.** If the user selected "Apply none" or made no selection: stop. Otherwise, apply findings in line-number order (earliest first). For each approved finding:
    - **Uniqueness pre-flight.** Before each Edit, Grep the file for `old_string`. If count > 1, extend `old_string` with 2 to 3 surrounding lines and re-check; repeat up to 3 expansions, then ask the user which occurrence via `AskUserQuestion` if still non-unique. If count is 0, the subagent paraphrased rather than quoted verbatim: re-read the file at the reported line number, locate the closest matching code, and ask the user via `AskUserQuestion` to confirm the literal text before proceeding.
@@ -98,8 +98,8 @@ Two-phase, single-file code review that catches file-specific bugs the standard 
 - Generic checklist items ("check error handling", "look for edge cases"). Every item must name a specific failure mode in this specific file.
 - Approving all findings via a single multiSelect tick without reading each one. Each finding is a discrete decision.
 - Modifying the prompt template on a re-spawn. Re-spawn means re-issue the same template verbatim, not a "softer" variant.
-- Continuing past a malformed second re-spawn. Two failed attempts is the stop signal.
-- Skipping the uniqueness pre-flight on Step 5. A non-unique or zero-match `old_string` will either silently apply to the wrong occurrence or crash the Edit with no recovery.
+- Deriving the checklist from a section or summary of the file rather than reading it in full. Cross-function interactions and module-level invariants only surface when the full file is read.
+- Re-reading the target file only once before all Edits rather than before each Edit. A prior Edit shifts line numbers; subsequent Edits using stale context apply to the wrong location.
 
 ## Scope
 
@@ -109,7 +109,7 @@ This skill does NOT cover: multi-file review, diff review, style/convention enfo
 
 During execution, follow the self-observation protocol (see `${CLAUDE_PLUGIN_ROOT}/CLAUDE.md`, Principles).
 
-**Skip condition.** If Step 4 parsed zero findings (subagent returned `FINDINGS:` with no bug blocks), skip the rest of this section. A zero-findings run produces no learning material for the scorer.
+**Skip condition.** If no findings were applied in Step 5 (either because none were parsed, or the user selected "Apply none"), skip the rest of this section. The scorer requires applied `old_string -> new_string` pairs; without them, the Fix correctness criterion is unscoreable.
 
 When at least one finding was applied, spawn a Haiku sub-agent. Pass it: (a) this SKILL.md, (b) the final checklist used, (c) the subagent's raw output, (d) the list of applied Edits as `old_string -> new_string` pairs. Score each criterion 0 to 10. If the average is below 9.5, revise the SKILL.md and re-score (max 3 iterations; stop if the score plateaus). If any criterion remains below 8, draft a concise SKILL.md edit to prevent recurrence, show it to the user, and apply on approval.
 
