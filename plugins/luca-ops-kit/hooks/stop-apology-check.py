@@ -8,7 +8,10 @@ import sys, json, re, os
 
 try:
     payload = json.load(sys.stdin)
-except Exception:
+except Exception as e:
+    print(f"stop-apology-check: failed to parse input: {e}", file=sys.stderr)
+    sys.exit(0)
+if not isinstance(payload, dict):
     sys.exit(0)
 
 transcript_path = payload.get("transcript_path", "")
@@ -17,13 +20,13 @@ if not transcript_path or not os.path.isfile(transcript_path):
 
 last_text = ""
 last_tool_uses = []
-with open(transcript_path) as f:
+with open(transcript_path, encoding="utf-8") as f:
     for line in f:
         try:
             entry = json.loads(line)
         except Exception:
             continue
-        if entry.get("type") != "assistant":
+        if not isinstance(entry, dict) or entry.get("type") != "assistant":
             continue
         msg = entry.get("message", {}) or {}
         content = msg.get("content", [])
@@ -65,7 +68,9 @@ has_log_append = False
 for tu in last_tool_uses:
     name = tu.get("name", "")
     inp = tu.get("input", {}) or {}
-    fp = inp.get("file_path", "") or inp.get("notebook_path", "") or ""
+    # Use `or` chain without default="" so an explicit null value doesn't mask the fallback
+    fp_raw = inp.get("file_path") or inp.get("notebook_path")
+    fp = fp_raw if isinstance(fp_raw, str) else ""
     cmd = inp.get("command", "") or ""
     if name in ("Edit", "Write", "MultiEdit") and fp:
         if any(re.search(p, fp) for p in rule_patterns):

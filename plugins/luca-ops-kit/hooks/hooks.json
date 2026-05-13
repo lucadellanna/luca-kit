@@ -1,5 +1,5 @@
 {
-  "description": "Plugin-level hooks: CLAUDE.md quality gate and optimization hints",
+  "description": "Plugin-level hooks: CLAUDE.md quality gate, optimization hints, hedge-word enforcement, and error-correction enforcement",
   "hooks": {
     "PostToolUse": [
       {

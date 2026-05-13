@@ -7,7 +7,10 @@ import sys, json, re
 
 try:
     payload = json.load(sys.stdin)
-except Exception:
+except Exception as e:
+    print(f"hedge-scan: failed to parse input: {e}", file=sys.stderr)
+    sys.exit(0)
+if not isinstance(payload, dict):
     sys.exit(0)
 
 tool_name = payload.get("tool_name", "")

@@ -87,6 +87,7 @@ cat ~/.claude/code-review-checklist.md 2>/dev/null
 SINCE=$(python3 -c "import datetime; print((datetime.date.today() - datetime.timedelta(days=90)).isoformat())")
 awk -F' \\| ' -v since="$SINCE" '$1 >= since {print $2}' ~/.claude/error-log.md 2>/dev/null \
   | sort | uniq -c | sort -rn | head -30
+# head -30 caps to the 30 most frequent classes; sufficient for any realistic error log
 ```
 If any class has count ≥ 3, load the full log entries for that class for analysis.
 

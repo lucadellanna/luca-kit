@@ -35,7 +35,8 @@ plugins/luca-ops-kit/
   skills/<name>/DESIGN.md       # Design decisions (loaded only during audits)
   design/<name>.md              # Design decisions for commands
   hooks/hooks.json              # Plugin-level hooks (auto-installed)
-  hooks/<name>.sh               # Hook scripts
+  hooks/<name>.sh               # Bash hook scripts
+  hooks/<name>.py               # Python hook scripts
 ```
 
 Skill directories use kebab-case verb-noun names (e.g., `review-invoice`, `onboard-client`). Command files use kebab-case names (e.g., `undo-setup.md`).

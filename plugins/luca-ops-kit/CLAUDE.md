@@ -49,7 +49,7 @@ When triggered, the response must render this widget verbatim before continuing 
 Error class: <name the class, not the instance>
 Rule: <imperative sentence preventing all instances>
 Scope: <file to edit, e.g. plugins/<name>/CLAUDE.md | skill <name> | hook <name> | structural (tool/code change needed)>
-Edit: <the Edit tool call follows in this same response. If Scope = structural, propose the structural fix and ask before coding.>
+Edit: <the Edit tool call follows in this same response; machine-enforced: the widget alone without an actual Edit tool call will not pass the Stop hook. If Scope = structural, propose the structural fix and ask before coding.>
 `─────────────────────────────────────────────────`
 
 Then append one line to `~/.claude/error-log.md`: `YYYY-MM-DD | <error class> | <file edited or "structural-proposed">`. Create the file if absent. If a rule of this class already exists and was violated, the Edit must tighten it (more explicit triggers, fewer escape hatches), not restate it.
