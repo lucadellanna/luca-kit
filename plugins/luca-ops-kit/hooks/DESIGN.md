@@ -23,7 +23,11 @@ If `python3` is unavailable or fails, the hook exits silently rather than printi
 
 ## MultiEdit tool_input structure
 
-In Claude Code's `MultiEdit` tool, `file_path` is a top-level key in `tool_input` (not nested per-edit). The `edits` list contains `{old_string, new_string}` pairs only. The current file_path extraction (`ti.get('file_path')`) is therefore correct for both `Edit` and `MultiEdit`. No per-edit iteration is needed.
+In Claude Code's `MultiEdit` tool, `file_path` is a per-edit key nested inside each object in the `edits` list, not at the top level of `tool_input`. The hooks iterate `inp.get("edits", [])` and extract `edit.get("file_path")` from each item. This has been verified against live tool payloads.
+
+## Bash write-op heuristic: redirect-direction check
+
+Naively checking "does the command contain a rule file AND a redirect operator?" produces false positives for read operations like `cat CLAUDE.md > backup.md`. The hooks instead extract the substring after the last `>` (`cmd[cmd.rfind(">") + 1:]`) and check whether the rule file appears in that right-hand side. This correctly identifies the destination file without full shell parsing. Known limitation: highly unusual multi-redirect constructs (e.g., process substitution) may be misjudged, but these do not appear in normal Claude tool use.
 
 ## hooks.json location
 

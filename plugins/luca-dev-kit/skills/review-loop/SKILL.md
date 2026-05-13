@@ -342,6 +342,28 @@ TRIGGER_TS=$(gh pr view "$PR_NUM" --json comments -q '.comments | map(select(.bo
 
 Update `trigger_ts` in state file atomically. Loop back to step A.
 
+### Wakeup prompt template
+
+Every `ScheduleWakeup` call in this skill must use this template verbatim (fill in bracketed values). Deviating from the template, especially writing inline fix logic, causes Phase 5 (checklist update) to be silently skipped.
+
+```
+Resume review-loop for PR #[PR_NUM] in [WORKING_DIR].
+State file: [WORKING_DIR]/.claude/cache/review-loop-state.json (round=[N], trigger_ts=[TS]).
+
+1. Poll for Gemini's response submitted after [TS]:
+   gh api repos/[OWNER]/[REPO]/pulls/[PR_NUM]/reviews 2>/dev/null | python3 -c "..."
+   If not found (submitted_at <= [TS]): ScheduleWakeup 120s with this same prompt.
+
+2. If found: follow SKILL.md sections B through E exactly.
+   File: [CLAUDE_PLUGIN_ROOT]/skills/review-loop/SKILL.md
+   Critical: spawn the Phase C sub-agent with the full prompt from that file.
+   Do NOT classify, fix, or resolve threads inline. Phase 5 (checklist update) only
+   runs inside the sub-agent. Inline fixes permanently skip it.
+
+3. After STATUS: FIXED: update state round+1, trigger /gemini review, ScheduleWakeup
+   180s using this template with the new round and trigger_ts values.
+```
+
 ---
 
 ## EXIT CLEAN

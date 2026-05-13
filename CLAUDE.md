@@ -38,7 +38,8 @@ plugins/luca-ops-kit/
   design/<name>.md               # Design decisions for commands
   checklists/<name>.md           # Cross-cutting rules referenced from multiple skills
   hooks/hooks.json               # Plugin-level hooks (auto-installed)
-  hooks/<name>.sh                # Hook scripts
+  hooks/<name>.sh                # Bash hook scripts
+  hooks/<name>.py                # Python hook scripts
 ```
 
 Skill directories use kebab-case verb-noun names (e.g., `review-invoice`, `onboard-client`). Command files use kebab-case names (e.g., `undo-setup.md`).
@@ -48,6 +49,8 @@ Skill directories use kebab-case verb-noun names (e.g., `review-invoice`, `onboa
 **All new skills must be created via `/create-skill`.** Never write SKILL.md files directly. The guided workflow ensures quality gates (elicitation, scoring, code review, audit) are applied consistently.
 
 **Commands vs skills:** Commands are explicit user-triggered actions (setup, teardown, one-shot operations). Skills are capabilities Claude applies as part of a workflow. If it should only fire when the user types `/name`, it's a command.
+
+**Plugin artifacts live in the plugin tree.** When working inside this repo, all plugin artifacts (hooks, hook scripts, skills, commands, design docs) must live under `plugins/<name>/` and be registered via the plugin's manifest. Never install plugin-domain artifacts in the user's global `~/.claude/`. If an artifact is genuinely user-personal (not part of any plugin), justify why explicitly before placing it globally.
 
 **`plugins/luca-ops-kit/CLAUDE.md` is the plugin runtime manifest.** It ships with the plugin and is loaded into context on every session where the plugin is active. The root `CLAUDE.md` (this file) is developer-only and never reaches user machines. Authoring rule: anything Claude must know to execute the plugin's skills correctly on a user's machine belongs in `plugins/luca-ops-kit/CLAUDE.md`. This includes:
 - **Audience and persona context** -- who the users are; tone and assumed knowledge
@@ -71,6 +74,7 @@ These apply when writing or editing skills, not at user runtime. They are enforc
 - **Opus security gate.** Fires when implementing any feature that: (a) writes to the user's global environment (settings.json, CLAUDE.md, hook scripts, global config), (b) adds or modifies shell scripts executed in the user's environment, or (c) rewrites security-sensitive logic (input validation, secret handling, auth). Run an Opus review pass on the full plan before writing code. In-context Sonnet review is anchored to already-accepted design decisions; Opus starting fresh treats them as open questions and catches what anchored review misses. This gate precedes the inline Sonnet review.
 - **Pre-push proactive scan for any `.md` files with embedded code.** Before the first `git push` on any PR that adds or modifies `.md` files (SKILL.md, command files, hook scripts, or any other markdown) containing Python or Bash code blocks, spawn an Opus sub-agent to review only the added/modified code blocks against `~/.claude/code-review-checklist.md`. Quote offending lines and propose minimal fixes. This catches most issues in one pass instead of across multiple Gemini review rounds. (Scope was widened from SKILL.md-only after 5 of 9 Gemini rounds flagged file I/O issues in command files that a pre-push scan would have caught.)
 - **DESIGN.md when rejecting a Gemini thread.** When a Gemini review thread is rejected as a design decision (not a bug), update `DESIGN.md` in the same commit. A documented decision prevents the same thread from being raised in subsequent review rounds.
+- **README row for every new artifact.** When adding a hook to hooks.json, a skill to skills/, or a command to commands/, add a corresponding row to the README.md table (## Hooks or ## Skills as appropriate) in the same commit. An artifact without a README entry is an incomplete change.
 - **Plugin-internal references use `${CLAUDE_PLUGIN_ROOT}`, not repo-relative paths.** Inside markdown content (SKILL.md, REQUIREMENTS.md, DESIGN.md, checklists), any reference to the plugin's own files must use `${CLAUDE_PLUGIN_ROOT}/<rest-of-path>`. Repo-relative paths like `plugins/<plugin>/...` only resolve in the source repo; after `claude plugin install`, the plugin moves to `~/.claude/plugins/cache/<marketplace>/<plugin>/<version>/` and the repo-relative path no longer exists on the user's machine. `${CLAUDE_PLUGIN_ROOT}` resolves to the plugin's actual root at consumer runtime, so the reference works in both development and deployment.
 
 ## Setup command requirements

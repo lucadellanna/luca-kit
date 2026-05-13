@@ -36,8 +36,10 @@
 | `plugins/luca-ops-kit/design/undo-setup.md` | Design decisions: `/luca-ops-kit:undo-setup` command |
 | `plugins/luca-ops-kit/hooks/DESIGN.md` | Design decisions: hooks |
 | `plugins/luca-ops-kit/hooks/claude-md-tidy.sh` | Hook script |
+| `plugins/luca-ops-kit/hooks/hedge-scan.py` | Hook script |
 | `plugins/luca-ops-kit/hooks/hooks.json` | Hook registry |
 | `plugins/luca-ops-kit/hooks/optimization-hint.sh` | Hook script |
+| `plugins/luca-ops-kit/hooks/stop-apology-check.py` | Hook script |
 | `plugins/luca-ops-kit/skills/audit-claude/DESIGN.md` | Design decisions: `/luca-ops-kit:audit-claude` |
 | `plugins/luca-ops-kit/skills/audit-claude/HELP.md` |  |
 | `plugins/luca-ops-kit/skills/audit-claude/SKILL.md` | `/luca-ops-kit:audit-claude` skill |

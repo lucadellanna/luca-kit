@@ -81,6 +81,18 @@ Load full entries only for repos where pre-aggregation shows signal (≥2 matchi
 cat ~/.claude/code-review-checklist.md 2>/dev/null
 ```
 
+**Load error log** (if it exists). Aggregate first; load raw only if signal is found:
+```bash
+# Per-class counts within the date window (default 90d)
+SINCE=$(python3 -c "import datetime; print((datetime.date.today() - datetime.timedelta(days=90)).isoformat())")
+if [[ -n "$SINCE" && -f ~/.claude/error-log.md ]]; then
+  awk -F' \\| ' -v since="$SINCE" '$1 >= since {print $2}' ~/.claude/error-log.md \
+    | sort | uniq -c | sort -rn | head -30
+  # head -30 caps to the 30 most frequent classes; sufficient for any realistic error log
+fi
+```
+If any class has count ≥ 3, load the full log entries for that class for analysis.
+
 If no log file found for the current project: "No session notes found for this project. Run /reflect at least once with session notes enabled; it will ask on the next run."
 
 ## Step 2: Mine cross-session signal
@@ -98,6 +110,8 @@ Analyze entries within the date window and identify:
 | Cross-project pattern (`all` mode only) | Same finding text appearing in ≥2 repos | High (CLAUDE.md candidate) |
 | Stale checklist item | Item in `~/.claude/code-review-checklist.md` has no semantically matching finding across all sessions in the date window | Medium |
 | Duplicate checklist items | Two checklist items describe overlapping patterns (judge semantically, not by exact text) | Medium |
+| Recurring error class | Same error class appears ≥3 times in `~/.claude/error-log.md` within the date window: the rule is firing but not preventing recurrence | High (rule needs tightening or structural fix) |
+| Structural-proposed not landed | Entry with file `structural-proposed` exists in error log with no follow-up rule update within 14 days | High |
 
 ## Step 3: Score
 

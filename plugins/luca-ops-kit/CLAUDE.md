@@ -34,6 +34,35 @@ Users are non-technical staff inside partner companies. Skills must use plain la
 - **Scoring is net of design decisions.** Every skill directory may include a `DESIGN.md` file documenting intentional trade-offs. Scoring sub-agents must treat documented decisions as accepted; do not penalise them. When an audit raises a concern that is deliberately accepted (not overlooked), add it to `DESIGN.md` rather than leaving it as an open gap.
 - **DESIGN.md stays current.** When a code change affects the rationale for a decision, update `DESIGN.md` in the same edit; never as a follow-up. A stale rationale is a contradiction, not documentation.
 
+## Error correction (enforced by plugin hooks)
+
+**Error → rule update (non-negotiable).** Enforced by the plugin's `stop-apology-check.py` Stop hook.
+
+Triggers (any of):
+1. Self-correction phrases appear in your output: "you're right", "good catch", "my mistake", "I shouldn't have", "the issue was", "I missed", "I should have", "I apologize", "I apologise".
+2. User points out a mistake, inefficiency, or wrong assumption.
+3. A tool returns an error, or returns output that wasted a round (looked useful, was not), and the cause is a reusable pattern (wrong invocation, missing setup, predictable failure mode). Single transient failures with no pattern do not trigger.
+
+When triggered, the response must render this widget verbatim before continuing other work. The backticked horizontal-rule lines are required: they make the widget visually distinct and machine-detectable by the Stop hook.
+
+`★ rule-update ─────────────────────────────────`
+Error class: <name the class, not the instance>
+Rule: <imperative sentence preventing all instances>
+Scope: <file to edit, e.g. plugins/<name>/CLAUDE.md | skill <name> | hook <name> | structural (tool/code change needed)>
+Edit: <the Edit tool call follows in this same response; machine-enforced: the widget alone without an actual Edit tool call will not pass the Stop hook. If Scope = structural, propose the structural fix and ask before coding.>
+`─────────────────────────────────────────────────`
+
+Then append one line to `~/.claude/error-log.md`: `YYYY-MM-DD | <error class> | <file edited or "structural-proposed">`. Create the file if absent. If a rule of this class already exists and was violated, the Edit must tighten it (more explicit triggers, fewer escape hatches), not restate it.
+
+Forbidden evasions (each is a rule violation):
+- "the fix is behavioural", "I'll be more careful", "noted for next time", "added to task list", "will remember"
+- Asking permission to apply the fix to a rule file
+- Deferring the Edit to a later turn
+
+One-off escape valve: if the error is genuinely unpredictable and not a class (single typo, no pattern), say so explicitly in one sentence of why no rule applies. Silent skipping is non-compliance.
+
+**Rules must use tight, imperative language.** Enforced by the plugin's `hedge-scan.py` PostToolUse hook on list-item lines in rule-like file paths. Use direct commands with no escape hatches ("never", "always", "apply immediately"). Hedged language ("try to", "consider", "prefer", "should probably") creates rationalization space and will be exploited. If a rule has been violated despite existing, rewrite it to be tighter, not just more emphatic.
+
 ## Inter-skill patterns
 
 - **Raw-mode data contract.** When a skill produces output another skill may need to consume as structured data, add a `mode: raw` clause at the top of the skill body: if `mode: raw` is passed in the opening message, return TSV/JSON and skip rendering. Never embed another skill's script inline; invoke in raw mode instead.

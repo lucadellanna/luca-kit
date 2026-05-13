@@ -51,7 +51,7 @@ def annotate(path, plugin_name):
             return "Hook registry"
         if rel == "hooks/DESIGN.md":
             return "Design decisions: hooks"
-        if rel_parts[0] == "hooks" and basename.endswith(".sh"):
+        if rel_parts[0] == "hooks" and basename.endswith((".sh", ".py")):
             return "Hook script"
         if rel_parts[0] == "scripts":
             return f"Script: {basename}"
