@@ -18,14 +18,22 @@ Install in Claude Code, Cowork, or both; if you use both apps, follow each proce
 
 ### luca-ops-kit
 
-**Claude Code** (requires [Claude Code](https://claude.ai/code)):
+#### Claude Code
+
+Requires [Claude Code](https://claude.ai/code).
 
 ```
 /plugin marketplace add lucadellanna/luca-kit
 /plugin install luca-ops-kit@lucadellanna
 ```
 
-**Claude Cowork:** Left sidebar → Customize → Plugins → Personal → **+** → Add marketplace → `lucadellanna/luca-kit` → click on it → Install
+Then enable auto-updates: type `/plugin`, press Tab twice to open the Marketplaces tab, select `luca-ops-kit`, and select **Enable updates**.
+
+#### Claude Cowork
+
+1. Left sidebar → Customize → Plugins → Personal → **+** → Add marketplace → `lucadellanna/luca-kit`
+2. You will see all available luca-kit plugins; click **+** next to each one you want to install
+3. Enable auto-updates: Browse Plugins → Personal → luca-ops-kit → **···** → Sync automatically
 
 **After installing**, run `/luca-ops-recommended-setup` to add best-practice rules and see a privacy/backup checklist.
 
@@ -35,20 +43,18 @@ Install in Claude Code, Cowork, or both; if you use both apps, follow each proce
 /plugin uninstall luca-ops-kit@lucadellanna/luca-kit
 ```
 
-**To enable auto-updates (Claude Code):** Type `/plugin`, press Tab twice to open the Marketplaces tab, select `luca-ops-kit`, then select **Enable updates**.
-
-**To enable auto-updates (Cowork):** Left sidebar → Customize → Browse Plugins → Personal → luca-ops-kit → **···** → Sync automatically
-
 ### luca-dev-kit
 
-Claude Code only. Requires GitHub CLI (`gh`) and [Gemini Code Assist](https://codeassist.google/) installed on the repo.
+#### Claude Code
 
-If you already added the `lucadellanna/luca-kit` marketplace (e.g. for luca-ops-kit or luca-reflection-kit), skip the first command.
+Requires GitHub CLI (`gh`) and [Gemini Code Assist](https://codeassist.google/) installed on the repo.
 
 ```
 /plugin marketplace add lucadellanna/luca-kit
 /plugin install luca-dev-kit@lucadellanna
 ```
+
+Then enable auto-updates: type `/plugin`, press Tab twice to open the Marketplaces tab, select `luca-dev-kit`, and select **Enable updates**.
 
 **After installing** (persistent local checkout only, not needed in Conductor): run `/luca-dev-recommended-setup` to install pre-commit hooks and review the Gemini Code Assist requirement for `review-loop`.
 
@@ -58,14 +64,24 @@ If you already added the `lucadellanna/luca-kit` marketplace (e.g. for luca-ops-
 /plugin uninstall luca-dev-kit@lucadellanna/luca-kit
 ```
 
-**To enable auto-updates:** Type `/plugin`, press Tab twice to open the Marketplaces tab, select `luca-dev-kit`, then select **Enable updates**.
-
 ### luca-reflection-kit
+
+#### Claude Code
+
+Requires [Claude Code](https://claude.ai/code).
 
 ```
 /plugin marketplace add lucadellanna/luca-kit
 /plugin install luca-reflection-kit@lucadellanna
 ```
+
+Then enable auto-updates: type `/plugin`, press Tab twice to open the Marketplaces tab, select `luca-reflection-kit`, and select **Enable updates**.
+
+#### Claude Cowork
+
+1. Left sidebar → Customize → Plugins → Personal → **+** → Add marketplace → `lucadellanna/luca-kit`
+2. You will see all available luca-kit plugins; click **+** next to each one you want to install
+3. Enable auto-updates: Browse Plugins → Personal → luca-reflection-kit → **···** → Sync automatically
 
 **To uninstall:**
 
