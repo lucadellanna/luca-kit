@@ -57,13 +57,13 @@ if not apology_re.search(cleaned):
 
 escape_phrases = ("genuinely unpredictable", "no class applies", "one-off", "single typo")
 has_escape = any(p in cleaned.lower() for p in escape_phrases)
-has_widget = bool(re.search(r"★\s*rule-update", last_text))
+has_widget = bool(re.search(r"`★\s*rule-update\s*─+`", last_text))
 
 rule_patterns = [r"CLAUDE\.md$", r"SKILL\.md$", r"/hooks/.*\.(sh|py|md)$",
                  r"code-review-checklist\.md$", r"/commands/.*\.md$"]
 error_log_re = re.compile(r"error-log\.md")
 
-write_op_re = re.compile(r"(>>|tee\s+-a|(?<![>])>(?![>]))")
+write_op_re = re.compile(r"(>>|\btee\b|(?<![>])>(?![>]))")
 
 has_rule_edit = False
 has_log_append = False
@@ -94,7 +94,7 @@ for tu in last_tool_uses:
     elif name == "Bash":
         if error_log_re.search(cmd) and write_op_re.search(cmd):
             has_log_append = True
-        if any(re.search(p, cmd) for p in rule_patterns) and (write_op_re.search(cmd) or "sed" in cmd):
+        if any(re.search(p, cmd) for p in rule_patterns) and (write_op_re.search(cmd) or bool(re.search(r"\bsed\s+-[^ ]*i", cmd))):
             has_rule_edit = True
 
 has_structural_scope = bool(re.search(r"Scope:.*structural", last_text, re.IGNORECASE))
