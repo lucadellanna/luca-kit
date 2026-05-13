@@ -2,13 +2,13 @@
 
 > **Status: Early access / Pre-release.** These plugins are under active development. Features may change, break, or be removed without notice. Not ready for production use.
 
-This marketplace ships two Claude plugins:
+This marketplace ships three Claude plugins:
 
 | Plugin | Audience | Purpose |
 |--------|----------|---------|
+| **luca-reflection-kit** | Anyone | Self-reflection and cross-session learning: scan conversations for improvement points and mine recurring patterns |
 | **luca-ops-kit** | Organizations and individuals | Craft reusable skills, maintain a self-improving setup, and govern your Claude skill library |
 | **luca-dev-kit** | Developers | Pre-PR quality gates, autonomous Gemini review loop, and pre-commit hook management |
-| **luca-reflection-kit** | Anyone | Self-reflection and cross-session learning: scan conversations for improvement points and mine recurring patterns |
 
 Most companies and people using AI are stuck at the "clever individual prompts" stage: useful experiments, inconsistent execution, little reuse, and no lasting memory. These plugins provide guided workflows to make good procedures explicit and reusable, so know-how doesn't stay trapped in individual heads or chat histories.
 
@@ -169,6 +169,10 @@ Run `/setup-context-search` once; Claude gets the search tools permanently.
 ### luca-dev-kit
 
 Write "open pr" and Claude handles the rest: pre-PR quality gates (triple-review against principles, recurring bug patterns, and structural integrity), PR creation, and an autonomous Gemini review loop that fixes comments and re-triggers review until the PR is clean.
+
+### luca-reflection-kit
+
+Run `/reflect` after a session to extract what went well, what didn't, and what should become a memory update, skill improvement, or new skill. Run `/dream` periodically to mine past reflect logs for recurring patterns and improvements that keep coming up but never land.
 
 ## For holdco customers
 
