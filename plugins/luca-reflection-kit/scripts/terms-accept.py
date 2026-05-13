@@ -1,10 +1,7 @@
-import os, json
+import os
+import json
 from datetime import datetime
-
-# When terms change materially, bump TERMS_VERSION and update the "v1" in
-# MARKER_PATH to match (major only). Old acceptances won't carry over.
-TERMS_VERSION = "1.0"
-MARKER_PATH = os.path.expanduser("~/.claude/luca-ops-kit/terms-accepted-v1.json")
+from config import MARKER_PATH, TERMS_VERSION
 
 os.makedirs(os.path.dirname(MARKER_PATH), exist_ok=True)
 payload = {"version": TERMS_VERSION, "accepted_at": datetime.now().astimezone().isoformat(timespec="seconds")}
