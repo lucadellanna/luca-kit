@@ -44,6 +44,8 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/terms-accept.py"
 
 Then tell the user (verbatim): `"Saved. You won't see this reminder again on this computer."`
 
+Then add: "Tip: run `/luca-reflection-kit:luca-reflection-recommended-setup` to configure session notes for /reflect."
+
 ## Step 3b: On "Not right now"
 
 Run via Bash:

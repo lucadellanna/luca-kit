@@ -6,7 +6,7 @@ description: >
   opportunities. Scans tasks, errors, user feedback, and workflow patterns to
   extract actionable insights. Can write learnings to memory and propose
   improvements to the plugin's own skills.
-version: 0.3.0
+version: 0.4.0
 ---
 
 # Reflect
@@ -15,28 +15,17 @@ Analyze the current conversation to extract learning points, catch errors, and d
 
 ## Step 0: Pre-flight checks
 
-**Length check:** If the conversation has fewer than ~5 substantive exchanges, say "Not enough material to reflect on meaningfully" and stop. Do not run the logging opt-in.
+**Length check:** If the conversation has fewer than ~5 substantive exchanges, say "Not enough material to reflect on meaningfully" and stop. Do not run the logging check.
 
-**Logging opt-in** (only if proceeding past the length check):
+**Logging check** (only if proceeding past the length check):
 
 ```bash
 ls -A ~/.claude/reflect-logs/ 2>/dev/null | grep -E '^\.(en|dis)abled$'
 ```
 
-- `.enabled` found: logging is on. Proceed.
-- `.disabled` found: logging is off. Proceed silently.
-- Neither found: ask once using AskUserQuestion (singleSelect):
-
-  "Can I save a private note about what we learned in this session? Future sessions can then spot patterns over time. The note stays on your computer only.
-
-  - Yes, save session notes
-  - No thanks, never ask again
-  - Skip for now (ask me next time)"
-
-  Apply:
-  - Yes: `mkdir -p ~/.claude/reflect-logs && touch ~/.claude/reflect-logs/.enabled`
-  - No: `mkdir -p ~/.claude/reflect-logs && touch ~/.claude/reflect-logs/.disabled`
-  - Skip: continue without logging
+- `.enabled` found (regardless of whether `.disabled` also exists): logging is on. Proceed.
+- Only `.disabled` found: logging is off. Proceed silently.
+- Neither found: tell the user once: "Session notes aren't configured yet. Run `/luca-reflection-kit:luca-reflection-recommended-setup` to decide; it takes 10 seconds. Proceeding without notes for now." Then continue.
 
 ## Step 1: Scan, Extract, and Classify
 
@@ -80,39 +69,25 @@ Ask the user what to implement via AskUserQuestion (multiSelect: true) with the 
 
 ## Step 4: Log session
 
-Runs after Step 3. Run only if `~/.claude/reflect-logs/.enabled` exists.
+Runs after Step 3. Silent skip (no action, no message) only if `~/.claude/reflect-logs/.enabled` is absent; the script handles that check itself.
 
-```python
-import json, os, datetime, subprocess
+Check python3 first:
 
-def run(cmd):
-    try: return subprocess.run(cmd, capture_output=True, text=True).stdout.strip()
-    except FileNotFoundError: return ""
-
-origin = run(['git', 'remote', 'get-url', 'origin'])
-if origin:
-    clean = origin.rstrip('/')
-    clean = clean[:-4] if clean.endswith('.git') else clean
-    slug = '__'.join(clean.replace(':', '/').split('/')[-2:])
-else:
-    top = run(['git', 'rev-parse', '--show-toplevel'])
-    slug = os.path.basename(top) or 'no-repo' if top else 'no-repo'
-slug = ''.join(c if c.isalnum() or c in '-_' else '-' for c in slug)
-
-path = os.path.expanduser(f"~/.claude/reflect-logs/{slug}.jsonl")
-os.makedirs(os.path.dirname(path), exist_ok=True)
-entry = {
-    "schema": 2,
-    "date": str(datetime.date.today()),
-    "findings": [
-        # One string per finding from Step 1, e.g.:
-        # "error: Claude assumed X without verifying"
-        # "pattern: user always does Y before Z"
-    ]
-}
-with open(path, 'a') as f:
-    f.write(json.dumps(entry) + '\n')
+```bash
+command -v python3 >/dev/null 2>&1 && echo "ok" || echo "missing"
 ```
+
+If `missing`, tell the user: "Session notes couldn't be saved: Python 3 isn't installed. Get it from python.org when ready." Then stop.
+
+If `ok`, build a JSON array of the findings from Step 1 (one string per finding, e.g. `"error: Claude assumed X"`, `"pattern: user always does Y"`). Then run:
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/log-session.py" <<'FINDINGS'
+["finding 1", "finding 2"]
+FINDINGS
+```
+
+Replace the array content with actual findings. Use standard JSON string escaping (backslash for internal quotes and backslashes).
 
 ## Where the data lives
 
