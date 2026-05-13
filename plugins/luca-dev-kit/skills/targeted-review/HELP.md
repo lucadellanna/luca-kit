@@ -1,0 +1,1 @@
+**`targeted-review`** Single-file code review for catching file-specific bugs. Claude dynamically generates a checklist tailored to the file's invariants and failure modes (or accepts one you supply), then runs a focused bug-only review against it. **Example:** "I just wrote a caching layer with TTL-write ordering invariants; review it" -> `/targeted-review src/cache.ts`.
