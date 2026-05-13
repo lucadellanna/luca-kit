@@ -9,6 +9,7 @@ Runtime instructions active in every session where this plugin is installed.
 | `luca-dev-kit:open-pr` | "open pr", "create pr", "/open-pr" | Pre-PR quality gates + PR creation + hands off to review-loop |
 | `luca-dev-kit:review-loop` | Auto-invoked by open-pr, or "review loop", "/review-loop" | Autonomous Gemini fix loop: no user input after start |
 | `luca-dev-kit:triple-review` | "triple review", or invoked by open-pr | Three-lens parallel code review (standalone or as part of open-pr) |
+| `luca-dev-kit:targeted-review` | "/targeted-review", "targeted review", "focused review of <file>" | Single-file ad-hoc review: derives a file-specific checklist (or accepts one), spawns a subagent with bug-only output contract |
 | `luca-dev-kit:specs-adherence-review` | "check specs", "adheres to principles?", or invoked as Lens A | Principles check vs ~/.claude/CLAUDE.md + local CLAUDE.md/AGENTS.md |
 | `luca-dev-kit:install-pre-commit-hooks` | Invoked by luca-dev-recommended-setup | One-time git hook installer |
 

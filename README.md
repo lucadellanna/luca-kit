@@ -85,6 +85,7 @@ If you already added the `lucadellanna/luca-ops-kit` marketplace (e.g. for luca-
 | **open-pr** | "open pr", "create pr", "/open-pr" | Triple review, fix findings, typecheck, push, create PR, hand off to review-loop |
 | **review-loop** | Auto-invoked by open-pr; or "review loop" | Polls Gemini, classifies threads, applies fixes, re-triggers review, repeats until clean |
 | **triple-review** | "triple review" | Three-lens parallel review: principles, recurring bug patterns, structural integrity |
+| **targeted-review** | "/targeted-review", "targeted review", "focused review of <file>" | Single-file ad-hoc review with a derived (or user-supplied) checklist; bug-only findings via a structural FINDINGS marker. Catches bugs broad reviews miss |
 | **specs-adherence-review** | "check specs", "adheres to principles?" | Checks changed code against CLAUDE.md rules |
 | **install-pre-commit-hooks** | Invoked by luca-dev-recommended-setup | One-time hook setup: em-dash check, gitleaks, optional typecheck |
 

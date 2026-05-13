@@ -14,7 +14,7 @@ You help non-technical users turn business knowledge into a reusable Claude skil
 
 a) **Read the user's saved work context if available.** Use Read on `~/.claude/memory/work-context.md`. If it exists, hold persona, role, decision authority, and customer profile in memory; use them to inform tone and to skip elicitation questions they already answer. If the file is missing, proceed without it. Do not nag the user to set it up.
 
-b) **Note qmd availability.** Use Bash: `if test -f ~/.claude/luca-ops-kit/context-search-configured; then echo configured; else echo not_configured; fi`. If configured, plan to query qmd in sub-step (d) once the purpose is clear.
+b) **Note qmd availability.** Use Bash: `if test -f ~/.claude/luca-ops-kit/context-search-configured; then echo marker_present; else echo marker_absent; fi`. qmd is usable only if BOTH (i) the marker is present AND (ii) qmd MCP tools (e.g., `mcp__qmd__query`) appear in this session's available-tools list. If the marker is present but the tools are not loaded (common in Conductor workspaces, where user-scope MCP servers may not inherit), skip sub-step (d) silently; do not retry.
 
 c) **Read source or elicit.** Determine what the user has:
 
@@ -108,6 +108,9 @@ Rules specific to this draft (cross-cutting rules live in CLAUDE.md):
 - State what the skill does NOT cover.
 - Directory name = kebab-case verb-noun (e.g., `review-invoice`, `onboard-client`). The frontmatter `name` must match the directory exactly: Conductor uses it as the slash-command text, so spaces or capitals break invocation.
 - Never write CLI commands, install steps, or configuration syntax you are not certain is correct; flag uncertainty and ask whether to verify or omit.
+- When a step spawns a sub-agent with a strict output contract, prefer a structural marker the main agent can parse (e.g., sub-agent begins its response with a literal line `FINDINGS:`) over prose-level instructions like "do not emit OK lines". Prose suppression fails on paraphrase; structural markers are enforceable regardless of preamble or summary text. Pair the marker with an explicit parsing step in the consuming step.
+- AskUserQuestion options are capped at 4 per question. If more options are needed, use multiple consecutive AskUserQuestion calls.
+- Every anti-pattern in the draft must name a failure mode not already prevented by the step ordering, explicit guard conditions (if/else branches), or human-approval gates. If any of those three mechanisms already blocks the behaviour, the anti-pattern is redundant; replace it with a non-covered failure mode.
 
 Show both drafts (SKILL.md + DESIGN.md) to the user. Ask for changes or approval to continue.
 
@@ -136,11 +139,17 @@ If invoked, pass the SKILL.md text, the DESIGN.md text, and this prompt:
 
 Apply any fixes to the draft before proceeding. If the `feature-dev:code-reviewer` sub-agent is unavailable, skip this step and note "code-reviewer not available; skipping correctness check."
 
+## Step 5b: Final pass after substantial fixes
+
+If Step 5 applied 3 or more fixes to the draft, spawn one fresh-context Sonnet sub-agent on the *patched* SKILL.md + DESIGN.md before proceeding to Step 6. Prompt it: "You have no prior context. Review these drafts cold and flag any remaining issues; specifically check for ambiguity, unimplementable instructions, or contracts the listed steps cannot enforce."
+
+Rationale: the Step 5 reviewer anchored on the original draft's framing; a fresh pass on the revised draft catches issues the first review didn't surface. Apply any new findings before saving. If Step 5 was skipped (its condition didn't trigger), skip Step 5b.
+
 ## Step 6: Confirm and save
 
 Generate the content for all four files now, before asking for approval:
 
-- **SKILL.md**: the draft from Step 4 (post correctness review if Step 5 fired).
+- **SKILL.md**: the draft from Step 4, updated by Step 5 and Step 5b if either fired.
 - **DESIGN.md**: the draft from Step 4.
 - **REQUIREMENTS.md**: assemble from the criteria agreed in Step 3. Format:
 
