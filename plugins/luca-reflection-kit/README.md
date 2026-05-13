@@ -6,14 +6,14 @@ Self-reflection and cross-session learning skills for Claude Code and Claude Cow
 
 **Claude Code** (requires [Claude Code](https://claude.ai/code)):
 
-If you already added the `lucadellanna/luca-ops-kit` marketplace (e.g. for luca-ops-kit), skip the first command.
+If you already added the `lucadellanna/luca-kit` marketplace (e.g. for luca-ops-kit or luca-dev-kit), skip the first command.
 
 ```
-/plugin marketplace add lucadellanna/luca-ops-kit
+/plugin marketplace add lucadellanna/luca-kit
 /plugin install luca-reflection-kit@lucadellanna
 ```
 
-**Claude Cowork:** Left sidebar → Customize → Plugins → Personal → **+** → Add marketplace → `lucadellanna/luca-ops-kit` → click on it → Install `luca-reflection-kit`
+**Claude Cowork:** Left sidebar → Customize → Plugins → Personal → **+** → Add marketplace → `lucadellanna/luca-kit` → click on it → Install `luca-reflection-kit`
 
 **To enable auto-updates (Claude Code):** Type `/plugin`, press Tab twice to open the Marketplaces tab, select `luca-reflection-kit`, then select **Enable updates**.
 

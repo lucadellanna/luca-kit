@@ -21,18 +21,18 @@ Install in Claude Code, Cowork, or both; if you use both apps, follow each proce
 **Claude Code** (requires [Claude Code](https://claude.ai/code)):
 
 ```
-/plugin marketplace add lucadellanna/luca-ops-kit
+/plugin marketplace add lucadellanna/luca-kit
 /plugin install luca-ops-kit@lucadellanna
 ```
 
-**Claude Cowork:** Left sidebar → Customize → Plugins → Personal → **+** → Add marketplace → `lucadellanna/luca-ops-kit` → click on it → Install
+**Claude Cowork:** Left sidebar → Customize → Plugins → Personal → **+** → Add marketplace → `lucadellanna/luca-kit` → click on it → Install
 
 **After installing**, run `/luca-ops-recommended-setup` to add best-practice rules and see a privacy/backup checklist.
 
 **To uninstall:** If you ran `/luca-ops-recommended-setup`, run `/undo-setup` first to remove rules it added to your global Claude config. Then:
 
 ```
-/plugin uninstall luca-ops-kit@lucadellanna/luca-ops-kit
+/plugin uninstall luca-ops-kit@lucadellanna/luca-kit
 ```
 
 **To enable auto-updates (Claude Code):** Type `/plugin`, press Tab twice to open the Marketplaces tab, select `luca-ops-kit`, then select **Enable updates**.
@@ -43,10 +43,10 @@ Install in Claude Code, Cowork, or both; if you use both apps, follow each proce
 
 Claude Code only. Requires GitHub CLI (`gh`) and [Gemini Code Assist](https://codeassist.google/) installed on the repo.
 
-If you already added the `lucadellanna/luca-ops-kit` marketplace (e.g. for luca-ops-kit), skip the first command.
+If you already added the `lucadellanna/luca-kit` marketplace (e.g. for luca-ops-kit), skip the first command.
 
 ```
-/plugin marketplace add lucadellanna/luca-ops-kit
+/plugin marketplace add lucadellanna/luca-kit
 /plugin install luca-dev-kit@lucadellanna
 ```
 
@@ -63,7 +63,7 @@ If you already added the `lucadellanna/luca-ops-kit` marketplace (e.g. for luca-
 ### luca-reflection-kit
 
 ```
-/plugin marketplace add lucadellanna/luca-ops-kit
+/plugin marketplace add lucadellanna/luca-kit
 /plugin install luca-reflection-kit@lucadellanna
 ```
 
@@ -72,8 +72,6 @@ If you already added the `lucadellanna/luca-ops-kit` marketplace (e.g. for luca-
 ```
 /plugin uninstall luca-reflection-kit@lucadellanna/luca-reflection-kit
 ```
-
-> **Migration note for existing users:** The marketplace was renamed from `luca-ops-kit` to `lucadellanna`. The `reflect` and `dream` skills and the `optimization-hint` hook have moved to the separate `luca-reflection-kit` plugin. To migrate: remove the old marketplace (`/plugin marketplace remove luca-ops-kit`), re-add it under the new name (`/plugin marketplace add lucadellanna/luca-ops-kit`), and install `luca-reflection-kit` separately as shown above.
 
 ## Skills
 
