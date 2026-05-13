@@ -43,7 +43,7 @@ Install in Claude Code, Cowork, or both; if you use both apps, follow each proce
 
 Claude Code only. Requires GitHub CLI (`gh`) and [Gemini Code Assist](https://codeassist.google/) installed on the repo.
 
-If you already added the `lucadellanna/luca-kit` marketplace (e.g. for luca-ops-kit), skip the first command.
+If you already added the `lucadellanna/luca-kit` marketplace (e.g. for luca-ops-kit or luca-reflection-kit), skip the first command.
 
 ```
 /plugin marketplace add lucadellanna/luca-kit
@@ -55,7 +55,7 @@ If you already added the `lucadellanna/luca-kit` marketplace (e.g. for luca-ops-
 **To uninstall:**
 
 ```
-/plugin uninstall luca-dev-kit@lucadellanna/luca-dev-kit
+/plugin uninstall luca-dev-kit@lucadellanna/luca-kit
 ```
 
 **To enable auto-updates:** Type `/plugin`, press Tab twice to open the Marketplaces tab, select `luca-dev-kit`, then select **Enable updates**.
@@ -70,7 +70,7 @@ If you already added the `lucadellanna/luca-kit` marketplace (e.g. for luca-ops-
 **To uninstall:**
 
 ```
-/plugin uninstall luca-reflection-kit@lucadellanna/luca-reflection-kit
+/plugin uninstall luca-reflection-kit@lucadellanna/luca-kit
 ```
 
 ## Skills

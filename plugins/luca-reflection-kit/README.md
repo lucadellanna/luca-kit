@@ -22,7 +22,7 @@ If you already added the `lucadellanna/luca-kit` marketplace (e.g. for luca-ops-
 **To uninstall:**
 
 ```
-/plugin uninstall luca-reflection-kit@lucadellanna/luca-reflection-kit
+/plugin uninstall luca-reflection-kit@lucadellanna/luca-kit
 ```
 
 ## Skills
