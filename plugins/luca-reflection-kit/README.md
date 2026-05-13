@@ -4,20 +4,21 @@ Self-reflection and cross-session learning skills for Claude Code and Claude Cow
 
 ## Installation
 
-**Claude Code** (requires [Claude Code](https://claude.ai/code)):
+### Claude Code
 
-If you already added the `lucadellanna/luca-kit` marketplace (e.g. for luca-ops-kit or luca-dev-kit), skip the first command.
+Requires [Claude Code](https://claude.ai/code).
 
-```
-/plugin marketplace add lucadellanna/luca-kit
-/plugin install luca-reflection-kit@lucadellanna
-```
+1. `/plugin marketplace add lucadellanna/luca-kit`
+2. `/plugin install luca-reflection-kit@lucadellanna`
+3. Enable auto-updates: type `/plugin`, press Tab twice to open the Marketplaces tab, select `luca-reflection-kit`, and select **Enable updates**.
+4. Run `/luca-reflection-kit:luca-reflection-recommended-setup` to configure session notes and privacy settings.
 
-**Claude Cowork:** Left sidebar → Customize → Plugins → Personal → **+** → Add marketplace → `lucadellanna/luca-kit` → click on it → Install `luca-reflection-kit`
+### Claude Cowork
 
-**To enable auto-updates (Claude Code):** Type `/plugin`, press Tab twice to open the Marketplaces tab, select `luca-reflection-kit`, then select **Enable updates**.
-
-**To enable auto-updates (Cowork):** Left sidebar → Customize → Browse Plugins → Personal → luca-reflection-kit → **···** → Sync automatically
+1. Left sidebar → Customize → Plugins → Personal → **+** → Add marketplace → `lucadellanna/luca-kit`
+2. You will see all available luca-kit plugins; click **+** next to each one you want to install
+3. Enable auto-updates: Browse Plugins → Personal → luca-reflection-kit → **···** → Sync automatically
+4. Run `/luca-reflection-kit:luca-reflection-recommended-setup` to configure session notes and privacy settings.
 
 **To uninstall:**
 

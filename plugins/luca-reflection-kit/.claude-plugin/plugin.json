@@ -1,6 +1,6 @@
 {
   "name": "luca-reflection-kit",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Self-reflection and cross-session learning skills for Claude Code: scan conversations for improvement points, mine recurring patterns across sessions, and surface a token-efficient optimization hint after high-tool-count turns.",
   "author": {
     "name": "Luca Dellanna",

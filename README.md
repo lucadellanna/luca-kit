@@ -1,14 +1,14 @@
-# luca-ops-kit & luca-dev-kit
+# Luca's plugins
 
 > **Status: Early access / Pre-release.** These plugins are under active development. Features may change, break, or be removed without notice. Not ready for production use.
 
-This marketplace ships two Claude plugins:
+This marketplace ships three Claude plugins:
 
 | Plugin | Audience | Purpose |
 |--------|----------|---------|
+| **luca-reflection-kit** | Anyone | Self-reflection and cross-session learning: scan conversations for improvement points and mine recurring patterns |
 | **luca-ops-kit** | Organizations and individuals | Craft reusable skills, maintain a self-improving setup, and govern your Claude skill library |
 | **luca-dev-kit** | Developers | Pre-PR quality gates, autonomous Gemini review loop, and pre-commit hook management |
-| **luca-reflection-kit** | Anyone | Self-reflection and cross-session learning: scan conversations for improvement points and mine recurring patterns |
 
 Most companies and people using AI are stuck at the "clever individual prompts" stage: useful experiments, inconsistent execution, little reuse, and no lasting memory. These plugins provide guided workflows to make good procedures explicit and reusable, so know-how doesn't stay trapped in individual heads or chat histories.
 
@@ -18,16 +18,21 @@ Install in Claude Code, Cowork, or both; if you use both apps, follow each proce
 
 ### luca-ops-kit
 
-**Claude Code** (requires [Claude Code](https://claude.ai/code)):
+#### Claude Code
 
-```
-/plugin marketplace add lucadellanna/luca-kit
-/plugin install luca-ops-kit@lucadellanna
-```
+Requires [Claude Code](https://claude.ai/code).
 
-**Claude Cowork:** Left sidebar → Customize → Plugins → Personal → **+** → Add marketplace → `lucadellanna/luca-kit` → click on it → Install
+1. `/plugin marketplace add lucadellanna/luca-kit`
+2. `/plugin install luca-ops-kit@lucadellanna`
+3. Enable auto-updates: type `/plugin`, press Tab twice to open the Marketplaces tab, select `luca-ops-kit`, and select **Enable updates**.
+4. Run `/luca-ops-recommended-setup` to add best-practice rules and see a privacy/backup checklist.
 
-**After installing**, run `/luca-ops-recommended-setup` to add best-practice rules and see a privacy/backup checklist.
+#### Claude Cowork
+
+1. Left sidebar → Customize → Plugins → Personal → **+** → Add marketplace → `lucadellanna/luca-kit`
+2. You will see all available luca-kit plugins; click **+** next to each one you want to install
+3. Enable auto-updates: Browse Plugins → Personal → luca-ops-kit → **···** → Sync automatically
+4. Run `/luca-ops-recommended-setup` to add best-practice rules and see a privacy/backup checklist.
 
 **To uninstall:** If you ran `/luca-ops-recommended-setup`, run `/undo-setup` first to remove rules it added to your global Claude config. Then:
 
@@ -35,22 +40,16 @@ Install in Claude Code, Cowork, or both; if you use both apps, follow each proce
 /plugin uninstall luca-ops-kit@lucadellanna/luca-kit
 ```
 
-**To enable auto-updates (Claude Code):** Type `/plugin`, press Tab twice to open the Marketplaces tab, select `luca-ops-kit`, then select **Enable updates**.
-
-**To enable auto-updates (Cowork):** Left sidebar → Customize → Browse Plugins → Personal → luca-ops-kit → **···** → Sync automatically
-
 ### luca-dev-kit
 
-Claude Code only. Requires GitHub CLI (`gh`) and [Gemini Code Assist](https://codeassist.google/) installed on the repo.
+#### Claude Code
 
-If you already added the `lucadellanna/luca-kit` marketplace (e.g. for luca-ops-kit or luca-reflection-kit), skip the first command.
+Requires GitHub CLI (`gh`) and [Gemini Code Assist](https://codeassist.google/) installed on the repo.
 
-```
-/plugin marketplace add lucadellanna/luca-kit
-/plugin install luca-dev-kit@lucadellanna
-```
-
-**After installing** (persistent local checkout only, not needed in Conductor): run `/luca-dev-recommended-setup` to install pre-commit hooks and review the Gemini Code Assist requirement for `review-loop`.
+1. `/plugin marketplace add lucadellanna/luca-kit`
+2. `/plugin install luca-dev-kit@lucadellanna`
+3. Enable auto-updates: type `/plugin`, press Tab twice to open the Marketplaces tab, select `luca-dev-kit`, and select **Enable updates**.
+4. Run `/luca-dev-recommended-setup` to install pre-commit hooks and review the Gemini Code Assist requirement for `review-loop` (persistent local checkout only, not needed in Conductor).
 
 **To uninstall:**
 
@@ -58,14 +57,23 @@ If you already added the `lucadellanna/luca-kit` marketplace (e.g. for luca-ops-
 /plugin uninstall luca-dev-kit@lucadellanna/luca-kit
 ```
 
-**To enable auto-updates:** Type `/plugin`, press Tab twice to open the Marketplaces tab, select `luca-dev-kit`, then select **Enable updates**.
-
 ### luca-reflection-kit
 
-```
-/plugin marketplace add lucadellanna/luca-kit
-/plugin install luca-reflection-kit@lucadellanna
-```
+#### Claude Code
+
+Requires [Claude Code](https://claude.ai/code).
+
+1. `/plugin marketplace add lucadellanna/luca-kit`
+2. `/plugin install luca-reflection-kit@lucadellanna`
+3. Enable auto-updates: type `/plugin`, press Tab twice to open the Marketplaces tab, select `luca-reflection-kit`, and select **Enable updates**.
+4. Run `/luca-reflection-kit:luca-reflection-recommended-setup` to configure session notes and privacy settings.
+
+#### Claude Cowork
+
+1. Left sidebar → Customize → Plugins → Personal → **+** → Add marketplace → `lucadellanna/luca-kit`
+2. You will see all available luca-kit plugins; click **+** next to each one you want to install
+3. Enable auto-updates: Browse Plugins → Personal → luca-reflection-kit → **···** → Sync automatically
+4. Run `/luca-reflection-kit:luca-reflection-recommended-setup` to configure session notes and privacy settings.
 
 **To uninstall:**
 
@@ -161,6 +169,10 @@ Run `/setup-context-search` once; Claude gets the search tools permanently.
 ### luca-dev-kit
 
 Write "open pr" and Claude handles the rest: pre-PR quality gates (triple-review against principles, recurring bug patterns, and structural integrity), PR creation, and an autonomous Gemini review loop that fixes comments and re-triggers review until the PR is clean.
+
+### luca-reflection-kit
+
+Run `/reflect` after a session to extract what went well, what didn't, and what should become a memory update, skill improvement, or new skill. Run `/dream` periodically to mine past reflect logs for recurring patterns and improvements that keep coming up but never land.
 
 ## For holdco customers
 
