@@ -15,15 +15,15 @@ If you already added the `lucadellanna/luca-ops-kit` marketplace (e.g. for luca-
 
 **Claude Cowork:** Left sidebar → Customize → Plugins → Personal → **+** → Add marketplace → `lucadellanna/luca-ops-kit` → click on it → Install `luca-reflection-kit`
 
+**To enable auto-updates (Claude Code):** Type `/plugin`, press Tab twice to open the Marketplaces tab, select `luca-reflection-kit`, then select **Enable updates**.
+
+**To enable auto-updates (Cowork):** Left sidebar → Customize → Browse Plugins → Personal → luca-reflection-kit → **···** → Sync automatically
+
 **To uninstall:**
 
 ```
 /plugin uninstall luca-reflection-kit@lucadellanna/luca-reflection-kit
 ```
-
-**To enable auto-updates (Claude Code):** Type `/plugin`, press Tab twice to open the Marketplaces tab, select `luca-reflection-kit`, then select **Enable updates**.
-
-**To enable auto-updates (Cowork):** Left sidebar → Customize → Browse Plugins → Personal → luca-reflection-kit → **···** → Sync automatically
 
 ## Skills
 
