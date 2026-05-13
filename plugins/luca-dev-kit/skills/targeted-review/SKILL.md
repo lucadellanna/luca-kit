@@ -83,7 +83,7 @@ Two-phase, single-file code review that catches file-specific bugs the standard 
 
 4. **Parse and present findings.**
    - If the output contains the line `ERROR: cannot read file`: stop and surface the error.
-   - If the output contains a `FINDINGS:` line: take everything after that line; split into blocks starting with `[`. Each block is one finding.
+   - If the output contains a `FINDINGS:` line: take everything after that line; split into blocks starting with `[`. Each block is one finding. After splitting, count the blocks and compare to the number of `- BUG` occurrences in the raw post-`FINDINGS:` text; if they differ, the subagent used a non-conforming format : treat the output as malformed and apply the re-spawn path.
    - If the output does NOT contain `FINDINGS:` (malformed): re-spawn ONCE with the same prompt verbatim. If the second attempt is also malformed, show the raw output to the user and stop.
    - If the parsed finding count is 0: report "no bugs found" and stop.
    - If the parsed finding count is >=1: present findings in batches of at most 3 using `AskUserQuestion` with `multiSelect: true`. Each call includes up to 3 finding options (area name + failure mode) plus an "Apply none (stop)" option as the 4th. If the user selects "Apply none (stop)", stop immediately. Otherwise present the next batch. Do not auto-select.
