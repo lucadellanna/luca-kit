@@ -24,7 +24,7 @@
 | `plugins/luca-dev-kit/skills/targeted-review/SKILL.md` | `/luca-dev-kit:targeted-review` skill |
 | `plugins/luca-dev-kit/skills/triple-review/SKILL.md` | `/luca-dev-kit:triple-review` skill |
 
-## Plugin: luca-ops-kit (v0.3.3)
+## Plugin: luca-ops-kit (v0.4.0)
 
 | Path | Role |
 |---|---|
@@ -70,6 +70,10 @@
 
 | Path | Role |
 |---|---|
+| `plugins/luca-reflection-kit/.claude-plugin/plugin.json` | Plugin manifest |
+| `plugins/luca-reflection-kit/CLAUDE.md` | Runtime instructions (ships with plugin) |
+| `plugins/luca-reflection-kit/README.md` |  |
+| `plugins/luca-reflection-kit/hooks/hooks.json` | Hook registry |
 | `plugins/luca-reflection-kit/hooks/optimization-hint.sh` | Hook script |
 | `plugins/luca-reflection-kit/skills/dream/DESIGN.md` | Design decisions: `/luca-reflection-kit:dream` |
 | `plugins/luca-reflection-kit/skills/dream/HELP.md` |  |
