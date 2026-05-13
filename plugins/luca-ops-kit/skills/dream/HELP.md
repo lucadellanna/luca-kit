@@ -1,1 +1,0 @@
-**`dream`** mines your past `/reflect` session logs to surface patterns across sessions: recurring issues, memory contradictions, and improvements that keep coming up. **Example:** "I've been running /reflect for a month and want to see what themes emerge" → `/luca-ops-kit:dream`.

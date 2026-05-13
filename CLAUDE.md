@@ -1,9 +1,10 @@
-# This repo contains two plugins
+# This repo contains three plugins
 
 | Plugin | Path | Audience | Purpose |
 |---|---|---|---|
 | `luca-ops-kit` | `plugins/luca-ops-kit/` | Non-technical business users | Meta-skills for turning SOPs and procedures into reusable Claude workflows |
 | `luca-dev-kit` | `plugins/luca-dev-kit/` | Developers | Pre-PR quality gates, autonomous Gemini review loop, pre-commit hook management |
+| `luca-reflection-kit` | `plugins/luca-reflection-kit/` | All Claude Code users | Self-reflection and cross-session learning: reflect, dream, and optimization-hint hook |
 
 Runtime instructions for each plugin ship in their own `plugins/<name>/CLAUDE.md`. Root `CLAUDE.md` (this file) is developer-only.
 
@@ -101,3 +102,24 @@ Developer workflow automation. Runtime instructions are in `plugins/luca-dev-kit
 - `scripts/pre-commit` is installed into the user's `.git/hooks/`: any changes must pass the Opus security gate before merging.
 - `.claude/cache/` is gitignored. Contains `review-loop-state.json`, `pre-commit-prefs.json`, and `typecheck-timing.json`.
 - `~/.claude/code-review-checklist.md` is a personal per-user corpus auto-accumulated by `review-loop`. It is not shipped with the plugin; `review-loop` creates it if absent.
+
+---
+
+# luca-reflection-kit
+
+Self-reflection and cross-session learning tools. Runtime instructions are in `plugins/luca-reflection-kit/CLAUDE.md`.
+
+## Skills
+
+- `reflect`: conversational analysis skill; no durable per-user artifacts beyond the session log and memory writes the user explicitly approves.
+- `dream`: cross-session pattern mining; reads reflect logs, writes nothing without user approval.
+
+## Hook
+
+- `optimization-hint`: `UserPromptSubmit` hook. Stateless: echoes a single-line instruction to Claude on every prompt submission. No file I/O.
+
+## Authoring notes
+
+- Skills in this plugin must never auto-apply changes to user memory, CLAUDE.md, or other plugins' skill files. All writes require explicit user confirmation via AskUserQuestion.
+- The `optimization-hint.sh` hook is intentionally minimal (a single `echo`). Any behavior change must remain side-effect-free (no file writes, no network calls).
+- Session logs written by `reflect` go to `~/.claude/reflect-logs/`: this path is user-owned, not plugin-owned. The plugin reads these logs; it does not manage them.

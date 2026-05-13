@@ -101,6 +101,11 @@ Then present the full skill overview:
 > | `/audit-skill` | Scores a single skill against 7 quality dimensions, proposes improvements, and iterates until the bar is met |
 > | `/audit-skills` | Scans your whole skill library for overlapping skills, then audits a rotating batch of 3 so every skill gets reviewed over time |
 > | `/audit-claude` | Scans your CLAUDE.md and memory files for bloat and redundancy, proposes targeted cuts, and verifies nothing meaningful was lost |
+>
+> **Reflection skills** (install `luca-reflection-kit` separately: `/plugin install luca-reflection-kit@lucadellanna`):
+>
+> | Skill | What it does |
+> |-------|-------------|
 > | `/reflect` | After a session, extracts what went well, what went wrong, and what should become a memory update, skill improvement, or new skill |
 > | `/dream` | Mines your `/reflect` logs to surface patterns across sessions: recurring issues, memory contradictions, and improvements that keep coming up |
 >

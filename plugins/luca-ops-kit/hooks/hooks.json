@@ -1,5 +1,5 @@
 {
-  "description": "Plugin-level hooks: CLAUDE.md quality gate, optimization hints, hedge-word enforcement, and error-correction enforcement",
+  "description": "Plugin-level hooks: CLAUDE.md quality gate, hedge-word enforcement, and error-correction enforcement",
   "hooks": {
     "PostToolUse": [
       {
@@ -18,18 +18,6 @@
           {
             "type": "command",
             "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/hedge-scan.py\"",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/optimization-hint.sh\"",
             "timeout": 5
           }
         ]

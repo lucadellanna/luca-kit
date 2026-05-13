@@ -24,7 +24,7 @@
 | `plugins/luca-dev-kit/skills/targeted-review/SKILL.md` | `/luca-dev-kit:targeted-review` skill |
 | `plugins/luca-dev-kit/skills/triple-review/SKILL.md` | `/luca-dev-kit:triple-review` skill |
 
-## Plugin: luca-ops-kit (v0.3.3)
+## Plugin: luca-ops-kit (v0.4.0)
 
 | Path | Role |
 |---|---|
@@ -42,7 +42,6 @@
 | `plugins/luca-ops-kit/hooks/claude-md-tidy.sh` | Hook script |
 | `plugins/luca-ops-kit/hooks/hedge-scan.py` | Hook script |
 | `plugins/luca-ops-kit/hooks/hooks.json` | Hook registry |
-| `plugins/luca-ops-kit/hooks/optimization-hint.sh` | Hook script |
 | `plugins/luca-ops-kit/hooks/stop-apology-check.py` | Hook script |
 | `plugins/luca-ops-kit/skills/audit-claude/DESIGN.md` | Design decisions: `/luca-ops-kit:audit-claude` |
 | `plugins/luca-ops-kit/skills/audit-claude/HELP.md` |  |
@@ -60,18 +59,28 @@
 | `plugins/luca-ops-kit/skills/create-skill/HELP.md` |  |
 | `plugins/luca-ops-kit/skills/create-skill/REQUIREMENTS.md` |  |
 | `plugins/luca-ops-kit/skills/create-skill/SKILL.md` | `/luca-ops-kit:create-skill` skill |
-| `plugins/luca-ops-kit/skills/dream/DESIGN.md` | Design decisions: `/luca-ops-kit:dream` |
-| `plugins/luca-ops-kit/skills/dream/HELP.md` |  |
-| `plugins/luca-ops-kit/skills/dream/SKILL.md` | `/luca-ops-kit:dream` skill |
 | `plugins/luca-ops-kit/skills/list-skills/DESIGN.md` | Design decisions: `/luca-ops-kit:list-skills` |
 | `plugins/luca-ops-kit/skills/list-skills/HELP.md` |  |
 | `plugins/luca-ops-kit/skills/list-skills/SKILL.md` | `/luca-ops-kit:list-skills` skill |
-| `plugins/luca-ops-kit/skills/reflect/DESIGN.md` | Design decisions: `/luca-ops-kit:reflect` |
-| `plugins/luca-ops-kit/skills/reflect/HELP.md` |  |
-| `plugins/luca-ops-kit/skills/reflect/SKILL.md` | `/luca-ops-kit:reflect` skill |
 | `plugins/luca-ops-kit/skills/setup-context-search/DESIGN.md` | Design decisions: `/luca-ops-kit:setup-context-search` |
 | `plugins/luca-ops-kit/skills/setup-context-search/HELP.md` |  |
 | `plugins/luca-ops-kit/skills/setup-context-search/SKILL.md` | `/luca-ops-kit:setup-context-search` skill |
+
+## Plugin: luca-reflection-kit (v0.1.0)
+
+| Path | Role |
+|---|---|
+| `plugins/luca-reflection-kit/.claude-plugin/plugin.json` | Plugin manifest |
+| `plugins/luca-reflection-kit/CLAUDE.md` | Runtime instructions (ships with plugin) |
+| `plugins/luca-reflection-kit/README.md` |  |
+| `plugins/luca-reflection-kit/hooks/hooks.json` | Hook registry |
+| `plugins/luca-reflection-kit/hooks/optimization-hint.sh` | Hook script |
+| `plugins/luca-reflection-kit/skills/dream/DESIGN.md` | Design decisions: `/luca-reflection-kit:dream` |
+| `plugins/luca-reflection-kit/skills/dream/HELP.md` |  |
+| `plugins/luca-reflection-kit/skills/dream/SKILL.md` | `/luca-reflection-kit:dream` skill |
+| `plugins/luca-reflection-kit/skills/reflect/DESIGN.md` | Design decisions: `/luca-reflection-kit:reflect` |
+| `plugins/luca-reflection-kit/skills/reflect/HELP.md` |  |
+| `plugins/luca-reflection-kit/skills/reflect/SKILL.md` | `/luca-reflection-kit:reflect` skill |
 
 ## Repository root
 
