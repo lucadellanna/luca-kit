@@ -1,13 +1,22 @@
 #!/bin/bash
 # luca-reflection-kit:terms-acceptance-check:v1
-# Fires on SessionStart. Silent in non-interactive contexts and once the user
-# has acknowledged on this Claude install.
+# Fires on SessionStart. Silent in automated/headless contexts and once the
+# user has acknowledged on this Claude install.
 set -u
 
-# Non-interactive guard: skip when stdin is not a TTY (claude -p, agent SDK,
-# cron, CI). Injecting a nag into automation context is noise the user can
-# neither see nor act on.
-if [ ! -t 0 ]; then
+# Skip in remote/headless contexts (agent SDK, automated invocations).
+# CLAUDE_CODE_REMOTE is set by Claude Code when running outside a local
+# interactive terminal. Note: [ ! -t 0 ] is NOT used here because hooks
+# receive their payload as JSON on stdin (a pipe), so stdin is never a TTY
+# even in fully interactive sessions; that check would silence the hook always.
+if [ -n "${CLAUDE_CODE_REMOTE:-}" ]; then
+  exit 0
+fi
+
+# Secondary guard: skip when no controlling terminal exists (CI containers,
+# Docker without -t, daemon processes). /dev/tty is the process's controlling
+# terminal, which is present in interactive sessions regardless of stdin.
+if ! { : < /dev/tty; } 2>/dev/null; then
   exit 0
 fi
 

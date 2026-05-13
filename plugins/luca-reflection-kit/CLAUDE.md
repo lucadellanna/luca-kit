@@ -33,4 +33,4 @@ Same Claude Code users as luca-ops-kit: non-technical staff, managers, and power
 | Hook | Event | What it does |
 |------|-------|-------------|
 | **optimization-hint** | UserPromptSubmit | Reminds Claude to append a one-sentence optimization hint when the prior response involved 8+ tool calls |
-| **terms-acceptance-check** | SessionStart | Echoes a one-time reminder if `~/.claude/luca-ops-kit/terms-accepted-v1.json` is absent. Silent in non-interactive contexts and once the marker exists. |
+| **terms-acceptance-check** | SessionStart | Echoes a one-time reminder if `~/.claude/luca-ops-kit/terms-accepted-v1.json` is absent. Silent when `$CLAUDE_CODE_REMOTE` is set or no controlling terminal exists; silent once the marker exists. |
