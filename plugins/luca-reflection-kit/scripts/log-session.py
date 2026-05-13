@@ -1,8 +1,17 @@
-import json, os, sys, datetime, subprocess
+import datetime
+import json
+import os
+import subprocess
+import sys
+
 
 def run(cmd):
-    try: return subprocess.run(cmd, capture_output=True, text=True).stdout.strip()
-    except OSError: return ""
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        return result.stdout.strip()
+    except OSError:
+        return ""
+
 
 if not os.path.exists(os.path.expanduser("~/.claude/reflect-logs/.enabled")):
     sys.exit(0)
@@ -25,11 +34,14 @@ else:
 slug = ''.join(c if c.isalnum() or c in '-_' else '-' for c in slug)
 
 path = os.path.expanduser(f"~/.claude/reflect-logs/{slug}.jsonl")
-os.makedirs(os.path.dirname(path), exist_ok=True)
-entry = {
-    "schema": 2,
-    "date": str(datetime.date.today()),
-    "findings": findings,
-}
-with open(path, 'a', encoding='utf-8') as f:
-    f.write(json.dumps(entry) + '\n')
+try:
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    entry = {
+        "schema": 2,
+        "date": str(datetime.date.today()),
+        "findings": findings,
+    }
+    with open(path, 'a', encoding='utf-8') as f:
+        f.write(json.dumps(entry) + '\n')
+except OSError:
+    pass
