@@ -66,7 +66,7 @@
 | `plugins/luca-ops-kit/skills/setup-context-search/HELP.md` |  |
 | `plugins/luca-ops-kit/skills/setup-context-search/SKILL.md` | `/luca-ops-kit:setup-context-search` skill |
 
-## Plugin: luca-reflection-kit (v0.2.1)
+## Plugin: luca-reflection-kit (v0.3.0)
 
 | Path | Role |
 |---|---|
@@ -74,10 +74,12 @@
 | `plugins/luca-reflection-kit/CLAUDE.md` | Runtime instructions (ships with plugin) |
 | `plugins/luca-reflection-kit/README.md` |  |
 | `plugins/luca-reflection-kit/commands/accept-terms.md` | `/luca-reflection-kit:accept-terms` command |
+| `plugins/luca-reflection-kit/commands/luca-reflection-recommended-setup.md` | `/luca-reflection-kit:luca-reflection-recommended-setup` command |
 | `plugins/luca-reflection-kit/hooks/hooks.json` | Hook registry |
 | `plugins/luca-reflection-kit/hooks/optimization-hint.sh` | Hook script |
 | `plugins/luca-reflection-kit/hooks/terms-acceptance-check.sh` | Hook script |
 | `plugins/luca-reflection-kit/scripts/config.py` | Script: config.py |
+| `plugins/luca-reflection-kit/scripts/log-session.py` | Script: log-session.py |
 | `plugins/luca-reflection-kit/scripts/terms-accept.py` | Script: terms-accept.py |
 | `plugins/luca-reflection-kit/scripts/terms-revoke.py` | Script: terms-revoke.py |
 | `plugins/luca-reflection-kit/skills/dream/DESIGN.md` | Design decisions: `/luca-reflection-kit:dream` |
