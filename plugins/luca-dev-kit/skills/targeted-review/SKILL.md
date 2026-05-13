@@ -36,7 +36,7 @@ Two-phase, single-file code review that catches file-specific bugs the standard 
 0. **Resolve and validate the target path.** Run via Bash:
 
    ```
-   python3 -c "import os, sys; p = os.path.realpath(sys.argv[1]); assert os.path.isfile(p), f'not a file: {p}'; print(p)" <input-path>
+   python3 -c "import os, sys; p = os.path.realpath(sys.argv[1]); assert os.path.isfile(p), f'not a file: {p}'; print(p)" "<input-path>"
    ```
 
    Use the resolved absolute path everywhere below. If the command exits non-zero, tell the user plainly: "Couldn't find a file at `<input-path>`. Check the path and try again." Do not surface the raw Python `AssertionError`.
@@ -111,7 +111,7 @@ During execution, follow the self-observation protocol (see `${CLAUDE_PLUGIN_ROO
 
 **Skip condition.** If no findings were applied in Step 5 (either because none were parsed, or the user selected "Apply none"), skip the rest of this section. The scorer requires applied `old_string -> new_string` pairs; without them, the Fix correctness criterion is unscoreable.
 
-When at least one finding was applied, spawn a Haiku sub-agent. Pass it: (a) this SKILL.md, (b) the final checklist used, (c) the subagent's raw output, (d) the list of applied Edits as `old_string -> new_string` pairs. Score each criterion 0 to 10. If the average is below 9.5, revise the SKILL.md and re-score (max 3 iterations; stop if the score plateaus). If any criterion remains below 8, draft a concise SKILL.md edit to prevent recurrence, show it to the user, and apply on approval.
+When at least one finding was applied, spawn a Haiku sub-agent. Pass it: (a) this SKILL.md, (b) the final checklist used, (c) the subagent's raw output, (d) the list of applied Edits as `old_string -> new_string` pairs. Score each criterion 0 to 10. If the average is below 9.5 or any criterion remains below 8, draft a concise SKILL.md edit to prevent recurrence, show it to the user, and apply on approval.
 
 Criteria (MECE):
 - **Checklist specificity**: every checklist item names a concrete failure mode tied to a line, function, or invariant. Generic items score 0.
