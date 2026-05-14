@@ -30,8 +30,17 @@ Requires [Claude Code](https://claude.ai/code).
 
 | Skill | What it does |
 |-------|-------------|
-| **reflect** | After a session, extracts what went well, what went wrong, and what should become a memory update, skill improvement, or new skill |
+| **reflect** | After a session, two specialist reviewers surface insights with verbatim evidence: claude-side proposes concrete edits (clear low-risk memory entries are written automatically, everything else asks for your selection); user-side surfaces actionable recommendations for you (skills worth invoking next time, scoping techniques, workflow timing) |
 | **dream** | Mines your /reflect session logs to surface patterns across sessions: recurring issues never fixed, memory contradictions, and improvements that keep coming up but never land |
+
+## Agents
+
+Spawned by skills in this plugin (you do not invoke them directly):
+
+| Agent | Used by | Mandate |
+|-------|---------|---------|
+| **claude-flow-reviewer** | reflect | Reviews a conversation digest for Claude-side improvements: missed skill invocations, weak rule triggers, skill/rule/memory edits worth proposing |
+| **user-flow-reviewer** | reflect | Surfaces recommendations and classifies each as automatable (becomes a Claude-side rule, routed through the claude-flow pipeline) or user-only (shown as a Hint to the user, max 3). Plain language, no coaching |
 
 ## Hooks
 

@@ -66,13 +66,15 @@
 | `plugins/luca-ops-kit/skills/setup-context-search/HELP.md` |  |
 | `plugins/luca-ops-kit/skills/setup-context-search/SKILL.md` | `/luca-ops-kit:setup-context-search` skill |
 
-## Plugin: luca-reflection-kit (v0.3.1)
+## Plugin: luca-reflection-kit (v0.3.2)
 
 | Path | Role |
 |---|---|
 | `plugins/luca-reflection-kit/.claude-plugin/plugin.json` | Plugin manifest |
 | `plugins/luca-reflection-kit/CLAUDE.md` | Runtime instructions (ships with plugin) |
 | `plugins/luca-reflection-kit/README.md` |  |
+| `plugins/luca-reflection-kit/agents/claude-flow-reviewer.md` |  |
+| `plugins/luca-reflection-kit/agents/user-flow-reviewer.md` |  |
 | `plugins/luca-reflection-kit/commands/accept-terms.md` | `/luca-reflection-kit:accept-terms` command |
 | `plugins/luca-reflection-kit/commands/luca-reflection-recommended-setup.md` | `/luca-reflection-kit:luca-reflection-recommended-setup` command |
 | `plugins/luca-reflection-kit/hooks/hooks.json` | Hook registry |
@@ -87,6 +89,7 @@
 | `plugins/luca-reflection-kit/skills/dream/SKILL.md` | `/luca-reflection-kit:dream` skill |
 | `plugins/luca-reflection-kit/skills/reflect/DESIGN.md` | Design decisions: `/luca-reflection-kit:reflect` |
 | `plugins/luca-reflection-kit/skills/reflect/HELP.md` |  |
+| `plugins/luca-reflection-kit/skills/reflect/REQUIREMENTS.md` |  |
 | `plugins/luca-reflection-kit/skills/reflect/SKILL.md` | `/luca-reflection-kit:reflect` skill |
 
 ## Repository root
