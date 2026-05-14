@@ -38,4 +38,16 @@
 
 **Cache vs workspace layering**: when developing luca-ops-kit in a Conductor workspace while the plugin is also installed, skill invocations (e.g. `/luca-ops-kit:reflect`) run from `~/.claude/plugins/cache/`, not the workspace. Workspace edits are invisible to running skills until the plugin is republished and reinstalled.
 
+**Plugin agent file location**: agent files go in `agents/<name>.md` at the plugin root, not inside a skill's subdirectory; the file IS the agent's prompt (frontmatter + body = system prompt).
+
+**Parallel Agent calls + `subagent_type`**: both are valid in Claude Code; treat reviewer claims that they are unsupported as hallucinations and verify against the tool schema, not the reviewer.
+
+**Plugin layout decisions invoke `plugin-dev:plugin-structure`**: when deciding where files live in a plugin (agents/, commands/, skills/), invoke that skill before asserting; inferring from intra-skill patterns is unreliable.
+
+## CLAUDE.md authoring
+
+**Rule removal**: when a rule is removed because its content migrates elsewhere, delete the entry entirely; never leave a stub line pointing to the new location. The absence is the signal.
+
+**Stating principles**: state the underlying condition the rule applies to, not example phrases that match it. If you find yourself listing trigger phrases, the underlying condition is what to write.
+
 **Version bump rule**: bump the SKILL.md frontmatter version after every meaningful change: patch (0.x.y → 0.x.y+1) for fixes or additions to existing steps; minor (0.x.0 → 0.x+1.0) for new steps added. The version field is what the Claude plugin system uses to signal an update to cached users.

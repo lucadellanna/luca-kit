@@ -9,7 +9,7 @@ Same Claude Code users as luca-ops-kit: non-technical staff, managers, and power
 ## Principles
 
 - **Lightweight.** Reflection skills run on demand or hook triggers. Never block user workflows or add mandatory gates.
-- **No auto-apply.** Skills may suggest edits to other plugins' skills, memory files, or CLAUDE.md rules. Present all suggestions with exact proposed text. Apply only on explicit user approval.
+- **Auto-apply only behind a strict gate.** Skills may suggest edits to other plugins' skills, memory files, or CLAUDE.md rules. Default behavior is to present suggestions with exact proposed text and apply only on explicit user approval. Auto-apply without approval is allowed only when ALL of: target is `.claude/memory/MEMORY.md`, confidence is high, proposed text is ≤2 lines, and the text is not a duplicate of an existing line in MEMORY.md or CLAUDE.md. Anything failing any criterion must ask.
 - **No cross-contamination.** Reflection logs and memory updates belong to the user's machine. Never write to shared or plugin-owned paths.
 - **Token efficiency.** Log aggregation runs in Bash before loading into context. Never cat full log files when a summary suffices.
 - **Schema resilience.** Skills handle both schema 1 (typed findings objects) and schema 2 (plain strings) reflect log entries. Silently skip unknown schema values.
@@ -19,7 +19,7 @@ Same Claude Code users as luca-ops-kit: non-technical staff, managers, and power
 
 | Skill | Trigger | What it does |
 |-------|---------|-------------|
-| **reflect** | "reflect", "let's reflect" | Scans the current conversation for errors, workflow patterns, knowledge gaps, and unnecessary questions; presents classified findings; writes chosen learnings to memory or skill files |
+| **reflect** | "reflect", "let's reflect" | Orchestrates two specialist reviewers (Claude-side and user-side) over a verbatim conversation digest; surfaces findings with verbatim evidence; auto-applies gated memory entries; asks before any other change |
 | **dream** | "dream", "/dream" | Mines past /reflect session logs to surface recurring patterns, memory contradictions, and improvements that keep coming up but never land |
 
 ## Commands
@@ -28,6 +28,13 @@ Same Claude Code users as luca-ops-kit: non-technical staff, managers, and power
 |---|---|
 | **/luca-reflection-kit:accept-terms** | Prints the interim notice, asks the user via AskUserQuestion, writes `~/.claude/luca-ops-kit/terms-accepted-v1.json` on acknowledgment with `{"version": "1.0", "accepted_at": "<ISO 8601>"}`. On "Not right now", removes the marker if it exists. Always re-prompts; re-run = re-decide. |
 | **/luca-reflection-kit:luca-reflection-recommended-setup** | Asks once whether to save private session notes after each /reflect. Writes `~/.claude/reflect-logs/.enabled` or `.disabled`. Re-running always re-prompts. |
+
+## Agents
+
+| Agent | Used by | Mandate |
+|-------|---------|---------|
+| **claude-flow-reviewer** | reflect | Reviews a conversation digest for Claude-side improvements: missed skill invocations, weak rule triggers, skill/rule/memory edits, repeated failure patterns |
+| **user-flow-reviewer** | reflect | Surfaces recommendations and classifies each as automatable (becomes a Claude-side rule, routed to the claude-flow pipeline) or user-only (rendered as a Hint to the user, max 3). Plain language, no coaching |
 
 ## Hooks
 

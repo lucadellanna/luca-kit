@@ -121,7 +121,8 @@ Self-reflection and cross-session learning tools. Runtime instructions are in `p
 
 ## Authoring notes
 
-- Skills in this plugin must never auto-apply changes to user memory, CLAUDE.md, or other plugins' skill files. All writes require explicit user confirmation via AskUserQuestion.
+- Pure-reasoning agents default to `tools: []` in frontmatter. Omitting `tools:` grants access to all tools, which loads every tool definition into the agent's system context and inflates per-invocation token cost. Only add tools that the agent will actually call.
+- Mandate vs output target are independent in multi-agent skills. An agent's mandate (whose patterns it observes) and its output target (where findings land: user-facing display, memory file, skill edit) are separate design choices; state both explicitly in the agent's frontmatter and body. Conflating them produces output aimed at the wrong audience.
 - The `optimization-hint.sh` hook is intentionally minimal (a single `echo`). Any behavior change must remain side-effect-free (no file writes, no network calls).
 - Session logs written by `reflect` go to `~/.claude/reflect-logs/`: this path is user-owned, not plugin-owned. The plugin reads these logs; it does not manage them.
 - Any hook that surfaces a consent command (e.g., `terms-acceptance-check`) must instruct Claude to *inform* the user and wait for them to invoke the command. Claude must never invoke a consent command itself; auto-invocation coerces the acknowledgment.
