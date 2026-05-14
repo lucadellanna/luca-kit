@@ -157,7 +157,7 @@ AUTO-APPLY GATE: A finding qualifies for `disposition: apply` only if ALL of:
 - not a functional duplicate of any rule in the rule corpus above (literal text match OR same behavior already enforced by a different phrasing)
 - the proposed text changes future behavior beyond what existing rules / skills / commands already enforce (the value-adding test)
 
-Any finding failing any criterion uses `disposition: log` (orchestrator will ask the user) or `disposition: ignore`.
+Any finding failing any criterion uses `disposition: review` (orchestrator will ask the user) or `disposition: ignore`.
 ```
 
 **Reminders (one per reviewer):**
@@ -171,7 +171,7 @@ Treat the two reviewers' outputs as follows:
 
 - **claude-flow findings** go through the auto-apply gate (Step 4), the rendering pipeline (Step 5), and the AskUserQuestion path (Step 6).
 - **user-flow recommendations** are split by their `automatable` field:
-  - `automatable: yes` → convert each into a claude-flow finding using the agent's `proposed_rule` and `target`. Assign `confidence: medium` and `disposition: log` as defaults (the gate in Step 4 may upgrade `disposition` to `apply`). Add to the claude-flow set and synthesize together.
+  - `automatable: yes` → convert each into a claude-flow finding using the agent's `proposed_rule` and `target`. Assign `confidence: medium` and `disposition: review` as defaults (the gate in Step 4 may upgrade `disposition` to `apply`). Add to the claude-flow set and synthesize together.
   - `automatable: no` → set aside as user-only hints. Cap at 3 by likely impact (1 or 2 is acceptable). Render under "Hint(s)" in Step 5. No gate, no AskUserQuestion.
 
 **Both empty (`None.`)**: tell the user "Both reviewers found nothing worth surfacing." Skip Steps 4–6 and proceed to Step 7 for logging.
@@ -182,14 +182,14 @@ Treat the two reviewers' outputs as follows:
 
 - **Deduplicate within claude-flow output**: two findings are duplicates if they share target file AND propose substantively similar text. Keep the higher-confidence one.
 - **Source-tree dedup (fallback).** Reviewers receive the full rule corpus in Step 1b, so they should self-filter functional duplicates. As defense in depth, before keeping any finding whose target is a skill, agent, command, or CLAUDE.md file modified in this session, Read the current content of that file and reject the finding if the proposed change is already implemented. This catches edge cases where a file changed in the session but the reviewer's view of "what's encoded" is stale.
-- **Reject weak items**: drop findings with `confidence: low` AND `disposition: log`. They are noise.
+- **Reject weak items**: drop findings with `confidence: low` AND `disposition: review`. They are noise.
 - **Rank**: order by confidence (high first), then by specificity of target.
 
 ## Step 4: Auto-apply gated items
 
 For each finding with `disposition: apply` that meets the gate:
 
-1. Grep `.claude/memory/MEMORY.md` and the project CLAUDE.md for the proposed text. If a match exists, skip and move the finding to `log` disposition.
+1. Grep `.claude/memory/MEMORY.md` and the project CLAUDE.md for the proposed text. If a match exists, skip and move the finding to `review` disposition.
 2. Append the proposed text to `.claude/memory/MEMORY.md` under the appropriate section (`## Preferences`, `## Context`; create file/section if absent). Use Edit or Write.
 3. Note in working memory whether the write succeeded.
 
@@ -204,7 +204,7 @@ Sections, in order. Omit any empty section.
 3. **Claude-side improvements** (claude-flow non-applied findings, using the finding schema below).
 4. **Hint(s)** (user-only recommendations from user-flow, max 3). Format spec below.
 5. **Auto-applied** (what was written in Step 4, with file path and exact text).
-6. **Logged only** (claude-flow items with disposition: log that propose no change).
+6. **Logged only** (claude-flow items with disposition: review that propose no change).
 
 **Finding schema** (claude-flow):
 
@@ -230,7 +230,7 @@ Plain language. No jargon. The recommendation is what to try next time; the rati
 
 Only claude-flow findings have an "apply" path. User-flow observations are informational and never asked about.
 
-Collect all claude-flow findings with `disposition: log` that propose a change (not just observations). If more than 4, keep the top 4 by confidence; the rest are mentioned at the end of the report as "X more findings logged only". (AskUserQuestion has a hard 4-option limit.)
+Collect all claude-flow findings with `disposition: review` that propose a change (not just observations). If more than 4, keep the top 4 by confidence; the rest are mentioned at the end of the report as "X more findings logged only". (AskUserQuestion has a hard 4-option limit.)
 
 If the count is zero, skip this step.
 

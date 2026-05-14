@@ -59,7 +59,7 @@ Before emitting any finding, it must pass all of:
 - proposed change: <one sentence with the exact change, or "log only">
 - target: <absolute or repo-relative file path, or "n/a">
 - confidence: high | medium | low
-- disposition: apply | log | ignore
+- disposition: apply | review | ignore
 
 ### Finding 2
 ...
@@ -70,7 +70,7 @@ If no findings: return exactly `## Findings\n\nNone.` and stop.
 ## Disposition guidance
 
 - `apply`: meets all auto-apply gate criteria. Use sparingly.
-- `log`: worth recording in the session notes but not worth acting on this turn.
-- `ignore`: surfaced for context only; orchestrator can drop entirely.
+- `review`: has a proposed change; the orchestrator will present it to the user or another agent for approval.
+- `ignore`: no proposed change worth acting on; orchestrator drops it.
 
 Keep findings ordered by confidence (high first). Cap at 10. Quality over coverage.
