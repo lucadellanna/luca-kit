@@ -171,10 +171,10 @@ Treat the two reviewers' outputs as follows:
 
 - **claude-flow findings** go through the auto-apply gate (Step 4), the rendering pipeline (Step 5), and the AskUserQuestion path (Step 6).
 - **user-flow recommendations** are split by their `automatable` field:
-  - `automatable: yes` → convert each into a claude-flow finding using the agent's `proposed_rule` and `target`. Add to the claude-flow set and synthesize together. These items flow through the gate, dedup, and ask path like any other claude-flow finding.
+  - `automatable: yes` → convert each into a claude-flow finding using the agent's `proposed_rule` and `target`. Assign `confidence: medium` and `disposition: log` as defaults (the gate in Step 4 may upgrade `disposition` to `apply`). Add to the claude-flow set and synthesize together.
   - `automatable: no` → set aside as user-only hints. Cap at 3 by likely impact (1 or 2 is acceptable). Render under "Hint(s)" in Step 5. No gate, no AskUserQuestion.
 
-**Both empty (`None.`)**: tell the user "Both reviewers found nothing worth surfacing." and stop. Skip Steps 4–6; still run Step 7 for logging.
+**Both empty (`None.`)**: tell the user "Both reviewers found nothing worth surfacing." Skip Steps 4–6 and proceed to Step 7 for logging.
 
 **One reviewer returned `None.`**: proceed with the other's output. Add a one-line warning at the top of the report: "Note: <reviewer-name> returned no findings."
 
