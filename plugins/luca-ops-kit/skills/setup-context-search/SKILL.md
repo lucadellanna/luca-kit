@@ -12,9 +12,40 @@ You guide the user through installing [qmd](https://github.com/tobi/qmd) and wir
 
 **Tool rule:** Use AskUserQuestion for every decision point. Never present choices as plain text expecting the user to type a number.
 
-## Step 1: Third-party notice and mode selection
+## Step 1: Check if already configured
 
-Before anything else, show this notice:
+Run these checks silently before showing any notice. Use direct file inspection only -- do not call `claude mcp get qmd` here, as it may spawn the qmd process before the user has seen the disclosure.
+
+```bash
+command -v qmd >/dev/null 2>&1 && echo "qmd_installed" || echo "qmd_missing"
+```
+
+```python
+import json, os
+path = os.path.expanduser("~/.claude.json")
+try:
+    with open(path) as f:
+        cfg = json.load(f)
+    servers = cfg.get("mcpServers", {})
+    if "qmd" in servers:
+        cmd = servers["qmd"].get("command", "")
+        if os.path.isfile(cmd) and os.access(cmd, os.X_OK):
+            print("qmd_configured")
+        else:
+            print("qmd_registered_broken")
+    else:
+        print("qmd_not_configured")
+except (FileNotFoundError, json.JSONDecodeError, KeyError):
+    print("qmd_not_configured")
+```
+
+- If both `qmd_installed` and `qmd_configured`: tell the user "qmd is already installed and configured. Your context files are searchable." Use AskUserQuestion (options: "Add or change which folders Claude can search", "My setup is working fine - exit"). If "My setup is working fine - exit", stop.
+- If `qmd_registered_broken`: tell the user "qmd was previously configured but the binary path is no longer valid. I'll re-run setup to fix it." Continue to Step 2.
+- Otherwise: continue to Step 2.
+
+## Step 2: Third-party notice and mode selection
+
+Show this notice:
 
 > **About this setup**
 >
@@ -34,7 +65,7 @@ Use AskUserQuestion (options: "Proceed with setup (qmd may download all models, 
 
 - If "Cancel setup": stop.
 
-## Step 2: Detect platform
+## Step 3: Detect platform
 
 ```bash
 uname -s 2>/dev/null || echo "Windows"
@@ -50,21 +81,6 @@ Store as `$PLATFORM`: "macOS", "Linux", or "Windows".
 - **macOS** (Darwin): proceed with Homebrew-based flow
 - **Windows**: skip Homebrew/SQLite steps; npm global path differs; use `where` instead of `which`
 - **Linux**: skip Homebrew; check if sqlite3 dev headers are available via system package manager
-
-## Step 3: Check if already configured
-
-```bash
-command -v qmd >/dev/null 2>&1 && echo "qmd_installed" || echo "qmd_missing"
-```
-
-Check existing MCP config:
-
-```bash
-claude mcp get qmd 2>/dev/null | grep -q "Connected\|Needs authentication" && echo "qmd_configured" || echo "qmd_not_configured"
-```
-
-- If both `qmd_installed` and `qmd_configured`: tell the user "qmd is already installed and configured. Your context files are searchable." Use AskUserQuestion (options: "Reconfigure (change directories)", "Exit"). If Exit, stop.
-- Otherwise: continue.
 
 ## Step 4: Check Node.js
 
@@ -275,10 +291,25 @@ Report the result (documents indexed, chunks embedded).
 
 Determine the full path to qmd (use `$QMD_PATH` from Step 6).
 
-First check whether qmd is already registered (handles re-runs gracefully):
+First check whether qmd is already registered (handles re-runs gracefully). Use direct file inspection to avoid spawning the process:
 
-```bash
-claude mcp get qmd 2>/dev/null | grep -q "Connected\|Needs authentication\|stdio" && echo "already_registered" || echo "need_to_register"
+```python
+import json, os
+path = os.path.expanduser("~/.claude.json")
+try:
+    with open(path) as f:
+        cfg = json.load(f)
+    servers = cfg.get("mcpServers", {})
+    if "qmd" in servers:
+        cmd = servers["qmd"].get("command", "")
+        if os.path.isfile(cmd) and os.access(cmd, os.X_OK):
+            print("already_registered")
+        else:
+            print("need_to_register")
+    else:
+        print("need_to_register")
+except (FileNotFoundError, json.JSONDecodeError, KeyError):
+    print("need_to_register")
 ```
 
 If `already_registered`, skip to showing the success message below.
