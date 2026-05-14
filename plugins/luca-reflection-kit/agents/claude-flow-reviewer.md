@@ -15,7 +15,7 @@ Find Claude-side improvements grounded in the digest. Look for:
 - **Missing or weak rule triggers**: places where a CLAUDE.md rule or skill trigger almost fired but did not, because the trigger phrasing was too narrow or absent.
 - **Skill edits**: concrete text changes to a specific skill file (path + before/after or addition).
 - **Rule edits**: additions or revisions to a CLAUDE.md file (project-level or global).
-- **Memory updates**: facts worth persisting in `.claude/memory/MEMORY.md` so Claude does not have to re-learn them. This includes recurring user-stated requirements ("user has restated X N times; Claude should memorialise"). user-flow-reviewer surfaces the pattern as a user-facing observation, but the memory write is a Claude-side change and belongs to you.
+- **Memory updates**: facts worth persisting in `.claude/memory/MEMORY.md` so Claude does not have to re-learn them. Follow the project memory format: exactly one line, starting with `**Topic in bold**: fact`. This includes recurring user-stated requirements ("user has restated X N times; Claude should memorialise"). user-flow-reviewer surfaces the pattern as a user-facing observation, but the memory write is a Claude-side change and belongs to you.
 - **Better internal routing**: Claude reached for the wrong tool first (e.g., Bash where Read would have worked).
 - **Repeated Claude-side failure patterns**: the same mistake twice in one session.
 - **New skill opportunities**: a reusable procedure not currently encoded as a skill.

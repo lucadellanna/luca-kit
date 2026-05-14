@@ -153,7 +153,7 @@ Both calls share the first three inputs:
 AUTO-APPLY GATE: A finding qualifies for `disposition: apply` only if ALL of:
 - target is `.claude/memory/MEMORY.md` (project memory; never CLAUDE.md, never any skill file, never any other plugin file)
 - confidence is high
-- proposed text is ≤2 lines
+- proposed text is exactly 1 line and follows the format: `**Topic**: fact`
 - not a functional duplicate of any rule in the rule corpus above (literal text match OR same behavior already enforced by a different phrasing)
 - the proposed text changes future behavior beyond what existing rules / skills / commands already enforce (the value-adding test)
 
@@ -189,8 +189,8 @@ Treat the two reviewers' outputs as follows:
 
 For each finding with `disposition: apply` that meets the gate:
 
-1. Grep `.claude/memory/MEMORY.md` and the project CLAUDE.md for the proposed text. If a match exists, skip and move the finding to `review` disposition.
-2. Append the proposed text to `.claude/memory/MEMORY.md` under the appropriate section (`## Preferences`, `## Context`; create file/section if absent). Use Edit or Write.
+1. Use `grep -F` to check if the proposed text already exists in `.claude/memory/MEMORY.md` or the project CLAUDE.md. If a match exists, skip and move the finding to `review` disposition.
+2. Append the proposed text to the end of the appropriate section in `.claude/memory/MEMORY.md` (`## Preferences`, `## Context`; create file/section if absent). Use Edit or Write.
 3. Note in working memory whether the write succeeded.
 
 If any auto-apply write fails, do not silently move on: record the failure and surface it in the report.
