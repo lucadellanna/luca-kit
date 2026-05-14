@@ -60,20 +60,8 @@ command -v qmd >/dev/null 2>&1 && echo "qmd_installed" || echo "qmd_missing"
 Check existing MCP config:
 
 ```bash
-if [ -f ~/.claude/settings.json ]; then
-  python3 -c "
-import json, os
-path = os.path.expanduser('~/.claude/settings.json')
-with open(path) as f:
-    cfg = json.load(f)
-print('qmd_configured' if 'qmd' in cfg.get('mcpServers', {}) else 'qmd_not_configured')
-" 2>/dev/null || echo "qmd_not_configured"
-else
-  echo "no_mcp_config"
-fi
+claude mcp get qmd 2>/dev/null | grep -q "Connected\|Needs authentication" && echo "qmd_configured" || echo "qmd_not_configured"
 ```
-
-On Windows, replace `$HOME` with the appropriate path (`%USERPROFILE%`).
 
 - If both `qmd_installed` and `qmd_configured`: tell the user "qmd is already installed and configured. Your context files are searchable." Use AskUserQuestion (options: "Reconfigure (change directories)", "Exit"). If Exit, stop.
 - Otherwise: continue.
@@ -287,69 +275,29 @@ Report the result (documents indexed, chunks embedded).
 
 Determine the full path to qmd (use `$QMD_PATH` from Step 6).
 
-On Windows, replace `fcntl` with `msvcrt` for file locking, or skip locking:
+First check whether qmd is already registered (handles re-runs gracefully):
 
-### macOS/Linux:
-
-```python
-import json, os, sys
-
-path = os.path.expanduser("~/.claude/settings.json")
-lock_path = path + ".lock"
-qmd_path = "<QMD_PATH>"
-
-os.makedirs(os.path.dirname(path), exist_ok=True)
-
-def update_settings():
-    try:
-        with open(path) as f:
-            content = f.read().strip()
-            settings = json.loads(content) if content else {}
-    except FileNotFoundError:
-        settings = {}
-    except json.JSONDecodeError:
-        print(f"ERROR: {path} contains invalid JSON.")
-        sys.exit(1)
-
-    if not isinstance(settings, dict):
-        print(f"ERROR: {path} is not a JSON object.")
-        sys.exit(1)
-
-    if not isinstance(settings.get("mcpServers"), dict):
-        settings["mcpServers"] = {}
-
-    settings["mcpServers"]["qmd"] = {
-        "command": qmd_path,
-        "args": ["mcp"]
-    }
-
-    tmp = path + ".tmp"
-    with open(tmp, "w") as f:
-        json.dump(settings, f, indent=2)
-        f.write("\n")
-        f.flush()
-        os.fsync(f.fileno())
-    os.replace(tmp, path)
-
-if sys.platform != "win32":
-    try:
-        import fcntl
-        with open(lock_path, "a") as lock_f:
-            fcntl.flock(lock_f, fcntl.LOCK_EX)
-            update_settings()
-    except ImportError:
-        update_settings()
-else:
-    update_settings()
-
-print("Done")
+```bash
+claude mcp get qmd 2>/dev/null | grep -q "Connected\|Needs authentication\|stdio" && echo "already_registered" || echo "need_to_register"
 ```
 
-Show the user what was written:
+If `already_registered`, skip to showing the success message below.
 
-> "Added qmd to your Claude settings at `~/.claude/settings.json`:
-> ```json
-> "qmd": { "command": "<qmd_path>", "args": ["mcp"] }
+If `need_to_register`:
+
+```bash
+claude mcp add --scope user qmd "$QMD_PATH" -- mcp
+```
+
+This registers qmd in the correct user-level config file (`~/.claude.json`) so it loads in every Claude Code session and workspace.
+
+On Windows, use the `%QMD_PATH%` variable syntax instead of `$QMD_PATH`.
+
+Show the user what was configured:
+
+> "Registered qmd as a Claude MCP server (user scope - available in all sessions):
+> ```
+> claude mcp get qmd
 > ```
 > This gives Claude the `query`, `get`, `multi_get`, and `status` tools for searching your context files in every future session."
 
@@ -386,5 +334,5 @@ mkdir -p ~/.claude/luca-ops-kit && echo "qmd $("$QMD_PATH" --version 2>/dev/null
 - If any step fails, tell the user clearly what failed and how to fix it manually.
 - Never leave partial state without informing the user what was and wasn't completed.
 - If a command produces a "bindings" or "native module" error: the most common cause is pnpm blocking builds. Offer to reinstall with npm.
-- If qmd's MCP interface has changed (no `mcp` subcommand detected), tell the user: "qmd's MCP server command may have changed. Check `qmd --help` for the current syntax and update `~/.claude/settings.json` under `mcpServers` manually."
-- On Windows, if Python is not available, fall back to writing the JSON config via Node.js or instruct the user to add the entry manually.
+- If qmd's MCP interface has changed (no `mcp` subcommand detected), tell the user: "qmd's MCP server command may have changed. Check `qmd --help` for the current syntax, then re-run: `claude mcp remove qmd -s user && claude mcp add --scope user qmd <qmd_path> -- <new_subcommand>`"
+- If `claude mcp add` is not available (very old Claude version), instruct the user to manually add to `~/.claude.json` under `mcpServers`: `"qmd": { "type": "stdio", "command": "<qmd_path>", "args": ["mcp"], "env": {} }`
