@@ -24,7 +24,7 @@
 | `plugins/luca-dev-kit/skills/targeted-review/SKILL.md` | `/luca-dev-kit:targeted-review` skill |
 | `plugins/luca-dev-kit/skills/triple-review/SKILL.md` | `/luca-dev-kit:triple-review` skill |
 
-## Plugin: luca-ops-kit (v0.4.0)
+## Plugin: luca-ops-kit (v0.4.1)
 
 | Path | Role |
 |---|---|
@@ -81,6 +81,7 @@
 | `plugins/luca-reflection-kit/hooks/optimization-hint.sh` | Hook script |
 | `plugins/luca-reflection-kit/hooks/terms-acceptance-check.sh` | Hook script |
 | `plugins/luca-reflection-kit/scripts/config.py` | Script: config.py |
+| `plugins/luca-reflection-kit/scripts/enumerate-skills.py` | Script: enumerate-skills.py |
 | `plugins/luca-reflection-kit/scripts/log-session.py` | Script: log-session.py |
 | `plugins/luca-reflection-kit/scripts/terms-accept.py` | Script: terms-accept.py |
 | `plugins/luca-reflection-kit/scripts/terms-revoke.py` | Script: terms-revoke.py |
