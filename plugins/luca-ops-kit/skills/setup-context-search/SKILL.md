@@ -20,23 +20,8 @@ Run these checks silently before showing any notice. Use direct file inspection 
 command -v qmd >/dev/null 2>&1 && echo "qmd_installed" || echo "qmd_missing"
 ```
 
-```python
-import json, os
-path = os.path.expanduser("~/.claude.json")
-try:
-    with open(path) as f:
-        cfg = json.load(f)
-    servers = cfg.get("mcpServers", {})
-    if "qmd" in servers:
-        cmd = servers["qmd"].get("command", "")
-        if os.path.isfile(cmd) and os.access(cmd, os.X_OK):
-            print("qmd_configured")
-        else:
-            print("qmd_registered_broken")
-    else:
-        print("qmd_not_configured")
-except (FileNotFoundError, json.JSONDecodeError, KeyError):
-    print("qmd_not_configured")
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/setup-context-search/scripts/check-preflight.py"
 ```
 
 - If both `qmd_installed` and `qmd_configured`: tell the user "qmd is already installed and configured. Your context files are searchable." Use AskUserQuestion (options: "Add or change which folders Claude can search", "My setup is working fine - exit"). If "My setup is working fine - exit", stop.
@@ -293,23 +278,8 @@ Determine the full path to qmd (use `$QMD_PATH` from Step 6).
 
 First check whether qmd is already registered (handles re-runs gracefully). Use direct file inspection to avoid spawning the process:
 
-```python
-import json, os
-path = os.path.expanduser("~/.claude.json")
-try:
-    with open(path) as f:
-        cfg = json.load(f)
-    servers = cfg.get("mcpServers", {})
-    if "qmd" in servers:
-        cmd = servers["qmd"].get("command", "")
-        if os.path.isfile(cmd) and os.access(cmd, os.X_OK):
-            print("already_registered")
-        else:
-            print("need_to_register")
-    else:
-        print("need_to_register")
-except (FileNotFoundError, json.JSONDecodeError, KeyError):
-    print("need_to_register")
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/setup-context-search/scripts/check-registered.py"
 ```
 
 If `already_registered`, skip to showing the success message below.
@@ -365,5 +335,5 @@ mkdir -p ~/.claude/luca-ops-kit && echo "qmd $("$QMD_PATH" --version 2>/dev/null
 - If any step fails, tell the user clearly what failed and how to fix it manually.
 - Never leave partial state without informing the user what was and wasn't completed.
 - If a command produces a "bindings" or "native module" error: the most common cause is pnpm blocking builds. Offer to reinstall with npm.
-- If qmd's MCP interface has changed (no `mcp` subcommand detected), tell the user: "qmd's MCP server command may have changed. Check `qmd --help` for the current syntax, then re-run: `claude mcp remove qmd -s user && claude mcp add --scope user qmd <qmd_path> -- <new_subcommand>`"
+- If qmd's MCP interface has changed (no `mcp` subcommand detected), tell the user: "qmd's MCP server command may have changed. Check `qmd --help` for the current syntax, then re-run: `claude mcp remove qmd --scope user && claude mcp add --scope user qmd <qmd_path> -- <new_subcommand>`"
 - If `claude mcp add` is not available (very old Claude version), instruct the user to manually add to `~/.claude.json` under `mcpServers`: `"qmd": { "type": "stdio", "command": "<qmd_path>", "args": ["mcp"], "env": {} }`
