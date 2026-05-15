@@ -68,7 +68,7 @@
 | `plugins/luca-ops-kit/skills/setup-context-search/scripts/check-preflight.py` |  |
 | `plugins/luca-ops-kit/skills/setup-context-search/scripts/check-registered.py` |  |
 
-## Plugin: luca-reflection-kit (v0.6.0)
+## Plugin: luca-reflection-kit (v0.7.0)
 
 | Path | Role |
 |---|---|
@@ -81,6 +81,7 @@
 | `plugins/luca-reflection-kit/commands/luca-reflection-recommended-setup.md` | `/luca-reflection-kit:luca-reflection-recommended-setup` command |
 | `plugins/luca-reflection-kit/hooks/hooks.json` | Hook registry |
 | `plugins/luca-reflection-kit/hooks/optimization-hint.sh` | Hook script |
+| `plugins/luca-reflection-kit/hooks/workflow-hint.sh` | Hook script |
 | `plugins/luca-reflection-kit/hooks/terms-acceptance-check.sh` | Hook script |
 | `plugins/luca-reflection-kit/scripts/config.py` | Script: config.py |
 | `plugins/luca-reflection-kit/scripts/enumerate-skills.py` | Script: enumerate-skills.py |
