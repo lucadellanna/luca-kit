@@ -40,7 +40,7 @@ Spawned by skills in this plugin (you do not invoke them directly):
 | Agent | Used by | Mandate |
 |-------|---------|---------|
 | **claude-flow-reviewer** | reflect | Reviews a conversation digest for Claude-side improvements: missed skill invocations, weak rule triggers, skill/rule/memory edits worth proposing |
-| **user-flow-reviewer** | reflect | Surfaces recommendations and classifies each as automatable (becomes a Claude-side rule, routed through the claude-flow pipeline) or user-only (shown as a Hint to the user, max 3). Plain language, no coaching |
+| **user-flow-reviewer** | reflect | Surfaces up to 3 user-facing recommendations as Hints. Plain language, no coaching, nothing written to disk. |
 
 ## Hooks
 

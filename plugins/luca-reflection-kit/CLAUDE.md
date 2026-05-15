@@ -9,10 +9,10 @@ Same Claude Code users as luca-ops-kit: non-technical staff, managers, and power
 ## Principles
 
 - **Lightweight.** Reflection skills run on demand or hook triggers. Never block user workflows or add mandatory gates.
-- **Auto-apply only behind a strict gate.** Skills may suggest edits to other plugins' skills, memory files, or CLAUDE.md rules. Default behavior is to present suggestions with exact proposed text and apply only on explicit user approval. Auto-apply without approval is allowed only when ALL of: target is `.claude/memory/MEMORY.md`, confidence is high, proposed text is ≤2 lines, and the text is not a duplicate of an existing line in MEMORY.md or CLAUDE.md. Anything failing any criterion must ask.
+- **Auto-apply only on safe targets.** Skills may suggest edits to memory files, CLAUDE.md rules, skill files, and hook scripts. Risk is derived from the target file: project or global `MEMORY.md` is `safe` (auto-apply after a literal duplicate check); any `CLAUDE.md`, skill file, or new skill is `ambiguous` (ask); hook scripts are `security-sensitive` (ask). Anything else defaults to `breaking` (ask).
 - **No cross-contamination.** Reflection logs and memory updates belong to the user's machine. Never write to shared or plugin-owned paths.
 - **Token efficiency.** Log aggregation runs in Bash before loading into context. Never cat full log files when a summary suffices.
-- **Schema resilience.** Skills handle both schema 1 (typed findings objects) and schema 2 (plain strings) reflect log entries. Silently skip unknown schema values.
+- **Schema resilience.** Skills handle schemas 1 (typed findings objects), 2 (plain strings), and 3 (structured applied / asked_accepted / asked_rejected / hints) reflect log entries. Normalization happens at the load layer (`scripts/migrate-log.py`); the rest of the skill sees one shape. Unknown schemas are silently skipped.
 - **Local-only acknowledgment, schema-locked.** The terms marker lives under `~/.claude/luca-ops-kit/`. No server calls. Schema is locked at `{"version": "1.0", "accepted_at": "<ISO 8601>"}`; schema changes require a version bump in the filename (`v1` to `v2`).
 
 ## Skills
@@ -34,7 +34,7 @@ Same Claude Code users as luca-ops-kit: non-technical staff, managers, and power
 | Agent | Used by | Mandate |
 |-------|---------|---------|
 | **claude-flow-reviewer** | reflect | Reviews a conversation digest for Claude-side improvements: missed skill invocations, weak rule triggers, skill/rule/memory edits, repeated failure patterns |
-| **user-flow-reviewer** | reflect | Surfaces recommendations and classifies each as automatable (becomes a Claude-side rule, routed to the claude-flow pipeline) or user-only (rendered as a Hint to the user, max 3). Plain language, no coaching |
+| **user-flow-reviewer** | reflect | Surfaces up to 3 user-facing recommendations as Hints. Plain language, no coaching, nothing written to disk. |
 
 ## Hooks
 

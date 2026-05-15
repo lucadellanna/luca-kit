@@ -2,158 +2,166 @@
 name: dream
 description: >
   Use this skill when the user says "dream", "/dream", or asks to surface
-  cross-session patterns, consolidate memory, or review what /reflect has
-  learned across multiple sessions. Mines /reflect session logs to find
-  recurring suggestions never acted on, memory contradictions, and patterns
-  invisible within a single session.
-version: 0.1.0
+  cross-session patterns, prune the rule corpus, or review what /reflect
+  has accumulated across sessions. Mines reflect logs and optional sources
+  (error log, code-review checklist) for patterns visible only across
+  sessions, proposes a small ranked list of pruning or consolidation
+  actions, and applies only what the user confirms.
+version: 0.2.0
 ---
 
 # Dream
 
-Mine /reflect session logs to surface patterns only visible across multiple sessions. Identifies recurring suggestions never acted on, memory contradictions, skill drift, and cross-project signals.
+Cross-session pruning orchestrator. Loads multi-session signals, runs deterministic detections, decides on a specific action per candidate, asks the user which to apply, applies them, logs the run for future suppression.
 
-## Step 1: Scope and load
+You are the orchestrator and the analyst. There are no sub-agents. Detections run in Bash/Python. The translation from candidate to action is your inline reasoning.
 
-If not specified in the opening message, ask using AskUserQuestion:
+## Step 1: Locate the reflect log
 
-- **Scope**: current project (default) or all projects?
-- **Date range**: how far back? (default: 90 days)
-- **Options**: dry run (show findings only, no writes)?
-- **Focus**: any specific area to prioritize? (optional, e.g., "errors only", "skill improvements")
+Derive the project slug the same way the logger does:
 
-**Derive current repo slug** using the same method as /reflect Step 5b (git remote → `org__repo`, fallback to dir name, fallback to `no-repo`).
-
-**Load logs:**
-
-For single project:
 ```bash
-cat ~/.claude/reflect-logs/<slug>.jsonl
-```
-Filter to entries within the date range using Python or `jq`.
-
-For `all` projects: pre-aggregate via Bash before loading into context (raw multi-repo logs overflow context). Replace `90` with the user's date range in days if different:
-```bash
-# Guard: skip if no log files exist (unmatched glob causes misbehavior in nullglob shells)
-ls ~/.claude/reflect-logs/*.jsonl 2>/dev/null | grep -q . || { echo "No reflect logs found across any project. Run /reflect with session notes enabled first."; exit 0; }
-
-SINCE=$(python3 -c "import datetime; print((datetime.date.today() - datetime.timedelta(days=90)).isoformat())")
-
-# Top recurring finding texts with source repo (within-repo recurrence)
-# Handles both schema 1 (object findings with .text) and schema 2 (string findings)
-jq -rn --arg since "$SINCE" \
-  'inputs as $e | select(($e.schema == 1 or $e.schema == 2) and $e.date >= $since) | $e.findings[] |
-  [(input_filename | split("/")[-1] | rtrimstr(".jsonl")),
-   (if type == "object" then (.text // "") else . end)] | @tsv' \
-  ~/.claude/reflect-logs/*.jsonl 2>/dev/null \
-  | sort | uniq -c | sort -rn | awk '$1 >= 2' | head -50
-
-# Cross-project patterns: same finding text appearing in ≥2 repos
-jq -rn --arg since "$SINCE" \
-  'inputs as $e | select(($e.schema == 1 or $e.schema == 2) and $e.date >= $since) | $e.findings[] |
-  [(input_filename | split("/")[-1] | rtrimstr(".jsonl")),
-   (if type == "object" then (.text // "") else . end)] | @tsv' \
-  ~/.claude/reflect-logs/*.jsonl 2>/dev/null \
-  | sort -u | cut -f2- | sort | uniq -c | sort -rn | awk '$1 >= 2' | head -20
-
-# Skill improvement targets with source repo (schema 1 only; schema 2 lacks typed fields)
-jq -rn --arg since "$SINCE" \
-  'inputs as $e | select($e.schema == 1 and $e.date >= $since) | $e.findings[] | select(.type=="skill_improvement") |
-  [(input_filename | split("/")[-1] | rtrimstr(".jsonl")), (.skill // "")] | @tsv' \
-  ~/.claude/reflect-logs/*.jsonl 2>/dev/null \
-  | sort | uniq -c | sort -rn | awk '$1 >= 2'
-
-# Memory targets with source repo (schema 1 only; schema 2 lacks memory_target)
-jq -rn --arg since "$SINCE" \
-  'inputs as $e | select($e.schema == 1 and $e.date >= $since) | $e.findings[] | select(.type=="memory") |
-  [(input_filename | split("/")[-1] | rtrimstr(".jsonl")), (.memory_target // "")] | @tsv' \
-  ~/.claude/reflect-logs/*.jsonl 2>/dev/null \
-  | sort | uniq -c | sort -rn | awk '$1 > 1'
-```
-Load full entries only for repos where pre-aggregation shows signal (≥2 matching findings -- intentionally one below Step 2's ≥3 bar so borderline candidates are available for analysis without over-loading context). Accept schema 1 and 2; silently skip entries with unknown `schema` values.
-
-**Load memory files:**
-- Project memory: `<repo-root>/.claude/memory/*.md`
-- Global memory: `~/.claude/MEMORY.md`
-
-**Load code-review checklist** (if it exists):
-```bash
-cat ~/.claude/code-review-checklist.md 2>/dev/null
-```
-
-**Load error log** (if it exists). Aggregate first; load raw only if signal is found:
-```bash
-# Per-class counts within the date window (default 90d)
-SINCE=$(python3 -c "import datetime; print((datetime.date.today() - datetime.timedelta(days=90)).isoformat())")
-if [[ -n "$SINCE" && -f ~/.claude/error-log.md ]]; then
-  awk -F' \\| ' -v since="$SINCE" '$1 >= since {print $2}' ~/.claude/error-log.md \
-    | sort | uniq -c | sort -rn | head -30
-  # head -30 caps to the 30 most frequent classes; sufficient for any realistic error log
+ORIGIN=$(git remote get-url origin 2>/dev/null)
+if [ -n "$ORIGIN" ]; then
+  CLEAN=$(echo "$ORIGIN" | sed 's:/$::; s:\.git$::')
+  SLUG=$(echo "$CLEAN" | tr ':' '/' | awk -F/ '{print $(NF-1) "__" $NF}')
+else
+  TOP=$(git rev-parse --show-toplevel 2>/dev/null)
+  SLUG=$(basename "$TOP" 2>/dev/null || echo "no-repo")
 fi
+SLUG=$(echo "$SLUG" | sed 's/[^A-Za-z0-9_-]/-/g')
+LOG="$HOME/.claude/reflect-logs/${SLUG}.jsonl"
 ```
-If any class has count ≥ 3, load the full log entries for that class for analysis.
 
-If no log file found for the current project: "No session notes found for this project. Run /reflect at least once with session notes enabled; it will ask on the next run."
+If `$LOG` does not exist, output one line: "No reflect log for this project : run /reflect at least once with session notes enabled." and stop.
 
-## Step 2: Mine cross-session signal
+## Step 2: Pre-flight on log size
 
-Analyze entries within the date window and identify:
+```bash
+COUNT=$(wc -l < "$LOG")
+SIZE=$(wc -c < "$LOG")
+```
 
-| Signal | Detection rule | Priority |
-|--------|---------------|----------|
-| Recurring finding | Same finding text appears in ≥3 entries (schema 1: match by `type` + `text`; schema 2: match by string equality) | High |
-| Recurring suggestion, never acted on | Schema 1 only. Same finding in ≥3 entries where no `actions_taken` entry references it | High |
-| Memory contradiction | Schema 1 only. Same `memory_target` in entries A and B with conflicting `text`; current memory file still has A's version | High |
-| Action not sticking | Schema 1 only. Same finding in ≥3 entries AND matching `actions_taken` present each time | High |
-| Skill drift | Schema 1 only. Same `skill` value in ≥3 entries with inconsistent `change` summaries | Medium |
-| Stale insight | Finding not seen in last 10 entries but referenced in current memory file | Medium |
-| Cross-project pattern (`all` mode only) | Same finding text appearing in ≥2 repos | High (CLAUDE.md candidate) |
-| Stale checklist item | Item in `~/.claude/code-review-checklist.md` has no semantically matching finding across all sessions in the date window | Medium |
-| Duplicate checklist items | Two checklist items describe overlapping patterns (judge semantically, not by exact text) | Medium |
-| Recurring error class | Same error class appears ≥3 times in `~/.claude/error-log.md` within the date window: the rule is firing but not preventing recurrence | High (rule needs tightening or structural fix) |
-| Structural-proposed not landed | Entry with file `structural-proposed` exists in error log with no follow-up rule update within 14 days | High |
+If `COUNT > 200` OR `SIZE > 5242880` (5 MB), ask via `AskUserQuestion`:
 
-## Step 3: Score
+- Process all entries
+- Last 90 days (default)
+- Last 30 days
+- Custom range
 
-Spawn a Haiku sub-agent to score the findings. Pass it:
-1. The full findings list
-2. These criteria and their definitions
-3. The instruction: "Score each criterion 0–10. For each, give a one-sentence rationale. Return a markdown table."
+Below the threshold, process all entries silently. Set `SINCE` accordingly (`1970-01-01` for "all").
 
-Criteria:
-1. **Precision**: each finding is scoped correctly: not too broad, not a single-session detail
-2. **Non-triviality**: no observations that apply to any set of sessions
-3. **Concreteness**: every actionable finding names a specific next step
-4. **Coverage**: no obvious cross-session patterns were missed
-5. **Accuracy**: each finding is grounded in the actual log data, not inferred beyond what it contains
+## Step 3: Normalize entries
 
-If average < 9.5, revise and re-score. Stop after 3 iterations or if score stops improving (< 0.5 gain counts as stagnant; one extra iteration allowed if prior changes were substantive). Do not present findings until threshold met or iterations exhausted.
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/migrate-log.py" "$LOG" "$SINCE"
+```
 
-## Step 4: Present and act
+The script emits a JSON array of records, each shaped `{date, applied, asked_accepted, asked_rejected, hints, historical}`. Schemas 1, 2, and 3 are normalized; unknown schemas are silently skipped. Hold the array in working memory.
 
-If `--dry-run`: present findings only, then stop. No writes.
+## Step 4: Load rule corpus and optional sources
 
-Otherwise, present findings grouped by action type. Omit empty categories. Mark each **High** or **Medium**.
+```bash
+cat .claude/memory/MEMORY.md 2>/dev/null
+cat CLAUDE.md 2>/dev/null
+cat ~/.claude/CLAUDE.md 2>/dev/null
+cat ~/.claude/MEMORY.md 2>/dev/null
+cat "${CLAUDE_PLUGIN_ROOT}/CLAUDE.md" 2>/dev/null
+test -f ~/.claude/error-log.md && cat ~/.claude/error-log.md
+test -f ~/.claude/code-review-checklist.md && cat ~/.claude/code-review-checklist.md
+```
 
-AskUserQuestion (multiSelect: true) with the specific items as options:
-- **Memory updates**: update or remove the stale/contradicted entry
-- **Skill improvements**: apply a consolidated fix resolving drift or recurring gap
-- **CLAUDE.md additions** (`all` mode only): elevate cross-project pattern
-- **Checklist maintenance**: remove stale items, merge duplicates, reword overly-specific entries (show proposed diff before writing)
-- **No action needed**: note only
+Hold each output separately in working memory. Optional sources skipped silently if absent.
 
-Apply chosen actions. One focused edit per finding. For memory updates and checklist edits, show the exact proposed change before writing.
+## Step 5: Run deterministic detections
 
-## Self-reflection
+Produce candidates. A candidate is `{key, pattern, evidence}` where `key` is a stable identifier (a short slug derived from the pattern + target), `pattern` is a one-sentence description, `evidence` is the entries that triggered the detection.
 
-During execution, follow the self-observation protocol (see CLAUDE.md Principles).
+### From reflect logs (always)
 
-Spawn a Haiku sub-agent to verify:
+1. **Recurring concept**: aggregate all text from `applied + asked_accepted + asked_rejected + hints + historical` across records, whitespace-normalize, count by text. Texts with count ≥ 3 emit a candidate.
+2. **Repeated rejection**: a text with ≥ 2 occurrences in `asked_rejected` and 0 in `applied + asked_accepted` emits a candidate.
+3. **Recurrence after write**: for each `(target, text)` in any `applied` or `asked_accepted` entry on date D, search records after D for the same normalized text in any field. A match emits a candidate.
+4. **Memory contradiction**: group `applied` entries with a memory file target by their `**Topic**:` prefix. Two entries sharing a prefix but differing in the text after it emit a candidate.
+5. **Skill drift**: group `applied` and `asked_accepted` entries with a skill file target. If a target has ≥ 3 entries with pairwise-different text, emit a candidate.
 
-1. **Impact**: at least one action applied. Auto-pass if user declined all or only insights surfaced.
-2. **Quality**: Step 3 gate passed (avg ≥ 9.5 or all 3 iterations completed).
-3. **No overreach**: only selected actions were taken.
-4. **Log integrity**: no `.jsonl` file was modified by this run.
+### From error log (only if loaded)
 
-If any criterion scores below 8, draft a concise edit to this SKILL.md, show it to the user, and apply on approval.
+6. **Recurring error class**: parse error-class names from the error log. ≥ 3 occurrences within the window emit a candidate.
+7. **Structural-proposed unaged**: each error-log entry with file `structural-proposed` older than 14 days, with no matching rule update in the rule corpus, emits a candidate.
 
+### From checklist (only if loaded)
+
+Deterministic detection of stale or duplicate checklist items is too brittle. Pass all checklist items as raw input to Step 7; the analysis step judges them.
+
+## Step 6: Suppress previously-rejected candidates
+
+If `~/.claude/dream-logs/${SLUG}.jsonl` exists, read it. Each line is `{date, candidates: [{key, outcome, ...}]}`.
+
+For each candidate from Step 5: if its `key` appears in a past dream log entry with `outcome: rejected`, and no normalized record from Step 3 dated after that rejection mentions the same concept (text match in any field), drop the candidate.
+
+## Step 7: Analyze inline
+
+Examine the surviving candidates and the rule corpus. For each candidate (or near-duplicate cluster):
+
+- Choose an action: `delete`, `rewrite`, `merge`, `escalate` (project rule → global rule), or `drop` (your judgment: not actually a problem).
+- Compose the exact text the action will produce (target file path + new content, or the line to delete).
+- Estimate impact: `high`, `medium`, or `low`, based on recurrence count and severity.
+
+For raw checklist input (Step 5, third group), judge each item: stale (no matching reflect-log finding) → propose `delete`; duplicate (overlaps another item) → propose `merge` with the exact merged text.
+
+## Step 8: Render and ask
+
+Drop candidates with action `drop` entirely. Rank the rest by impact. Cap displayed at 7. Render as a numbered list:
+
+```
+1. <pattern>
+   Evidence: <one-line summary of triggering entries>
+   Proposed action: <verb> in <target>: <exact text>
+
+2. ...
+```
+
+Ask:
+
+> Reply with the numbers to apply (e.g., `1 2 4`), `all`, `none`, or a range (`1-3`).
+
+Parse: space-separated integers, the literal words `all` or `none`, or hyphenated ranges (inclusive). On invalid input (non-numeric tokens or out-of-range indices), surface the offending tokens and re-ask once. After one re-ask, treat unknown input as `none`.
+
+## Step 9: Apply
+
+For each chosen candidate, in display order:
+
+1. State the planned edit in one line.
+2. Apply with `Edit` or `Write`.
+3. Record outcome for Step 10.
+
+If a write fails, surface the failure and continue with the rest.
+
+## Step 10: Log
+
+```bash
+mkdir -p ~/.claude/dream-logs
+```
+
+Append one JSONL line to `~/.claude/dream-logs/${SLUG}.jsonl`:
+
+```json
+{
+  "schema": 1,
+  "date": "<YYYY-MM-DD>",
+  "candidates": [
+    {"key": "<key>", "pattern": "<one sentence>", "proposed_action": "<verb> in <target>", "outcome": "applied"},
+    {"key": "...", "pattern": "...", "proposed_action": "...", "outcome": "rejected"}
+  ]
+}
+```
+
+Every candidate displayed in Step 8 is logged. Picked → `applied`. Not picked (or rejected via `none`) → `rejected`. The next /dream run uses these in Step 6 for suppression.
+
+## Where the data lives
+
+- Reflect logs (input): `~/.claude/reflect-logs/<slug>.jsonl`: written by /reflect, read by /dream.
+- Dream logs (own state): `~/.claude/dream-logs/<slug>.jsonl`: written by /dream only.
+- View dream history: `cat ~/.claude/dream-logs/<slug>.jsonl`
+- Reset dream suppression: `rm ~/.claude/dream-logs/<slug>.jsonl`
