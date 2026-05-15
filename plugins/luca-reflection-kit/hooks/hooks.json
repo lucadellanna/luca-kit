@@ -1,5 +1,5 @@
 {
-  "description": "Reflection plugin hooks: terms-acceptance reminder on SessionStart, optimization-hint reminder on UserPromptSubmit.",
+  "description": "Reflection plugin hooks: terms-acceptance reminder on SessionStart; optimization-hint and workflow-hint reminders on UserPromptSubmit.",
   "hooks": {
     "SessionStart": [
       {
@@ -20,6 +20,11 @@
           {
             "type": "command",
             "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/optimization-hint.sh\"",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/workflow-hint.sh\"",
             "timeout": 5
           }
         ]

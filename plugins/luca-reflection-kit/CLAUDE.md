@@ -40,5 +40,6 @@ Same Claude Code users as luca-ops-kit: non-technical staff, managers, and power
 
 | Hook | Event | What it does |
 |------|-------|-------------|
-| **optimization-hint** | UserPromptSubmit | Reminds Claude to append a one-sentence optimization hint when the prior response involved 8+ tool calls |
+| **optimization-hint** | UserPromptSubmit | Reminds Claude to append a one-sentence Optimization hint at the end of the current response if it involves 8+ tool calls (memory-worthy pattern / skill to edit or improve) |
+| **workflow-hint** | UserPromptSubmit | Reminds Claude to append a one-sentence Workflow hint at the end of the current response if it involves 8+ tool calls (skill to codify / user judgement or workflow to automate / friction to remove) |
 | **terms-acceptance-check** | SessionStart | Echoes a one-time reminder if `~/.claude/luca-ops-kit/terms-accepted-v1.json` is absent. Silent when `$CLAUDE_CODE_REMOTE` is set or no controlling terminal exists; silent once the marker exists. |

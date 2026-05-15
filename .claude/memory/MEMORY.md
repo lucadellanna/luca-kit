@@ -36,6 +36,8 @@
 
 ## Plugin development
 
+**New hook file touchpoints**: adding a hook to this repo requires updates in ~10 files: the script itself (`hooks/<name>.sh`), `hooks/hooks.json`, plugin `CLAUDE.md`, plugin `README.md`, `plugin.json`, root `CLAUDE.md`, root `README.md`, `INDEX.md`, `.claude-plugin/marketplace.json`, and (if present) `CHANGELOG.md`. All in one commit per the "hook + scripts are one deployable unit" rule.
+
 **Cache vs workspace layering**: when developing luca-ops-kit in a Conductor workspace while the plugin is also installed, skill invocations (e.g. `/luca-ops-kit:reflect`) run from `~/.claude/plugins/cache/`, not the workspace. Workspace edits are invisible to running skills until the plugin is republished and reinstalled.
 
 **Plugin agent file location**: agent files go in `agents/<name>.md` at the plugin root, not inside a skill's subdirectory; the file IS the agent's prompt (frontmatter + body = system prompt).
