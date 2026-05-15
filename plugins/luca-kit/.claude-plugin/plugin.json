@@ -1,6 +1,6 @@
 {
   "name": "luca-kit",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Self-reflection and productivity hooks for Claude Code: conversation analysis, cross-session learning, and token-efficient optimization and workflow hints.",
   "author": {
     "name": "Luca Dellanna",
