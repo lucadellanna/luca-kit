@@ -18,6 +18,11 @@
       "name": "luca-reflection-kit",
       "source": "./plugins/luca-reflection-kit",
       "description": "Self-reflection and cross-session learning skills: scan conversations for improvement points, mine recurring patterns, and surface optimization and workflow hints"
+    },
+    {
+      "name": "luca-kit",
+      "source": "./plugins/luca-kit",
+      "description": "Self-reflection and productivity hooks for Claude Code: conversation analysis, cross-session learning, and token-efficient optimization and workflow hints."
     }
   ]
 }
