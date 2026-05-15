@@ -27,7 +27,7 @@ import sys
 
 def normalize(entry):
     rec = {
-        "date": entry.get("date", "1970-01-01"),
+        "date": entry.get("date") or "1970-01-01",
         "applied": [],
         "asked_accepted": [],
         "asked_rejected": [],
@@ -36,18 +36,18 @@ def normalize(entry):
     }
     schema = entry.get("schema", 0)
     if schema == 3:
-        rec["applied"] = entry.get("applied", [])
-        rec["asked_accepted"] = entry.get("asked_accepted", [])
-        rec["asked_rejected"] = entry.get("asked_rejected", [])
-        rec["hints"] = entry.get("hints", [])
+        rec["applied"] = [e for e in (entry.get("applied") or []) if isinstance(e, dict)]
+        rec["asked_accepted"] = [e for e in (entry.get("asked_accepted") or []) if isinstance(e, dict)]
+        rec["asked_rejected"] = [e for e in (entry.get("asked_rejected") or []) if isinstance(e, dict)]
+        rec["hints"] = [h if isinstance(h, str) else str(h) for h in (entry.get("hints") or [])]
         return rec
     if schema == 2:
-        rec["historical"] = entry.get("findings", [])
+        rec["historical"] = entry.get("findings") or []
         return rec
     if schema == 1:
-        for f in entry.get("findings", []):
+        for f in entry.get("findings") or []:
             if isinstance(f, dict):
-                text = f.get("text", str(f))
+                text = f.get("text") or str(f)
                 target = f.get("target") or f.get("memory_target") or f.get("skill")
                 rec["historical"].append(f"{target}: {text}" if target else text)
             else:
@@ -77,7 +77,9 @@ def main():
                 entry = json.loads(line)
             except json.JSONDecodeError:
                 continue
-            if entry.get("date", "1970-01-01") < since:
+            if not isinstance(entry, dict):
+                continue
+            if (entry.get("date") or "1970-01-01") < since:
                 continue
             rec = normalize(entry)
             if rec is not None:

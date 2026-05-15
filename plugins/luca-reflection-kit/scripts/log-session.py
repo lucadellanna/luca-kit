@@ -27,7 +27,7 @@ except json.JSONDecodeError:
 
 today = str(datetime.date.today())
 if isinstance(data, dict):
-    entry = {"schema": 3, "date": data.get("date", today)}
+    entry = {"schema": 3, "date": data.get("date") or today}
     for k in ("applied", "asked_accepted", "asked_rejected", "hints"):
         val = data.get(k, [])
         if not isinstance(val, list):
