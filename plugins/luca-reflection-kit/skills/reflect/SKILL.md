@@ -3,30 +3,23 @@ name: reflect
 description: >
   Use this skill when the user says "reflect", "let's reflect", or asks to
   analyze the current conversation for learning points, errors, and improvement
-  opportunities. Orchestrates two specialist reviewers (Claude-side and
-  user-side) over a verbatim conversation digest, synthesizes their findings
-  into a prioritized report with evidence, auto-applies clear low-risk wins
-  to project memory, and asks before any other change.
-version: 0.5.5
+  opportunities. Orchestrates two reviewers in parallel over a verbatim
+  conversation digest, auto-applies safe changes to project memory, asks the
+  user about anything riskier, and surfaces a few user-facing hints.
+version: 0.6.0
 ---
 
 # Reflect
 
-Orchestrator. Assembles a conversation digest, spawns two specialist sub-agents in parallel, synthesizes their findings, renders a report with evidence, auto-applies gated wins, asks about the rest, and logs the session.
+Orchestrator. Gathers inputs, runs two reviewers in parallel, computes risk from each finding's target file, auto-applies the safe ones, asks about the rest, surfaces user hints, logs the session.
 
-You are not the reviewer. The reviewers are sub-agents. Your job is to gather evidence, route it, and synthesize. Stay neutral when building the digest.
-
-## Step 0: Length check
-
-If fewer than ~5 substantive exchanges since the last `/reflect` (or session start if none), say "Not enough material to reflect on meaningfully" and stop.
-
-Do not mention session-note opt-in here. The setup command handles that separately.
+You are not a reviewer. The reviewers are sub-agents. Your job is to gather, route, apply, and log.
 
 ## Step 1: Gather inputs
 
-### 1a. Build the conversation digest
+### 1a. Conversation digest
 
-Construct a verbatim digest of conversation turns since the last `/reflect` (or session start). Each turn is kept as-is. Format:
+Construct a verbatim digest of conversation turns since the last `/reflect` in this session (or session start). To locate the boundary, scan backward through conversation turns for the most recent turn where the user message matches the reflect trigger phrases; the digest starts with the turn immediately after that. Format:
 
 ```
 --- Turn N ---
@@ -34,20 +27,17 @@ Construct a verbatim digest of conversation turns since the last `/reflect` (or 
 <verbatim user message>
 
 [claude tool: <tool-name>(<args summary>)]
-<tool output, truncated: keep first 5 + last 5 lines, mark "[... K lines omitted ...]" in between if longer>
+<tool output: first 5 lines + "[... K lines omitted ...]" + last 5 lines if longer>
 
 [claude]
 <verbatim Claude response text>
 ```
 
-Rules:
-- No interpretation. No labels like "error" or "pushback". Just enumerate turns.
-- Truncate tool outputs aggressively (5 + 5 lines). Code blocks and file contents inside responses are kept as-is.
-- If a turn is trivial (one-word ack), include it briefly; do not skip.
+No interpretation, no labels. Just turns. Tool outputs truncated to 5 + 5 lines. Code blocks and file contents inside Claude responses stay as-is.
 
-### 1b. Read the rule corpus
+### 1b. Rule corpus
 
-The reviewers have `tools: []` and cannot read files themselves. Assemble the full rule corpus so they can detect functional duplicates (not just literal MEMORY.md matches):
+Reviewers cannot read files. Assemble the full rule corpus once:
 
 ```bash
 echo "=== PROJECT MEMORY ==="
@@ -63,162 +53,112 @@ echo "=== PLUGIN RUNTIME CLAUDE.md (\${CLAUDE_PLUGIN_ROOT}/CLAUDE.md) ==="
 cat "${CLAUDE_PLUGIN_ROOT}/CLAUDE.md" 2>/dev/null || echo "(absent)"
 ```
 
-### 1c. Enumerate available skills and commands
-
-So reviewers can suggest "invoke skill X" or "run command Y" as alternatives to "add memory entry":
+### 1c. Skills + commands index
 
 ```bash
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/enumerate-skills.py"
 ```
 
-Hold the digest, rule corpus, and skills/commands index in working memory for Step 2.
+Hold the digest, rule corpus, and index in working memory for Step 2.
 
-## Step 2: Spawn the two reviewers in parallel
+## Step 2: Run two reviewers in parallel
 
-Send a single message with two `Agent` tool calls (parallel execution):
+Send a single message with two `Agent` calls:
 
-- `subagent_type: "luca-reflection-kit:claude-flow-reviewer"`
-- `subagent_type: "luca-reflection-kit:user-flow-reviewer"`
+- `subagent_type: "luca-reflection-kit:claude-flow-reviewer"`: behavior-asset reviewer (Agent 1).
+- `subagent_type: "luca-reflection-kit:user-flow-reviewer"`: user-hint reviewer (Agent 2).
 
-The two reviewers have asymmetric outputs:
+Inline all three inputs verbatim into each Agent call prompt in this order: (1) the conversation digest under the heading `## Conversation digest`, (2) the rule corpus under `## Rule corpus`, (3) the skills + commands index under `## Skills index`.
 
-- **claude-flow-reviewer** produces findings (target file + proposed change) destined for the auto-apply gate or the user's AskUserQuestion.
-- **user-flow-reviewer** produces recommendations classified as automatable (includes proposed_rule + target, routed into the claude-flow pipeline) or user-only (rendered as Hint, max 3). It does not directly apply edits.
+Each agent's mandate, finding categories, and output format are defined in the agent's own file. Do not duplicate them here.
 
-Both calls share the first three inputs:
+If both reviewers return nothing, write a one-line message ("Nothing worth surfacing.") and proceed to Step 7 to log the empty session. If one returns nothing, note that in the report header and proceed with the other.
 
-1. The full digest from Step 1a.
-2. The full rule corpus from Step 1b (project MEMORY.md + global CLAUDE.md + project CLAUDE.md + plugin runtime CLAUDE.md). The reviewer uses this to detect functional duplicates: a finding/observation already enforced by an existing rule is dropped.
-3. The skills + commands index from Step 1c. Reviewers can suggest "invoke skill X" or "run command Y" instead of encoding a new rule.
+## Step 3: Assign risk to Agent 1 findings
 
-**claude-flow-reviewer also receives** the auto-apply gate criteria, verbatim:
+Each Agent 1 finding has a `target` file path. Map `target` → `risk`:
 
-```
-AUTO-APPLY GATE: A finding qualifies for `disposition: apply` only if ALL of:
-- target is `.claude/memory/MEMORY.md` (project memory; never CLAUDE.md, never any skill file, never any other plugin file)
-- confidence is high
-- proposed text is exactly 1 line and follows the format: `**Topic**: fact`
-- not a functional duplicate of any rule in the rule corpus above (literal text match OR same behavior already enforced by a different phrasing)
-- the proposed text changes future behavior beyond what existing rules / skills / commands already enforce (the value-adding test)
+| Target | Risk |
+|---|---|
+| Project `.claude/memory/MEMORY.md` or global `~/.claude/MEMORY.md` | `safe` |
+| Any `CLAUDE.md` (project, global, plugin runtime) | `ambiguous` |
+| Any existing skill file | `ambiguous` |
+| New skill creation (path that does not yet exist) | `ambiguous` |
+| Hook script (`.sh`, `.py` under `hooks/`) | `security-sensitive` |
+| Anything else | `breaking` |
 
-Any finding failing any criterion uses `disposition: review` (orchestrator will ask the user) or `disposition: ignore`.
-```
+Before assigning the "New skill creation" row, check whether the path exists: `test -f <target> && echo exists || echo absent`. Apply that row only when the file is absent; use "Any existing skill file" when it exists.
 
-**Reminders (one per reviewer):**
+The orchestrator computes risk. The agent does not.
 
-- claude-flow: "Return findings in the format specified in your system prompt. Cite verbatim evidence. Run every finding through the quality floor (value-adding test included). Findings may include 'user has restated requirement X N times; add to MEMORY.md'. That is a Claude-side memory change and belongs to you, not to user-flow-reviewer."
-- user-flow: "Return recommendations in the format specified in your system prompt. Cite verbatim evidence. No coaching tone. For automatable recommendations, include proposed_rule and target fields; do not directly apply any edits."
+## Step 4: Auto-apply safe findings
 
-## Step 3: Synthesize
+Auto-apply requires both:
+- `risk = safe` (computed in Step 3), AND
+- `proposed_change` is a plain text addition (no line in `proposed_change` starts with `edit:` or `new skill at`).
 
-Treat the two reviewers' outputs as follows:
+Findings with `risk = safe` but an `edit:` or `new skill at` shape are routed into Step 5 (ask) regardless of target. Auto-apply only writes new lines; rewriting existing lines or creating new files always asks.
 
-- **claude-flow findings** go through the auto-apply gate (Step 4), the rendering pipeline (Step 5), and the AskUserQuestion path (Step 6).
-- **user-flow recommendations** are split by their `automatable` field:
-  - `automatable: yes` → convert each into a claude-flow finding using the agent's `proposed_rule` and `target`. Assign `confidence: medium` and `disposition: review` as defaults (the gate in Step 4 may upgrade `disposition` to `apply`). Add to the claude-flow set and synthesize together.
-  - `automatable: no` → set aside as user-only hints. Cap at 3 by likely impact (1 or 2 is acceptable). Render under "Hint(s)" in Step 5. No gate, no AskUserQuestion.
+For each eligible finding:
 
-**Both empty (`None.`)**: tell the user "Both reviewers found nothing worth surfacing." Skip Steps 4–6 and proceed to Step 7 for logging.
+1. Read the target file. If `proposed_change` is a single line, check with `grep -qF`; if it spans multiple lines, check as a substring of the full file content. Skip and note as duplicate if a match is found.
+2. Otherwise append the proposed text as a new line at the end of the target file. If the file does not exist, create it with the proposed text as the first line.
+3. Record success or failure for Step 6.
 
-**One reviewer returned `None.`**: proceed with the other's output. Add a one-line warning at the top of the report: "Note: <reviewer-name> returned no findings."
+## Step 5: Ask the user about non-safe findings
 
-**Synthesis rules for claude-flow findings only:**
-
-- **Deduplicate within claude-flow output**: two findings are duplicates if they share target file AND propose substantively similar text. Keep the higher-confidence one.
-- **Source-tree dedup (fallback).** Reviewers receive the full rule corpus in Step 1b, so they should self-filter functional duplicates. As defense in depth, before keeping any finding whose target is a skill, agent, command, or CLAUDE.md file modified in this session, Read the current content of that file and reject the finding if the proposed change is already implemented. This catches edge cases where a file changed in the session but the reviewer's view of "what's encoded" is stale.
-- **Reject weak items**: drop findings with `confidence: low` AND `disposition: review`. They are noise.
-- **Rank**: order by confidence (high first), then by specificity of target.
-
-## Step 4: Auto-apply gated items
-
-For each finding with `disposition: apply` that meets the gate:
-
-1. Use `grep -F` to check if the proposed text already exists in `.claude/memory/MEMORY.md` or the project CLAUDE.md. If a match exists, skip and move the finding to `review` disposition.
-2. Append the proposed text to the end of the appropriate section in `.claude/memory/MEMORY.md` (`## Preferences`, `## Context`; create file/section if absent). Use Edit or Write.
-3. Note in working memory whether the write succeeded.
-
-If any auto-apply write fails, do not silently move on: record the failure and surface it in the report.
-
-## Step 5: Render the report
-
-Sections, in order. Omit any empty section.
-
-1. **Warnings** (only if a reviewer returned `None.` or an auto-apply write failed).
-2. **Top recommended next actions** (max 3 from claude-flow findings, ranked by confidence × specificity). User-flow recommendations are surfaced in their own section, not bundled here.
-3. **Claude-side improvements** (claude-flow non-applied findings, using the finding schema below).
-4. **Hint(s)** (user-only recommendations from user-flow, max 3). Format spec below.
-5. **Auto-applied** (what was written in Step 4, with file path and exact text).
-6. **Logged only** (claude-flow items with disposition: review that propose no change).
-
-**Finding schema** (claude-flow):
-
-```
-- **Evidence**: "<verbatim quote>"
-- **Observation**: <one sentence>
-- **Proposed change**: <one sentence>
-- **Target**: <file path>
-- **Confidence**: high | medium | low
-```
-
-**Hint(s) format** (user-flow `automatable: no` items, max 3):
-
-```
-**Hint(s):**
-- <recommendation sentence in normal text>. *<rationale sentence in italic.>*
-- ...
-```
-
-Plain language. No jargon. The recommendation is what to try next time; the rationale is the one-sentence reason it would help. If only 1 or 2 user-only items survive the cap, that is fine.
-
-## Step 6: Ask the user about non-applied claude-flow findings
-
-Only claude-flow findings have an "apply" path. User-flow observations are informational and never asked about.
-
-Collect all claude-flow findings with `disposition: review` that propose a change (not just observations). If more than 4, keep the top 4 by confidence; the rest are mentioned at the end of the report as "X more findings logged only". (AskUserQuestion has a hard 4-option limit.)
+Collect Agent 1 findings with `risk` in `{ambiguous, breaking, security-sensitive}`. If more than 4, keep the top 4 ordered by risk level (`security-sensitive` first, then `breaking`, then `ambiguous`), then by order returned; the rest go to "Logged only".
 
 If the count is zero, skip this step.
 
-Otherwise call AskUserQuestion (multiSelect: true). Each option is one finding, labeled `<target>: <one-line summary>`. The user picks which to apply.
+Otherwise call `AskUserQuestion` (`multiSelect: true`). Each option is one finding, labeled `<target>: <proposed_change truncated to the first line>`. For each chosen item, state the planned edit, then apply with `Edit` (or `Write` if the file is new).
 
-For each chosen item:
-- **Memory updates**: write to `.claude/memory/MEMORY.md`. State the exact text before writing.
-- **Skill edits**: state the planned edit (one line), then apply with Edit.
-- **CLAUDE.md edits**: state the planned edit, confirm scope (project vs global), apply with Edit.
-- **New skill**: run `/create-skill` with the proposed name, purpose, and trigger as context.
+## Step 6: Render the report
 
-## Step 7: Log session
+Short. Omit any empty section.
 
-Silent opt-in check at the top:
+1. **Applied**: one line per Step 4 auto-apply, format: `<target>: <one-line summary>`. Mark failed writes with `(FAILED)`.
+2. **Hints**: Agent 2 output, max 3. Format:
+   ```
+   - <recommendation>. *<rationale>*
+   ```
+3. **Logged only**: Step 5 overflow findings (never presented to the user) and non-safe findings the user did not pick. Overflow findings are not written to the log in Step 7; only `asked_accepted` and `asked_rejected` entries reflect actual user decisions.
+
+No grading, no congratulations, no narrative session summary.
+
+## Step 7: Log the session
 
 ```bash
 ls ~/.claude/reflect-logs/.enabled 2>/dev/null && echo "enabled" || echo "skip"
 ```
 
-- `skip`: stop. No prompt, no nag. The setup command handles opt-in.
-- `enabled`: continue.
+If `skip`: stop. The opt-in is handled by `/luca-reflection-kit:luca-reflection-recommended-setup`.
 
-Check `python3`:
+If `enabled`, check Python:
 
 ```bash
 command -v python3 >/dev/null 2>&1 && echo "ok" || echo "missing"
 ```
 
-If `missing`: tell the user once: "Session notes couldn't be saved: Python 3 isn't installed. Get it from python.org when ready." Stop.
+If `missing`: tell the user once ("Session notes couldn't be saved: Python 3 isn't installed.") and stop.
 
-If `ok`: build a JSON array of finding strings (one string per finding, from both reviewers, regardless of disposition). Then run:
+If `ok`: build a single JSON object and pass it to the logger:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/log-session.py" <<'FINDINGS'
-["finding 1", "finding 2"]
-FINDINGS
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/log-session.py" <<'ENTRY'
+{"date": "<YYYY-MM-DD>",
+ "applied": [{"target": "<path>", "text": "<text>"}, ...],
+ "asked_accepted": [{"target": "<path>", "text": "<text>"}, ...],
+ "asked_rejected": [{"target": "<path>", "text": "<text>"}, ...],
+ "hints": ["<recommendation>", ...]}
+ENTRY
 ```
 
-Use standard JSON string escaping.
+Use standard JSON escaping.
 
 ## Where the data lives
 
-Session notes are saved to `~/.claude/reflect-logs/<project-name>.jsonl`, one line per session.
-
-- To change the opt-in: run `/luca-reflection-kit:luca-reflection-recommended-setup`.
-- To view notes: `cat ~/.claude/reflect-logs/<project>.jsonl`
-- To delete all notes for a project: `rm ~/.claude/reflect-logs/<project>.jsonl`
+- Session log: `~/.claude/reflect-logs/<project-slug>.jsonl`, one line per session.
+- Toggle session notes: `/luca-reflection-kit:luca-reflection-recommended-setup`.
+- View notes: `cat ~/.claude/reflect-logs/<project>.jsonl`
+- Delete notes: `rm ~/.claude/reflect-logs/<project>.jsonl`

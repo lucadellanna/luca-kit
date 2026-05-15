@@ -66,7 +66,7 @@
 | `plugins/luca-ops-kit/skills/setup-context-search/HELP.md` |  |
 | `plugins/luca-ops-kit/skills/setup-context-search/SKILL.md` | `/luca-ops-kit:setup-context-search` skill |
 
-## Plugin: luca-reflection-kit (v0.3.2)
+## Plugin: luca-reflection-kit (v0.6.0)
 
 | Path | Role |
 |---|---|
@@ -83,10 +83,12 @@
 | `plugins/luca-reflection-kit/scripts/config.py` | Script: config.py |
 | `plugins/luca-reflection-kit/scripts/enumerate-skills.py` | Script: enumerate-skills.py |
 | `plugins/luca-reflection-kit/scripts/log-session.py` | Script: log-session.py |
+| `plugins/luca-reflection-kit/scripts/migrate-log.py` | Script: migrate-log.py |
 | `plugins/luca-reflection-kit/scripts/terms-accept.py` | Script: terms-accept.py |
 | `plugins/luca-reflection-kit/scripts/terms-revoke.py` | Script: terms-revoke.py |
 | `plugins/luca-reflection-kit/skills/dream/DESIGN.md` | Design decisions: `/luca-reflection-kit:dream` |
 | `plugins/luca-reflection-kit/skills/dream/HELP.md` |  |
+| `plugins/luca-reflection-kit/skills/dream/REQUIREMENTS.md` |  |
 | `plugins/luca-reflection-kit/skills/dream/SKILL.md` | `/luca-reflection-kit:dream` skill |
 | `plugins/luca-reflection-kit/skills/reflect/DESIGN.md` | Design decisions: `/luca-reflection-kit:reflect` |
 | `plugins/luca-reflection-kit/skills/reflect/HELP.md` |  |
