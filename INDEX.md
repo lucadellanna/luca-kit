@@ -24,7 +24,7 @@
 | `plugins/luca-dev-kit/skills/targeted-review/SKILL.md` | `/luca-dev-kit:targeted-review` skill |
 | `plugins/luca-dev-kit/skills/triple-review/SKILL.md` | `/luca-dev-kit:triple-review` skill |
 
-## Plugin: luca-kit (v0.1.0)
+## Plugin: luca-kit (v0.2.0)
 
 | Path | Role |
 |---|---|
@@ -34,6 +34,7 @@
 | `plugins/luca-kit/hooks/hooks.json` | Hook registry |
 | `plugins/luca-kit/hooks/optimization-hint.sh` | Hook script |
 | `plugins/luca-kit/hooks/workflow-hint.sh` | Hook script |
+| `plugins/luca-kit/skills/reflect/SKILL.md` | `/luca-kit:reflect` skill |
 
 ## Plugin: luca-ops-kit (v0.5.0)
 

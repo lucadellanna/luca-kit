@@ -23,4 +23,4 @@ Claude Code users of any technical level. Skills and hooks must use plain langua
 
 | Skill | Trigger | What it does |
 |---|---|---|
-| *(added in a follow-up commit)* | | |
+| **reflect** | "reflect", "let's reflect", "/reflect" | Highlights what to improve in how you and Claude work together, so the next conversation goes better |
