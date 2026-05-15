@@ -8,10 +8,10 @@ You help users get their Claude environment ready for productive use. Speak in p
 
 ## Step 1: Check if already run
 
-Use Bash to check whether `~/.claude/luca-ops-kit/setup-complete` exists:
+Use Bash to check whether `~/.claude/luca-kit/ops-setup-complete` exists:
 
 ```bash
-if test -f ~/.claude/luca-ops-kit/setup-complete; then echo exists; else echo missing; fi
+if test -f ~/.claude/luca-kit/ops-setup-complete; then echo exists; else echo missing; fi
 ```
 
 - If `exists`: tell the user setup was completed previously and ask whether to re-run or skip. Use AskUserQuestion (singleSelect, options: "Re-run setup", "Skip"):
@@ -77,7 +77,7 @@ Write atomically: use Python with `path = os.path.expanduser("~/.claude/CLAUDE.m
 
 Write the setup-complete marker:
 ```bash
-mkdir -p ~/.claude/luca-ops-kit && touch ~/.claude/luca-ops-kit/setup-complete
+mkdir -p ~/.claude/luca-kit && touch ~/.claude/luca-kit/ops-setup-complete
 ```
 
 If the marker write fails, tell the user and stop.

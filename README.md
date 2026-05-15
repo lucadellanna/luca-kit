@@ -95,7 +95,6 @@ Requires [Claude Code](https://claude.ai/code).
 | **audit-skill** | Scores a single skill against 7 quality dimensions (clarity, security, instruction explicitness, and more), proposes improvements, and iterates until the bar is met |
 | **audit-skills** | Scans your whole skill library for overlapping skills, then audits a rotating batch of 3 so every skill gets reviewed over time |
 | **audit-claude** | Scans your CLAUDE.md and memory files for bloat and cross-file redundancy, proposes targeted cuts, and verifies nothing meaningful was lost |
-| **setup-context-search** | *(Power users)* Installs [qmd](https://github.com/tobi/qmd) and configures it as an MCP server, giving Claude semantic search over your context files (customers, offerings, projects). Requires Node.js 22+ |
 
 ### luca-dev-kit
 
@@ -127,6 +126,7 @@ Installed automatically with the plugin (no setup needed):
 |-------|-------------|
 | **reflect** | After a session, extracts what went well, what went wrong, and what should become a memory update, skill improvement, or new skill |
 | **dream** | Mines your /reflect logs to surface patterns across sessions: recurring issues never fixed, memory contradictions, and improvements that keep coming up but never land |
+| **setup-context-search** | *(Power users)* Installs [qmd](https://github.com/tobi/qmd) and configures it as an MCP server; enables semantic overlap detection in /reflect and /dream. Requires Node.js 22+. |
 
 #### Hooks
 
@@ -151,9 +151,17 @@ The plugin ships **meta-skills**: structured workflows for building, auditing, a
 | Frontline manager | Builds an SOP from tacit know-how |
 | Local power user | Audits, consolidates, and governs the team's skill library |
 
+### luca-dev-kit
+
+Write "open pr" and Claude handles the rest: pre-PR quality gates (triple-review against principles, recurring bug patterns, and structural integrity), PR creation, and an autonomous Gemini review loop that fixes comments and re-triggers review until the PR is clean.
+
+### luca-reflection-kit
+
+Run `/reflect` after a session to extract what went well, what didn't, and what should become a memory update, skill improvement, or new skill. Run `/dream` periodically to mine past reflect logs for recurring patterns and improvements that keep coming up but never land.
+
 ### Context search (optional, power users)
 
-As your context library grows (customers, offerings, projects, SOPs), finding the right file becomes harder. `/setup-context-search` installs [qmd](https://github.com/tobi/qmd), a local semantic search engine, and wires it into Claude as an MCP server. After setup, Claude can search your context files natively using keyword, semantic, or hybrid queries without you needing to remember file names or locations.
+As your file library grows (notes, SOPs, context files), finding the right document becomes harder. `/setup-context-search` installs [qmd](https://github.com/tobi/qmd), a local semantic search engine, and wires it into Claude as an MCP server. After setup, `/reflect` and `/dream` use semantic search to detect conceptual overlaps when proposing new rules or skills, and Claude can search your files natively in any session.
 
 **Requirements:** Node.js 22+, npm or bun, ~2.2 GB disk for local AI models (runs entirely on your machine, no cloud).
 
@@ -162,18 +170,10 @@ As your context library grows (customers, offerings, projects, SOPs), finding th
 | Query type | Example | How it works |
 |---|---|---|
 | Keyword | "Find the Acme Corp file" | Fast BM25 full-text search |
-| Semantic | "Customers similar to Acme" | Vector similarity via local embeddings |
-| Hybrid | "Healthcare clients with active contracts" | Keyword + semantic + LLM re-ranking |
+| Semantic | "Notes similar to X" | Vector similarity via local embeddings |
+| Hybrid | "Recent project notes on topic Y" | Keyword + semantic + LLM re-ranking |
 
-Run `/setup-context-search` once; Claude gets the search tools permanently.
-
-### luca-dev-kit
-
-Write "open pr" and Claude handles the rest: pre-PR quality gates (triple-review against principles, recurring bug patterns, and structural integrity), PR creation, and an autonomous Gemini review loop that fixes comments and re-triggers review until the PR is clean.
-
-### luca-reflection-kit
-
-Run `/reflect` after a session to extract what went well, what didn't, and what should become a memory update, skill improvement, or new skill. Run `/dream` periodically to mine past reflect logs for recurring patterns and improvements that keep coming up but never land.
+Run `/luca-reflection-kit:setup-context-search` once; Claude gets the search tools permanently.
 
 ## For holdco customers
 

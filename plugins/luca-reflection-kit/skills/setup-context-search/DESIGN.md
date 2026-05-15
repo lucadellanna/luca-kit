@@ -18,14 +18,14 @@ qmd was chosen because: local-only (no data leaves the machine), MCP-native (Cla
 
 ## Why technical-only audience
 
-The plugin's default audience is non-technical business users. This skill is an intentional exception because:
+luca-reflection-kit targets all Claude Code users, but this skill is a power-user path because:
 
 1. qmd requires Node.js 22+, npm, and Homebrew (macOS) as prerequisites
 2. First-run downloads ~2.2 GB of local models
 3. Troubleshooting installation failures requires CLI comfort
 4. The benefit (semantic search over context files) only materializes at file counts where technical setup is justified
 
-Non-technical users continue using Claude's native Glob/Grep via other skills; this is a power-user upgrade path.
+Non-technical users continue using Claude's native Glob/Grep; this is an opt-in upgrade for users willing to install the prerequisites.
 
 ## Why MCP integration (not a wrapper skill)
 

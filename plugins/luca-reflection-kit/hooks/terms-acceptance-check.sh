@@ -20,7 +20,7 @@ if ! { : < /dev/tty; } 2>/dev/null; then
   exit 0
 fi
 
-MARKER="${HOME}/.claude/luca-ops-kit/terms-accepted-v1.json"
+MARKER="${HOME}/.claude/luca-kit/terms-accepted-v1.json"
 if [ -f "${MARKER}" ]; then
   exit 0
 fi

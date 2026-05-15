@@ -73,6 +73,14 @@ test -f ~/.claude/code-review-checklist.md && cat ~/.claude/code-review-checklis
 
 Hold each output separately in working memory. Optional sources skipped silently if absent.
 
+Check qmd availability:
+
+```bash
+if test -f ~/.claude/luca-kit/reflection-context-search-configured; then echo marker_present; else echo marker_absent; fi
+```
+
+Store as `$QMD_AVAILABLE` (same two-condition check: marker present AND `mcp__qmd__query` in this session's available-tools list).
+
 ## Step 5: Run deterministic detections
 
 Produce candidates. A candidate is `{key, pattern, evidence}` where `key` is a stable identifier (a short slug derived from the pattern + target), `pattern` is a one-sentence description, `evidence` is the entries that triggered the detection.
@@ -102,7 +110,15 @@ For each candidate from Step 5: if its `key` appears in a past dream log entry w
 
 ## Step 7: Analyze inline
 
-Examine the surviving candidates and the rule corpus. For each candidate (or near-duplicate cluster):
+Examine the surviving candidates and the rule corpus. If `$QMD_AVAILABLE`, for each candidate run a targeted semantic search before composing the action:
+
+```
+mcp__qmd__query with searches=[{type:"vec", query:"<candidate pattern text>"}], intent="existing rule, skill, or memory entry covering this concept"
+```
+
+Include results with score ≥ 0.6 as supplementary evidence. If a high-scoring result shows the concept is already fully captured, adjust the action from `escalate` to `drop` or from `rewrite` to `merge` with the existing content.
+
+For each candidate (or near-duplicate cluster):
 
 - Choose an action: `delete`, `rewrite`, `merge`, `escalate` (project rule → global rule), or `drop` (your judgment: not actually a problem).
 - Compose the exact text the action will produce (target file path + new content, or the line to delete).

@@ -45,3 +45,17 @@ Tell the user: "No problem. I won't ask again. You can change this any time by r
 ## Step 2c: "Skip for now"
 
 Tell the user: "Skipped. I'll remind you once the next time /reflect runs."
+
+## Step 3: Show skill overview
+
+After any Step 2 outcome, show:
+
+> **What luca-reflection-kit offers**
+>
+> | Skill | What it does |
+> |-------|-------------|
+> | `/reflect` | After a session, surfaces improvement points, auto-applies safe memory updates, and asks about anything riskier |
+> | `/dream` | Mines your /reflect logs to surface cross-session patterns: recurring issues, memory contradictions, improvements that keep coming up |
+> | `/setup-context-search` | *(Power users, optional)* Installs [qmd](https://github.com/tobi/qmd), a local semantic search engine. After setup, `/reflect` and `/dream` detect conceptual overlaps in your knowledge base when proposing new rules or skills. Requires Node.js 22+. |
+>
+> Run `/luca-reflection-kit:setup-context-search` if you want to enable the semantic overlap detection.

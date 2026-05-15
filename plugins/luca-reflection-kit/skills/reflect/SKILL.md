@@ -59,7 +59,15 @@ cat "${CLAUDE_PLUGIN_ROOT}/CLAUDE.md" 2>/dev/null || echo "(absent)"
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/enumerate-skills.py"
 ```
 
-Hold the digest, rule corpus, and index in working memory for Step 2.
+### 1d. qmd availability (optional)
+
+```bash
+if test -f ~/.claude/luca-kit/reflection-context-search-configured; then echo marker_present; else echo marker_absent; fi
+```
+
+qmd is available only if BOTH (i) the marker is present AND (ii) `mcp__qmd__query` appears in this session's available-tools list. Store as `$QMD_AVAILABLE`. If the marker is present but the tool is not loaded (common in Conductor workspaces), set `$QMD_AVAILABLE = false`; do not retry.
+
+Hold the digest, rule corpus, index, and qmd availability in working memory for Step 2.
 
 ## Step 2: Run two reviewers in parallel
 
@@ -88,6 +96,14 @@ Each Agent 1 finding has a `target` file path. Map `target` → `risk`:
 | Anything else | `breaking` |
 
 Before assigning the "New skill creation" row, check whether the path exists: `test -f <target> && echo exists || echo absent`. Apply that row only when the file is absent; use "Any existing skill file" when it exists.
+
+If the path is absent AND `$QMD_AVAILABLE`, run a semantic overlap check before finalising the risk:
+
+```
+mcp__qmd__query with searches=[{type:"vec", query:"<proposed_change first line>"}], intent="existing skill or rule covering this concept"
+```
+
+If any result returns score ≥ 0.7, set risk to `ambiguous` and prepend to the finding: "Potential overlap with existing content: `<result path>`."
 
 The orchestrator computes risk. The agent does not.
 

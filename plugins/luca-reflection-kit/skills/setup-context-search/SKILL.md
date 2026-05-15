@@ -327,7 +327,7 @@ Show the summary:
 ## Step 11: Write marker
 
 ```bash
-mkdir -p ~/.claude/luca-ops-kit && echo "qmd $("$QMD_PATH" --version 2>/dev/null) configured $(date +%Y-%m-%d)" > ~/.claude/luca-ops-kit/context-search-configured
+mkdir -p ~/.claude/luca-kit && echo "qmd $("$QMD_PATH" --version 2>/dev/null) configured $(date +%Y-%m-%d)" > ~/.claude/luca-kit/reflection-context-search-configured
 ```
 
 ## Error handling

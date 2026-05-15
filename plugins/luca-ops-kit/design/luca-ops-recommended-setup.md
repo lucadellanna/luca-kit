@@ -2,7 +2,7 @@
 
 | Decision | Rationale |
 |----------|-----------|
-| Marker at `~/.claude/luca-ops-kit/setup-complete` (not a root dotfile) | Plugin-namespaced path avoids polluting `~/.claude/` root; survives backup/restore cycles without false triggers |
+| Marker at `~/.claude/luca-kit/ops-setup-complete` | All luca-kit plugin state lives under `~/.claude/luca-kit/` (one root per publisher); plugin-prefixed filenames (`ops-`, `reflection-`, `dev-`) avoid collisions between plugins sharing the directory |
 | Fingerprint comments in CLAUDE.md rules | Enables precise removal by `undo-setup` without content-matching; invisible during normal reading; survives user edits to surrounding text |
 | Fingerprints are the source of truth (no manifest) | Rules are self-identifying via their fingerprint comment; `undo-setup` greps for fingerprints directly instead of reading a manifest. Eliminates manifest write/merge/lock machinery. Possible because the only artifacts are tagged lines in a single file. |
 | Hooks moved to plugin-level hooks.json (v0.3.0) | The optimization-hint hook has no security or privacy sensitivity (a one-line echo). Plugin-level hooks auto-install and auto-uninstall with the plugin, eliminating user-facing setup/teardown steps, manifest tracking, settings.json writes, lock files, backup/restore logic, and code-reviewer gates. |
