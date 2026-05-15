@@ -1,0 +1,1 @@
+**`audit-claude`** scans your project's `./CLAUDE.md` for redundant or bloated content, plus content that probably belongs in memory, a path rule, a skill, or a hook instead. Proposes targeted edits and surfaces move-out advice. **Example:** "My project CLAUDE.md has grown messy after months of additions" → `/luca-kit:audit-claude`.
