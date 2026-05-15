@@ -1,10 +1,11 @@
-# This repo contains three plugins
+# This repo contains four plugins
 
 | Plugin | Path | Audience | Purpose |
 |---|---|---|---|
 | `luca-ops-kit` | `plugins/luca-ops-kit/` | Non-technical business users | Meta-skills for turning SOPs and procedures into reusable Claude workflows |
 | `luca-dev-kit` | `plugins/luca-dev-kit/` | Developers | Pre-PR quality gates, autonomous Gemini review loop, pre-commit hook management |
 | `luca-reflection-kit` | `plugins/luca-reflection-kit/` | All Claude Code users | Self-reflection and cross-session learning: reflect, dream, and optimization-hint / workflow-hint hooks |
+| `luca-kit` | `plugins/luca-kit/` | All Claude Code users | Distributable plugin: simplified reflect skill (in progress) and productivity hooks |
 
 Runtime instructions for each plugin ship in their own `plugins/<name>/CLAUDE.md`. Root `CLAUDE.md` (this file) is developer-only.
 
