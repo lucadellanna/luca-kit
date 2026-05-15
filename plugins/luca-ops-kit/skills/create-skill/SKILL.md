@@ -26,6 +26,8 @@ c) **Read source or elicit.** Determine what the user has:
   4. Who will run this skill? (Skip if `work-context.md` already identifies the persona.)
   5. What usually triggers it: a specific event, a request from someone, or a schedule?
 
+- **If the skill's primary action is to modify, rewrite, or transform files on the user's system**, ask one additional question via AskUserQuestion (options) before continuing: "When this skill finds something to change, should it: (a) apply changes automatically and flag anything important it may have removed by mistake, or (b) propose each change for your approval before applying?" Carry the answer into Step 4 to determine whether to include approval gates or auto-apply with a safety-net verifier.
+
 d) **If qmd is configured, pull domain context.** Once the purpose is clear, use the qmd MCP `query` tool to search for context relevant to the proposed skill (for an invoice review skill, search "invoice approval"; for a client onboarding skill, search "onboarding checklist"). Surface up to 3 useful snippets to the user before continuing. If nothing relevant returns, skip silently.
 
 Do not proceed until purpose, key steps, and scope are clear without you making assumptions. If you must assume, ask the user to confirm.

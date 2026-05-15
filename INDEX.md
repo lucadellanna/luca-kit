@@ -24,19 +24,25 @@
 | `plugins/luca-dev-kit/skills/targeted-review/SKILL.md` | `/luca-dev-kit:targeted-review` skill |
 | `plugins/luca-dev-kit/skills/triple-review/SKILL.md` | `/luca-dev-kit:triple-review` skill |
 
-## Plugin: luca-kit (v0.2.0)
+## Plugin: luca-kit (v0.4.0)
 
 | Path | Role |
 |---|---|
 | `plugins/luca-kit/.claude-plugin/plugin.json` | Plugin manifest |
 | `plugins/luca-kit/CLAUDE.md` | Runtime instructions (ships with plugin) |
 | `plugins/luca-kit/README.md` |  |
+| `plugins/luca-kit/agents/claude-md-compression-reviewer.md` |  |
+| `plugins/luca-kit/agents/claude-md-loss-verifier.md` |  |
+| `plugins/luca-kit/agents/claude-md-structural-reviewer.md` |  |
 | `plugins/luca-kit/hooks/hooks.json` | Hook registry |
 | `plugins/luca-kit/hooks/optimization-hint.sh` | Hook script |
 | `plugins/luca-kit/hooks/workflow-hint.sh` | Hook script |
+| `plugins/luca-kit/skills/audit-claude/DESIGN.md` | Design decisions: `/luca-kit:audit-claude` |
+| `plugins/luca-kit/skills/audit-claude/HELP.md` |  |
+| `plugins/luca-kit/skills/audit-claude/SKILL.md` | `/luca-kit:audit-claude` skill |
 | `plugins/luca-kit/skills/reflect/SKILL.md` | `/luca-kit:reflect` skill |
 
-## Plugin: luca-ops-kit (v0.5.0)
+## Plugin: luca-ops-kit (v0.5.1)
 
 | Path | Role |
 |---|---|
@@ -44,6 +50,7 @@
 | `plugins/luca-ops-kit/CLAUDE.md` | Runtime instructions (ships with plugin) |
 | `plugins/luca-ops-kit/DISCLAIMER.md` | Disclaimer |
 | `plugins/luca-ops-kit/checklists/runtime-efficiency.md` |  |
+| `plugins/luca-ops-kit/checklists/setup-command-requirements.md` |  |
 | `plugins/luca-ops-kit/commands/help.md` | `/luca-ops-kit:help` command |
 | `plugins/luca-ops-kit/commands/luca-ops-recommended-setup.md` | `/luca-ops-kit:luca-ops-recommended-setup` command |
 | `plugins/luca-ops-kit/commands/undo-setup.md` | `/luca-ops-kit:undo-setup` command |

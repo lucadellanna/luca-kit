@@ -14,3 +14,4 @@ Self-reflection and productivity hooks for Claude Code.
 | Skill | Trigger | Effect |
 |---|---|---|
 | `reflect` | "reflect", "let's reflect", "/reflect" | Highlights what to improve in how you and Claude work together, so the next conversation goes better |
+| `audit-claude` | "/audit-claude", "audit my CLAUDE.md" | Tightens your project's `./CLAUDE.md` by removing redundancy and content that belongs elsewhere |

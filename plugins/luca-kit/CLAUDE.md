@@ -24,3 +24,12 @@ Claude Code users of any technical level. Skills and hooks must use plain langua
 | Skill | Trigger | What it does |
 |---|---|---|
 | **reflect** | "reflect", "let's reflect", "/reflect" | Highlights what to improve in how you and Claude work together, so the next conversation goes better |
+| **audit-claude** | "/audit-claude", "audit my CLAUDE.md" | Tightens your project's `./CLAUDE.md` by removing redundancy and content that belongs elsewhere |
+
+## Agents
+
+| Agent | Used by | Mandate |
+|---|---|---|
+| **claude-md-structural-reviewer** | audit-claude | Returns within-file tightenings and move-out recommendations for content that belongs in memory, path rules, skills, or hooks (Sonnet, `tools: [Read]`) |
+| **claude-md-compression-reviewer** | audit-claude | Returns sentence-level micro-compressions (Haiku, `tools: [Read]`) |
+| **claude-md-loss-verifier** | audit-claude | Reads pre- and post-edit versions and reports any meaningful content lost (Haiku, `tools: [Read]`) |
