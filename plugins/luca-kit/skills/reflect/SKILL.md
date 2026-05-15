@@ -10,7 +10,7 @@ version: 0.1.0
 
 # Reflect
 
-Read the conversation since the last `/reflect` in this session (or from the start if there is no prior `/reflect`). Look for improvements using the table below.
+Read the conversation since the last reflect trigger in this session, or from the start if this is the first one. Scan backward for the most recent user message that triggered this skill; start after that turn. Look for improvements using the table below.
 
 **In scope:** the conversation flow itself, i.e. how the user and Claude interacted, what tripped up the work, what the user had to repeat or correct.
 
@@ -40,7 +40,7 @@ Read the conversation since the last `/reflect` in this session (or from the sta
 
 - **Internally cap at three per side.**
 - **Do not invent findings to balance the two sides.** No comment needed about the absence.
-- ** Only suggestions that would save time next time;** not nitpicks about situations unlikely to repeat.
+- **Only suggestions that would save time next time.** Not nitpicks about situations unlikely to repeat.
 - **Do not re-suggest** anything you already proposed earlier in this session.
 - **For Claude-side suggestions, pick the right home** in this order of preference:
   1. **Path rule** if it is a constraint on a specific path or filetype.
@@ -48,8 +48,6 @@ Read the conversation since the last `/reflect` in this session (or from the sta
   3. **CLAUDE.md principle** only if you expect it to apply often across tasks. One-offs go in memory instead.
   4. **Memory entry** for everything else worth remembering.
 - **For user-side suggestions, the fix is coaching, not a file edit.** Phrase it as a concrete habit the user can adopt next time.
-
-Present each suggestion with: what you observed, where the fix would live (or the coaching offered to the user), and the exact change you would make.
 
 ## How to present
 
