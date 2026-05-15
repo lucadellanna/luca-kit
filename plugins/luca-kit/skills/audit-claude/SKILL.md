@@ -52,7 +52,7 @@ Apply each finding without asking the user. Routing:
 |---|---|
 | Tightening | `Edit`: replace `before` with `after` (empty string if `after` is `(remove)`) |
 | Compression | `Edit`: replace `before` with `after` |
-| Move-out, target path under `./.claude/memory/` | (1) `grep -qF` the snippet against the target file; if found, skip and note as duplicate. (2) Append the snippet to the target file (create the file if absent). (3) `Edit`: remove the snippet from CLAUDE.md. |
+| Move-out, target path under ./.claude/memory/ | (1) Check if the exact snippet exists in the target file as a block; if found, skip and note as duplicate. (2) Append the snippet to the target file with a leading newline (create the file if absent). (3) Edit: remove the snippet from CLAUDE.md. |
 | Move-out, any other target (global memory, path-rule, skill, hook, template) | Do not apply. Carry forward to Step 5 as advice. |
 
 Order of `Edit` calls within CLAUDE.md does not matter (Edit uses string matching, not byte offsets), but if any `Edit` fails because the `before` snippet is no longer present (a prior edit overlapped it), note it as skipped and continue with the rest.
