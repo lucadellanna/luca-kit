@@ -24,7 +24,7 @@
 | `plugins/luca-dev-kit/skills/targeted-review/SKILL.md` | `/luca-dev-kit:targeted-review` skill |
 | `plugins/luca-dev-kit/skills/triple-review/SKILL.md` | `/luca-dev-kit:triple-review` skill |
 
-## Plugin: luca-ops-kit (v0.4.1)
+## Plugin: luca-ops-kit (v0.5.0)
 
 | Path | Role |
 |---|---|
@@ -62,13 +62,8 @@
 | `plugins/luca-ops-kit/skills/list-skills/DESIGN.md` | Design decisions: `/luca-ops-kit:list-skills` |
 | `plugins/luca-ops-kit/skills/list-skills/HELP.md` |  |
 | `plugins/luca-ops-kit/skills/list-skills/SKILL.md` | `/luca-ops-kit:list-skills` skill |
-| `plugins/luca-ops-kit/skills/setup-context-search/DESIGN.md` | Design decisions: `/luca-ops-kit:setup-context-search` |
-| `plugins/luca-ops-kit/skills/setup-context-search/HELP.md` |  |
-| `plugins/luca-ops-kit/skills/setup-context-search/SKILL.md` | `/luca-ops-kit:setup-context-search` skill |
-| `plugins/luca-ops-kit/skills/setup-context-search/scripts/check-preflight.py` |  |
-| `plugins/luca-ops-kit/skills/setup-context-search/scripts/check-registered.py` |  |
 
-## Plugin: luca-reflection-kit (v0.7.0)
+## Plugin: luca-reflection-kit (v0.8.0)
 
 | Path | Role |
 |---|---|
@@ -97,6 +92,11 @@
 | `plugins/luca-reflection-kit/skills/reflect/HELP.md` |  |
 | `plugins/luca-reflection-kit/skills/reflect/REQUIREMENTS.md` |  |
 | `plugins/luca-reflection-kit/skills/reflect/SKILL.md` | `/luca-reflection-kit:reflect` skill |
+| `plugins/luca-reflection-kit/skills/setup-context-search/DESIGN.md` | Design decisions: `/luca-reflection-kit:setup-context-search` |
+| `plugins/luca-reflection-kit/skills/setup-context-search/HELP.md` |  |
+| `plugins/luca-reflection-kit/skills/setup-context-search/SKILL.md` | `/luca-reflection-kit:setup-context-search` skill |
+| `plugins/luca-reflection-kit/skills/setup-context-search/scripts/check-preflight.py` |  |
+| `plugins/luca-reflection-kit/skills/setup-context-search/scripts/check-registered.py` |  |
 
 ## Repository root
 
