@@ -65,6 +65,8 @@
 | `plugins/luca-ops-kit/skills/setup-context-search/DESIGN.md` | Design decisions: `/luca-ops-kit:setup-context-search` |
 | `plugins/luca-ops-kit/skills/setup-context-search/HELP.md` |  |
 | `plugins/luca-ops-kit/skills/setup-context-search/SKILL.md` | `/luca-ops-kit:setup-context-search` skill |
+| `plugins/luca-ops-kit/skills/setup-context-search/scripts/check-preflight.py` |  |
+| `plugins/luca-ops-kit/skills/setup-context-search/scripts/check-registered.py` |  |
 
 ## Plugin: luca-reflection-kit (v0.6.0)
 

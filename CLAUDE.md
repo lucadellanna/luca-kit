@@ -4,7 +4,7 @@
 |---|---|---|---|
 | `luca-ops-kit` | `plugins/luca-ops-kit/` | Non-technical business users | Meta-skills for turning SOPs and procedures into reusable Claude workflows |
 | `luca-dev-kit` | `plugins/luca-dev-kit/` | Developers | Pre-PR quality gates, autonomous Gemini review loop, pre-commit hook management |
-| `luca-reflection-kit` | `plugins/luca-reflection-kit/` | All Claude Code users | Self-reflection and cross-session learning: reflect, dream, and optimization-hint hook |
+| `luca-reflection-kit` | `plugins/luca-reflection-kit/` | All Claude Code users | Self-reflection and cross-session learning: reflect, dream, and optimization-hint / workflow-hint hooks |
 
 Runtime instructions for each plugin ship in their own `plugins/<name>/CLAUDE.md`. Root `CLAUDE.md` (this file) is developer-only.
 
@@ -116,13 +116,14 @@ Self-reflection and cross-session learning tools. Runtime instructions are in `p
 
 ## Hooks
 
-- `optimization-hint`: `UserPromptSubmit` hook. Stateless: echoes a single-line instruction to Claude on every prompt submission. No file I/O.
+- `optimization-hint`: `UserPromptSubmit` hook. Stateless: echoes a single-line instruction to Claude on every prompt submission. Scoped to Claude-side improvements (memory entries, edits to existing skills). No file I/O.
+- `workflow-hint`: `UserPromptSubmit` hook. Stateless: echoes a single-line instruction to Claude on every prompt submission. Scoped to user-side automation (new skills, automating user decisions or workflows, friction removal). No file I/O.
 - `terms-acceptance-check`: `SessionStart` hook. Checks `~/.claude/luca-ops-kit/terms-accepted-v1.json`; echoes a one-time nag to Claude's context when absent. Silent when `$CLAUDE_CODE_REMOTE` is set or no controlling terminal exists (`/dev/tty` guard).
 
 ## Authoring notes
 
 - Pure-reasoning agents default to `tools: []` in frontmatter. Omitting `tools:` grants access to all tools, which loads every tool definition into the agent's system context and inflates per-invocation token cost. Only add tools that the agent will actually call.
 - Mandate vs output target are independent in multi-agent skills. An agent's mandate (whose patterns it observes) and its output target (where findings land: user-facing display, memory file, skill edit) are separate design choices; state both explicitly in the agent's frontmatter and body. Conflating them produces output aimed at the wrong audience.
-- The `optimization-hint.sh` hook is intentionally minimal (a single `echo`). Any behavior change must remain side-effect-free (no file writes, no network calls).
+- Echo-only `UserPromptSubmit` hooks (e.g., `optimization-hint.sh`, `workflow-hint.sh`) are intentionally minimal (a single `echo`). Any behavior change must remain side-effect-free (no file writes, no network calls).
 - Session logs written by `reflect` go to `~/.claude/reflect-logs/`: this path is user-owned, not plugin-owned. The plugin reads these logs; it does not manage them.
 - Any hook that surfaces a consent command (e.g., `terms-acceptance-check`) must instruct Claude to *inform* the user and wait for them to invoke the command. Claude must never invoke a consent command itself; auto-invocation coerces the acknowledgment.

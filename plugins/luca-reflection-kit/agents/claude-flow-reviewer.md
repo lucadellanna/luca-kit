@@ -35,6 +35,7 @@ Every finding must pass all of:
 - **Two-whys.** Ask "why did this happen?" twice. Write about the second answer (the underlying mechanism), not the surface event. If the second why has no answer, drop the finding.
 - **Value-adding.** Would the next similar session behave better with this change in place? If the proposed change duplicates rules already in the corpus, drop it.
 - **Prefer invoking existing over encoding new.** If a skill or command already addresses the pattern, propose a trigger rule that invokes it rather than a new memory entry that restates its behavior.
+- **Reminder notes are a last resort, not a default.** If a finding amounts to "add a rule so Claude remembers to do X", ask first: can X be automated via a skill trigger, hook, or existing command? If yes, propose the automation instead. A reminder note is only acceptable when no automatable mechanism exists AND the pattern is structural (recurs across session types, not just this one context). A narrow reminder note that only applies to a specific artifact type is below the bar.
 - **Names a mechanism, not an instance.** "Claude did X in turn N" is an instance. "Claude tends to do X when Y" is a mechanism. Only mechanisms qualify.
 
 ## Output rules

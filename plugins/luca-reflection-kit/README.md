@@ -1,6 +1,6 @@
 # luca-reflection-kit
 
-Self-reflection and cross-session learning skills for Claude Code and Claude Cowork. Scan conversations for improvement points, mine recurring patterns across sessions, and get a token-efficient optimization hint after high-tool-count turns.
+Self-reflection and cross-session learning skills for Claude Code and Claude Cowork. Scan conversations for improvement points, mine recurring patterns across sessions, and get token-efficient optimization and workflow hints after high-tool-count turns.
 
 ## Installation
 
@@ -48,7 +48,8 @@ Installed automatically with the plugin (no setup needed):
 
 | Hook | Event | What it does |
 |------|-------|-------------|
-| **optimization-hint** | UserPromptSubmit | On every prompt, reminds Claude to append a one-sentence optimization hint if the prior response involved 8+ tool calls (reusable skill, memory-worthy pattern, or workflow improvement) |
+| **optimization-hint** | UserPromptSubmit | On every prompt, reminds Claude to append a one-sentence Optimization hint at the end of the current response if it involves 8+ tool calls (memory-worthy pattern / skill to edit or improve) |
+| **workflow-hint** | UserPromptSubmit | On every prompt, reminds Claude to append a one-sentence Workflow hint at the end of the current response if it involves 8+ tool calls (skill to codify / user judgement or workflow to automate / friction to remove) |
 | **terms-acceptance-check** | SessionStart | Reminds the user (via Claude) to run `/luca-reflection-kit:accept-terms` if no acknowledgment is recorded yet. Silent once acknowledged, and silent in non-interactive sessions (`claude -p`, agent SDK, CI). |
 
 ## Commands

@@ -132,7 +132,8 @@ Installed automatically with the plugin (no setup needed):
 
 | Hook | Event | What it does |
 |------|-------|-------------|
-| **optimization-hint** | UserPromptSubmit | On every prompt, reminds Claude to append a one-sentence optimization hint if the prior response involved 8+ tool calls (reusable skill, memory-worthy pattern, or workflow improvement) |
+| **optimization-hint** | UserPromptSubmit | On every prompt, reminds Claude to append a one-sentence Optimization hint at the end of the current response if it involves 8+ tool calls (memory-worthy pattern / skill to edit or improve) |
+| **workflow-hint** | UserPromptSubmit | On every prompt, reminds Claude to append a one-sentence Workflow hint at the end of the current response if it involves 8+ tool calls (skill to codify / user judgement or workflow to automate / friction to remove) |
 
 ## How it works
 

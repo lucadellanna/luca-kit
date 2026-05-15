@@ -17,7 +17,7 @@
     {
       "name": "luca-reflection-kit",
       "source": "./plugins/luca-reflection-kit",
-      "description": "Self-reflection and cross-session learning skills: scan conversations for improvement points, mine recurring patterns, and surface optimization hints"
+      "description": "Self-reflection and cross-session learning skills: scan conversations for improvement points, mine recurring patterns, and surface optimization and workflow hints"
     }
   ]
 }
