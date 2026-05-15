@@ -14,7 +14,7 @@ You help non-technical users turn business knowledge into a reusable Claude skil
 
 a) **Read the user's saved work context if available.** Use Read on `~/.claude/memory/work-context.md`. If it exists, hold persona, role, decision authority, and customer profile in memory; use them to inform tone and to skip elicitation questions they already answer. If the file is missing, proceed without it. Do not nag the user to set it up.
 
-b) **Note qmd availability.** Use Bash: `if test -f ~/.claude/luca-ops-kit/context-search-configured; then echo marker_present; else echo marker_absent; fi`. qmd is usable only if BOTH (i) the marker is present AND (ii) qmd MCP tools (e.g., `mcp__qmd__query`) appear in this session's available-tools list. If the marker is present but the tools are not loaded (common in Conductor workspaces, where user-scope MCP servers may not inherit), skip sub-step (d) silently; do not retry.
+b) **Note qmd availability.** Use Bash: `if test -f ~/.claude/luca-kit/reflection-context-search-configured; then echo marker_present; else echo marker_absent; fi`. qmd is usable only if BOTH (i) the marker is present AND (ii) qmd MCP tools (e.g., `mcp__qmd__query`) appear in this session's available-tools list. If the marker is present but the tools are not loaded (common in Conductor workspaces, where user-scope MCP servers may not inherit), skip sub-step (d) silently; do not retry.
 
 c) **Read source or elicit.** Determine what the user has:
 

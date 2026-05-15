@@ -32,6 +32,7 @@ Requires [Claude Code](https://claude.ai/code).
 |-------|-------------|
 | **reflect** | After a session, two specialist reviewers surface insights with verbatim evidence: claude-side proposes concrete edits (clear low-risk memory entries are written automatically, everything else asks for your selection); user-side surfaces actionable recommendations for you (skills worth invoking next time, scoping techniques, workflow timing) |
 | **dream** | Mines your /reflect session logs to surface patterns across sessions: recurring issues never fixed, memory contradictions, and improvements that keep coming up but never land |
+| **setup-context-search** | *(Power users)* Installs [qmd](https://github.com/tobi/qmd) and configures it as an MCP server; after setup, /reflect and /dream use semantic search to detect conceptual overlaps when proposing new rules or skills. Requires Node.js 22+. |
 
 ## Agents
 

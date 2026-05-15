@@ -1,0 +1,1 @@
+**`setup-context-search`** is a one-time setup that installs a local semantic search engine and connects it to Claude as an MCP server, so Claude can search your documents and knowledge base. **Example:** "I want Claude to be able to search our company SOPs and meeting notes" → `/luca-reflection-kit:setup-context-search`.

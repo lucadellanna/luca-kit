@@ -97,10 +97,7 @@ If the script prints "FAILED": tell the user "The CLAUDE.md update failed. Check
 
 Use Bash:
 ```bash
-rm -f ~/.claude/luca-ops-kit/setup-complete
-rm -f ~/.claude/luca-ops-kit/applied.json
-rm -f ~/.claude/luca-ops-kit/disclaimer-v1.0-shown
-rmdir ~/.claude/luca-ops-kit 2>/dev/null || true
+rm -f ~/.claude/luca-kit/ops-setup-complete
 ```
 
 ## Step 5: Summarize
