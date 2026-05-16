@@ -51,14 +51,22 @@ Read the conversation since the last reflect trigger in this session, or from th
 
 ## How to present
 
-Use the two tables above only as an internal checklist when looking for observations. **To the user, present findings as a single ordered list, in plain language.** Do not show the Claude-side / user-side split or any other internal labels.
+Use the two tables above only as an internal checklist when looking for observations. Present findings in two bullet point lists:
 
-Plain language means:
+**Changes to apply** (code, config, skills, memory, or CLAUDE.md edits Claude will make):
+- Each bullet describes the change and why it helps.
+
+**Learning points** (habits or approaches for the user to adopt next time):
+- Each bullet describes what to do differently and why it matters.
+
+Plain language in both lists:
 - Avoid jargon and internal terms. If a technical word is unavoidable, explain it in the same sentence.
-- Describe what was observed in everyday words. Say what would change next time, and why it matters, before naming any rule or file.
-- Each finding stands on its own. The user should be able to read it once and decide.
+- Describe what was observed in everyday words.
+- Each bullet stands on its own. The user should be able to read it once and decide.
 
-**End with a single question: "Which should I implement?"**
+Omit a list entirely if there are no findings for that side. Do not invent findings to balance the two lists.
+
+**End with a single question: "Which changes should I implement?"**
 
 ## After the user replies
 
