@@ -1,92 +1,109 @@
 ---
 name: audit-claude
 description: >
-  Tightens your project's ./CLAUDE.md by removing redundancy and content
-  that belongs elsewhere. Applies cleanups automatically; asks for input
-  only if a safety check spots something important that may have been
-  removed by mistake.
-version: 0.2.0
+  Tightens your project's ./CLAUDE.md and your global ~/.claude/CLAUDE.md
+  by removing redundancy and content that belongs elsewhere. Flags items
+  that may be in the wrong scope. Applies cleanups automatically; asks
+  for input only if a safety check spots something important.
+version: 0.3.0
 ---
 
 # Audit Claude
 
-The skill removes cruft from `./CLAUDE.md` without interrogating the user about every finding. Trust model:
+Audits both the project `./CLAUDE.md` and the global `~/.claude/CLAUDE.md`. Removes cruft within each file and flags scope mismatches between them.
+
+Trust model:
 
 - **Reviewers** (read-only) propose changes.
 - **Orchestrator** applies them automatically.
 - **Verifier** catches accidental loss of important info.
 - **User** intervenes only if the verifier flags something.
 
-## Step 1: Confirm the file exists
+## Step 1: Resolve files
 
 ```bash
-test -f ./CLAUDE.md && wc -l ./CLAUDE.md || echo "missing"
+PROJECT="$(pwd)/CLAUDE.md"
+GLOBAL="$HOME/.claude/CLAUDE.md"
+echo "project: $(test -f "$PROJECT" && wc -l < "$PROJECT" || echo missing)"
+echo "global: $(test -f "$GLOBAL" && wc -l < "$GLOBAL" || echo missing)"
 ```
 
-If `missing`, say "No `./CLAUDE.md` found in this directory." and stop. Otherwise show the line count.
+If both are missing, say "No CLAUDE.md found (project or global)." and stop. Label the files that exist as **targets**.
 
-## Step 2: Run two reviewers in parallel
+## Step 2: Run reviewers in parallel
 
-Send a single message with two `Agent` calls. Both reviewers read the file themselves; the orchestrator does not load it into main context.
+Send all Agent calls in a single message. Each reviewer reads the file itself; the orchestrator does not load file contents into main context.
 
-- `subagent_type: "luca-kit:claude-md-structural-reviewer"`: returns tightenings and move-outs.
-- `subagent_type: "luca-kit:claude-md-compression-reviewer"`: returns micro-compressions.
+**Per target** (each file that exists):
 
-Each prompt: one line, the absolute path to `./CLAUDE.md` (resolve via `pwd`).
+- `subagent_type: "luca-kit:claude-md-structural-reviewer"`: prompt is the target's absolute path.
+- `subagent_type: "luca-kit:claude-md-compression-reviewer"`: prompt is the target's absolute path.
+
+**If both targets exist**, also run:
+
+- `subagent_type: "luca-kit:claude-md-scope-reviewer"`: prompt is two lines, the project file path then the global file path.
+
+The scope reviewer returns promote (project to global), demote (global to project), and duplicate findings.
 
 Each agent's mandate, finding categories, and output format are defined in the agent's own file. Do not duplicate them here.
 
-If both reviewers return zero findings, say "Nothing to surface." and stop.
+If all reviewers return zero findings, say "Nothing to surface." and stop.
 
 ## Step 3: Cache and apply
 
-Cache the file:
+Cache each target:
 
 ```bash
-cp ./CLAUDE.md /tmp/audit-claude-orig.md
+test -f "$PROJECT" && cp "$PROJECT" /tmp/audit-claude-project-orig.md
+test -f "$GLOBAL"  && cp "$GLOBAL"  /tmp/audit-claude-global-orig.md
 ```
 
-Apply each finding without asking the user. Routing:
+Apply structural and compression findings per file without asking the user. Routing:
 
 | Finding | Action |
 |---|---|
 | Tightening | `Edit`: replace `before` with `after` (empty string if `after` is `(remove)`) |
 | Compression | `Edit`: replace `before` with `after` |
-| Move-out, target path under ./.claude/memory/ | (1) Check if the exact snippet exists in the target file as a block; if found, skip and note as duplicate. (2) Append the snippet to the target file with a leading newline (create the file if absent). (3) Edit: remove the snippet from CLAUDE.md. |
-| Move-out, any other target (global memory, path-rule, skill, hook, template) | Do not apply. Carry forward to Step 5 as advice. |
+| Move-out to co-located memory dir | (1) Check if snippet already exists in target; skip if duplicate. (2) Append with a leading newline (create if absent). (3) Edit: remove from the CLAUDE.md. |
+| Move-out, any other target | Do not apply. Carry forward to Step 5 as advice. |
 
-Order of `Edit` calls within CLAUDE.md does not matter (Edit uses string matching, not byte offsets), but if any `Edit` fails because the `before` snippet is no longer present (a prior edit overlapped it), note it as skipped and continue with the rest.
+**Co-located memory directories:** for `./CLAUDE.md` that is `./.claude/memory/`; for `~/.claude/CLAUDE.md` that is `~/.claude/memory/`.
+
+**Scope-transfer findings** (promote, demote, duplicate) are never auto-applied. Carry all to Step 5 as advice.
+
+If any `Edit` fails because the `before` snippet is gone (a prior edit overlapped it), note as skipped and continue.
 
 ## Step 4: Verify
 
-Send one `Agent` call:
+Send one Agent call per target that was modified:
 
 - `subagent_type: "luca-kit:claude-md-loss-verifier"`
 
-Prompt: two lines, the absolute path to `/tmp/audit-claude-orig.md` (original) and the absolute path to `./CLAUDE.md` (revised).
+Prompt: two lines, the cached original then the current file. For the project file: `/tmp/audit-claude-project-orig.md` and the project path. For the global file: `/tmp/audit-claude-global-orig.md` and the global path.
 
-The verifier returns either `No meaningful content lost.` or a bulleted list of important losses, calibrated to the "load-bearing rule application" bar in its own agent file.
+The verifier returns either `No meaningful content lost.` or a bulleted list of important losses.
 
 ## Step 5: Report and react
 
-Show:
+Show per target (skip a target section if it had no findings):
 
-1. **Applied**: one line per change actually applied (tightening, compression, project-memory move-out). Include skipped/duplicate notes.
+1. **Applied** (project / global): one line per change applied. Include skipped/duplicate notes.
 2. **Advice**: non-memory move-outs (snippet + suggested destination). Empty section omitted.
-3. **Verifier result**: verbatim.
+3. **Scope transfers**: promote, demote, and duplicate recommendations with rationale. Empty section omitted.
+4. **Verifier result**: verbatim, per target.
 
-If the verifier returned `No meaningful content lost.`: delete the cache and stop.
+If all verifiers returned `No meaningful content lost.`: delete caches and stop.
 
-If the verifier flagged anything, call `AskUserQuestion`:
+If any verifier flagged something, call `AskUserQuestion`:
 
 > "The verifier flagged the above as possibly important. Restore?"
 
-Two options: `Restore all` (runs `cp /tmp/audit-claude-orig.md ./CLAUDE.md`, undoing every applied change), `Keep changes`. On `Restore all`, also remove any snippets that were appended to memory files in Step 3 (best effort: `grep -B1 -A1 -F` for the snippet, remove the matching block).
+Two options: `Restore all` (restores all cached originals, undoes memory appends), `Keep changes`. On `Restore all`, also remove any snippets appended to memory files in Step 3 (best effort).
 
-(Selective per-item restoration is out of scope for this version: tightenings and compressions are reversible by swapping `before` and `after`, but memory move-outs require coordinated multi-file undo. All-or-nothing keeps the safety net deterministic.)
+(Selective per-item restoration is out of scope for this version. All-or-nothing keeps the safety net deterministic.)
 
-Once complete, delete the cache:
+Once complete, delete caches:
 
 ```bash
-rm -f /tmp/audit-claude-orig.md
+rm -f /tmp/audit-claude-project-orig.md /tmp/audit-claude-global-orig.md
 ```
