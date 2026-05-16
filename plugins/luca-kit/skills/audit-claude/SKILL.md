@@ -64,7 +64,7 @@ Apply structural and compression findings per file without asking the user. Rout
 |---|---|
 | Tightening | `Edit`: replace `before` with `after` (empty string if `after` is `(remove)`) |
 | Compression | `Edit`: replace `before` with `after` |
-| Move-out to co-located memory dir | (1) Check if snippet already exists in target; skip if duplicate. (2) Append with a leading newline (create if absent). (3) Edit: remove from the CLAUDE.md. |
+| Move-out to co-located memory dir | (1) Check if snippet already exists in target; skip if duplicate. (2) Append with a leading newline (create if absent). (3) If the memory directory has an index file (MEMORY.md), add a one-line entry pointing to the new file. (4) Edit: remove from the CLAUDE.md. |
 | Move-out, any other target | Do not apply. Carry forward to Step 5 as advice. |
 
 **Co-located memory directories:** for `./CLAUDE.md` that is `./.claude/memory/`; for `~/.claude/CLAUDE.md` that is `~/.claude/memory/`.
