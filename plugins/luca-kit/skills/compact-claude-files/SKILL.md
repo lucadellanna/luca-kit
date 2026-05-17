@@ -60,8 +60,8 @@ If all reviewers return zero findings (and no move-outs were noted for the bridg
 Cache each target before writing:
 
 ```bash
-test -f "$PROJECT_CLAUDE" && cp "$PROJECT_CLAUDE" /tmp/compact-claude-files-project-orig.md
-test -f "$GLOBAL_CLAUDE"  && cp "$GLOBAL_CLAUDE"  /tmp/compact-claude-files-global-orig.md
+test -f "$(pwd)/CLAUDE.md"       && cp "$(pwd)/CLAUDE.md"       /tmp/compact-claude-files-project-orig.md
+test -f "$HOME/.claude/CLAUDE.md" && cp "$HOME/.claude/CLAUDE.md" /tmp/compact-claude-files-global-orig.md
 ```
 
 For each memory or rule file target, hash its absolute path and cache it:

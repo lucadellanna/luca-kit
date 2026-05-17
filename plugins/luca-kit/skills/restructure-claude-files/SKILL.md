@@ -65,8 +65,8 @@ If all reviewers return zero findings (and no tightenings were noted for the bri
 Cache each CLAUDE.md target before writing:
 
 ```bash
-test -f "$PROJECT_CLAUDE" && cp "$PROJECT_CLAUDE" /tmp/restructure-claude-files-project-orig.md
-test -f "$GLOBAL_CLAUDE"  && cp "$GLOBAL_CLAUDE"  /tmp/restructure-claude-files-global-orig.md
+test -f "$(pwd)/CLAUDE.md"       && cp "$(pwd)/CLAUDE.md"       /tmp/restructure-claude-files-project-orig.md
+test -f "$HOME/.claude/CLAUDE.md" && cp "$HOME/.claude/CLAUDE.md" /tmp/restructure-claude-files-global-orig.md
 ```
 
 Apply move-outs whose suggested target is a memory file in the co-located memory directory. Routing:
