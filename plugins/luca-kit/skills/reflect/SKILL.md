@@ -5,7 +5,7 @@ description: >
   or asks what could be improved about how the current conversation has
   gone. Surfaces a few concrete improvements to how the user and Claude
   work together, so the next conversation goes better.
-version: 0.1.0
+version: 0.1.1
 ---
 
 # Reflect
@@ -73,7 +73,8 @@ Rules:
 - Each item stands on its own. The reader should understand it in one pass.
 
 **Closing:**
-- If there are numbered improvements: call `AskUserQuestion` with one option per numbered item (e.g. "1", "2", "3") plus an "All" option. Question text: "What changes should I implement?"
+- If there is exactly one numbered improvement: implement it immediately after presenting it. No question needed.
+- If there are two or more numbered improvements: call `AskUserQuestion` with one option per numbered item (e.g. "1", "2", "3") plus an "All" option. Question text: "What changes should I implement?"
 - If there are only user-side suggestions: end with "Does any of this resonate, or would you push back on anything?"
 - If there are no findings at all: say so briefly and stop.
 

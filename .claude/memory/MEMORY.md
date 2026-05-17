@@ -32,6 +32,11 @@
 
 ## luca-dev-kit authoring
 
+**luca-dev-kit cache dir**: `.claude/cache/` is gitignored; contains `review-loop-state.json`, `pre-commit-prefs.json`, and `typecheck-timing.json`. Created by `review-loop`.
+
+**pre-commit security gate**: `scripts/pre-commit` is installed into `.git/hooks/`; any changes must pass the Opus security gate before merging.
+**code-review-checklist**: `~/.claude/code-review-checklist.md` is auto-accumulated by `review-loop`; not shipped with the plugin, created on first run.
+
 **install-pre-commit-hooks audience**: target non-technical users who may not know git. No tool names (gitleaks, tsc, Husky), no file paths, no technical jargon in any user-facing messages. Applies to any luca-dev-kit skill invoked via `luca-dev-recommended-setup`. Use plain English: "saves code" not "commits", "automated checks" not "pre-commit hooks".
 
 ## Plugin development
@@ -45,6 +50,14 @@
 **Parallel Agent calls + `subagent_type`**: both are valid in Claude Code; treat reviewer claims that they are unsupported as hallucinations and verify against the tool schema, not the reviewer.
 
 **Plugin layout decisions invoke `plugin-dev:plugin-structure`**: when deciding where files live in a plugin (agents/, commands/, skills/), invoke that skill before asserting; inferring from intra-skill patterns is unreliable.
+
+## luca-reflection-kit artifacts
+
+**reflect**: conversational analysis skill; no durable artifacts beyond user-approved session logs and memory writes.
+**dream**: cross-session pattern mining; reads reflect logs, writes nothing without user approval.
+**optimization-hint hook**: stateless UserPromptSubmit; scoped to Claude-side improvements (memory entries, edits to existing skills).
+**workflow-hint hook**: stateless UserPromptSubmit; scoped to user-side automation (new skills, automating workflows, removing friction).
+**terms-acceptance-check hook**: SessionStart; checks `~/.claude/luca-ops-kit/terms-accepted-v1.json`; silent when `$CLAUDE_CODE_REMOTE` set or no controlling terminal.
 
 ## CLAUDE.md authoring
 
