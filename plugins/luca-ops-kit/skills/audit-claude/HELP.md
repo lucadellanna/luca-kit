@@ -1,1 +1,0 @@
-**`audit-claude`** scans your CLAUDE.md and memory files for redundant rules and bloat, then proposes targeted edits to keep your Claude configuration lean and consistent. **Example:** "My instructions feel scattered after months of additions" → `/luca-ops-kit:audit-claude`.
