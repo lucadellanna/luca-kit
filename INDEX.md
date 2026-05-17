@@ -11,7 +11,7 @@
 | `plugins/luca-dev-kit/DISCLAIMER.md` | Disclaimer |
 | `plugins/luca-dev-kit/commands/luca-dev-recommended-setup.md` | `/luca-dev-kit:luca-dev-recommended-setup` command |
 | `plugins/luca-dev-kit/scripts/poll-gemini.sh` | Script: poll-gemini.sh |
-| `plugins/luca-dev-kit/scripts/pre-commit` | Script: pre-commit |
+| `plugins/luca-dev-kit/scripts/pre-commit` |  |
 | `plugins/luca-dev-kit/skills/install-pre-commit-hooks/SKILL.md` | `/luca-dev-kit:install-pre-commit-hooks` skill |
 | `plugins/luca-dev-kit/skills/open-pr/DESIGN.md` | Design decisions: `/luca-dev-kit:open-pr` |
 | `plugins/luca-dev-kit/skills/open-pr/SKILL.md` | `/luca-dev-kit:open-pr` skill |
@@ -24,7 +24,7 @@
 | `plugins/luca-dev-kit/skills/targeted-review/SKILL.md` | `/luca-dev-kit:targeted-review` skill |
 | `plugins/luca-dev-kit/skills/triple-review/SKILL.md` | `/luca-dev-kit:triple-review` skill |
 
-## Plugin: luca-kit (v0.5.0)
+## Plugin: luca-kit (v0.6.0)
 
 | Path | Role |
 |---|---|
@@ -39,10 +39,14 @@
 | `plugins/luca-kit/hooks/hooks.json` | Hook registry |
 | `plugins/luca-kit/hooks/optimization-hint.sh` | Hook script |
 | `plugins/luca-kit/hooks/workflow-hint.sh` | Hook script |
-| `plugins/luca-kit/skills/audit-claude/DESIGN.md` | Design decisions: `/luca-kit:audit-claude` |
-| `plugins/luca-kit/skills/audit-claude/HELP.md` |  |
-| `plugins/luca-kit/skills/audit-claude/SKILL.md` | `/luca-kit:audit-claude` skill |
+| `plugins/luca-kit/scripts/discover-claude-files.sh` | Script: discover-claude-files.sh |
+| `plugins/luca-kit/skills/compact-claude-files/DESIGN.md` | Design decisions: `/luca-kit:compact-claude-files` |
+| `plugins/luca-kit/skills/compact-claude-files/HELP.md` |  |
+| `plugins/luca-kit/skills/compact-claude-files/SKILL.md` | `/luca-kit:compact-claude-files` skill |
 | `plugins/luca-kit/skills/reflect/SKILL.md` | `/luca-kit:reflect` skill |
+| `plugins/luca-kit/skills/restructure-claude-files/DESIGN.md` | Design decisions: `/luca-kit:restructure-claude-files` |
+| `plugins/luca-kit/skills/restructure-claude-files/HELP.md` |  |
+| `plugins/luca-kit/skills/restructure-claude-files/SKILL.md` | `/luca-kit:restructure-claude-files` skill |
 
 ## Plugin: luca-ops-kit (v0.5.1)
 
@@ -124,6 +128,9 @@
 | `.claude/hooks/DESIGN.md` | Hook design decisions |
 | `.claude/hooks/bump-on-pr-create.sh` | Hook script |
 | `.claude/memory/MEMORY.md` | Agent memory index |
+| `.claude/memory/luca-reflection-kit-authoring-notes.md` |  |
+| `.claude/rules/design-md.md` |  |
+| `.claude/rules/plugin-content.md` |  |
 | `.claude/settings.json` | Claude Code settings |
 | `.github/workflows/DESIGN.md` | GitHub Actions design decisions |
 | `.gitignore` | Git ignore rules |

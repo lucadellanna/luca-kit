@@ -61,6 +61,10 @@
 **workflow-hint hook**: stateless UserPromptSubmit; scoped to user-side automation (new skills, automating workflows, removing friction).
 **terms-acceptance-check hook**: SessionStart; checks `~/.claude/luca-ops-kit/terms-accepted-v1.json`; silent when `$CLAUDE_CODE_REMOTE` set or no controlling terminal.
 
+## luca-reflection-kit authoring
+
+See [luca-reflection-kit-authoring-notes.md](luca-reflection-kit-authoring-notes.md) for agent tooling, mandate/output-target separation, hook minimalism, and consent hook constraints.
+
 ## CLAUDE.md authoring
 
 **Rule removal**: when a rule is removed because its content migrates elsewhere, delete the entry entirely; never leave a stub line pointing to the new location. The absence is the signal.

@@ -1,0 +1,14 @@
+# Design decisions
+
+Only non-intuitive choices documented here. Defaults and common-sense choices live in `SKILL.md`.
+
+| Decision | Rationale |
+|----------|-----------|
+| Split out of the original `audit-claude` skill into two commands: `/compact-claude-files` and `/restructure-claude-files` | Compaction (within-file) and restructuring (cross-file moves, scope rebalancing) live at different risk tiers. Compaction is local and reversible; restructuring changes where content lives. Bundling them forced every run to clear the higher bar. Splitting lets users compact frequently without re-evaluating restructure decisions, and surface restructure deliberately when ready. |
+| Sub-agents read the file themselves (`tools: [Read]`) instead of orchestrator passing content via prompt | For any file larger than the Read tool definition (usually true), reading in-agent is cheaper in total tokens and keeps file content out of the orchestrator's main context. |
+| Structural reviewer returns both `tighten` and `move` findings; this command uses only `tighten` and records `move` count for the cross-suggestion bridge | One agent, two consumers (compact + restructure). Filtering at the caller is simpler than splitting the agent. |
+| No upfront user approval; orchestrator applies all findings automatically; verifier catches accidents | The skill exists to REMOVE cruft. Asking the user to approve each finding bottlenecks the value and converts deliberate removals into judgment calls. Trust model: reviewers propose, orchestrator applies, verifier safety-nets. The user steps in only if the verifier flags something the orchestrator cannot resolve with confidence. |
+| Verifier flags only "load-bearing" loss, not any content change | The skill's PURPOSE is content removal. The verifier exists to catch ACCIDENTAL loss of rule-application info, not to police every deletion. Bar: would a reader applying the rule make a different decision because of the change? |
+| Selective per-item restoration (Keep / Restore / Ambiguous), not all-or-nothing | All-or-nothing rollback undoes good tightenings to fix one false-alarm flag. The orchestrator triages verifier findings inline: false alarms noted, genuine losses restored automatically, ambiguous items surfaced via `AskUserQuestion`. |
+| Memory and rule file caches use path-hashed `/tmp` paths; CLAUDE.md caches use fixed suffixes | Two fixed cache paths (`project`/`global`) avoid collision for CLAUDE.md without hashing. Memory and rule files can be many and arbitrarily named, so path-hashed cache files are needed. |
+| Cross-suggestion is data-driven: only fires when the structural reviewer reported move-outs | Always suggesting the other command would be a nag. Counting the actual findings makes the bridge informative and earns its place at the end of the report. |

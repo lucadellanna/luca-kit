@@ -24,14 +24,15 @@ Claude Code users of any technical level. Skills and hooks must use plain langua
 | Skill | Trigger | What it does |
 |---|---|---|
 | **reflect** | "reflect", "let's reflect", "/reflect" | Highlights what to improve in how you and Claude work together, so the next conversation goes better |
-| **audit-claude** | "/audit-claude", "audit my CLAUDE.md" | Tightens your CLAUDE.md and memory files by removing redundancy, surfacing cross-type mismatches (CLAUDE.md vs memory, path-rule candidates), and flagging scope mismatches between project and global |
+| **compact-claude-files** | "/compact-claude-files", "compact my CLAUDE.md" | Tightens your CLAUDE.md, memory, and path-rule files by applying within-file tightenings and sentence-level compressions |
+| **restructure-claude-files** | "/restructure-claude-files", "restructure my CLAUDE.md" | Moves content out of CLAUDE.md to memory, surfaces memory-to-CLAUDE.md and path-rule candidates, and flags scope mismatches between project and global |
 
 ## Agents
 
 | Agent | Used by | Mandate |
 |---|---|---|
-| **claude-md-structural-reviewer** | audit-claude | Returns within-file tightenings and move-out recommendations for content that belongs in memory, path rules, skills, or hooks (Sonnet, `tools: [Read]`) |
-| **claude-md-compression-reviewer** | audit-claude | Returns sentence-level micro-compressions (Haiku, `tools: [Read]`) |
-| **claude-md-loss-verifier** | audit-claude | Reads pre- and post-edit versions and reports any meaningful content lost (Haiku, `tools: [Read]`) |
-| **claude-md-scope-reviewer** | audit-claude | Reads both project and global CLAUDE.md, returns promote/demote/duplicate recommendations for scope mismatches (Sonnet, `tools: [Read]`) |
-| **claude-md-cross-reviewer** | audit-claude | Reads all discovered CLAUDE.md and memory files, returns memory-to-CLAUDE.md candidates and path-rule suggestions (Sonnet, `tools: [Read]`) |
+| **claude-md-structural-reviewer** | compact-claude-files (tightenings), restructure-claude-files (move-outs) | Returns within-file tightenings and move-out recommendations for content that belongs in memory, path rules, skills, or hooks (Sonnet, `tools: [Read]`) |
+| **claude-md-compression-reviewer** | compact-claude-files | Returns sentence-level micro-compressions on CLAUDE.md, memory, and path-rule files (Haiku, `tools: [Read]`) |
+| **claude-md-loss-verifier** | compact-claude-files, restructure-claude-files | Reads pre- and post-edit versions and reports any meaningful content lost (Haiku, `tools: [Read]`) |
+| **claude-md-scope-reviewer** | restructure-claude-files | Reads both project and global CLAUDE.md, returns promote/demote/duplicate recommendations for scope mismatches (Sonnet, `tools: [Read]`) |
+| **claude-md-cross-reviewer** | restructure-claude-files | Reads all discovered CLAUDE.md, memory, and path-rule files, returns memory-to-CLAUDE.md candidates and path-rule suggestions (Sonnet, `tools: [Read]`) |

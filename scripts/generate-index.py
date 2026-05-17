@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """
 Generate INDEX.md: annotated file list for agent orientation.
-Commits INDEX.md if it changed.
+Commits INDEX.md if it changed (pass --no-commit to skip the commit).
 
 Usage:
     python3 scripts/generate-index.py
+    python3 scripts/generate-index.py --no-commit
 """
 
+import argparse
 import glob
 import json
 import os
@@ -53,7 +55,7 @@ def annotate(path, plugin_name):
             return "Design decisions: hooks"
         if rel_parts[0] == "hooks" and basename.endswith((".sh", ".py")):
             return "Hook script"
-        if rel_parts[0] == "scripts":
+        if rel_parts[0] == "scripts" and basename.endswith((".sh", ".py", ".js", ".ts")):
             return f"Script: {basename}"
         return ""
 
@@ -140,6 +142,14 @@ def generate():
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Generate INDEX.md")
+    parser.add_argument(
+        "--no-commit",
+        action="store_true",
+        help="Write INDEX.md but do not commit it",
+    )
+    args = parser.parse_args()
+
     os.chdir(run(["git", "rev-parse", "--show-toplevel"]))
     content = generate()
     index_path = "INDEX.md"
@@ -159,6 +169,11 @@ def main():
     if diff.returncode == 0:
         subprocess.run(["git", "reset", "HEAD", "--", index_path], check=False)
         print("INDEX.md is up to date.")
+        return
+
+    if args.no_commit:
+        subprocess.run(["git", "reset", "HEAD", "--", index_path], check=False)
+        print("INDEX.md updated (not committed; --no-commit was set).")
         return
 
     subprocess.run(

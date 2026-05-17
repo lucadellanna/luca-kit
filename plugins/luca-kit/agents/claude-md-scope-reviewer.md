@@ -4,7 +4,7 @@ description: >
   Reads both the project ./CLAUDE.md and the global ~/.claude/CLAUDE.md
   and returns scope-transfer recommendations: project items that are
   universal (promote to global) and global items that are project-specific
-  (demote to project). Used only by /luca-kit:audit-claude.
+  (demote to project). Used only by /luca-kit:restructure-claude-files.
 model: sonnet
 tools: [Read]
 ---
