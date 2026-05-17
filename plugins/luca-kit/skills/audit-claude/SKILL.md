@@ -39,8 +39,8 @@ GLOBAL_MEM_DIR="$HOME/.claude/memory"
 
 test -f "$PROJECT_CLAUDE" && echo "project CLAUDE.md: $(wc -l < "$PROJECT_CLAUDE") lines, $(wc -c < "$PROJECT_CLAUDE") chars" || echo "project CLAUDE.md: missing"
 test -f "$GLOBAL_CLAUDE" && echo "global CLAUDE.md: $(wc -l < "$GLOBAL_CLAUDE") lines, $(wc -c < "$GLOBAL_CLAUDE") chars" || echo "global CLAUDE.md: missing"
-find "$PROJECT_MEM_DIR" -maxdepth 1 -name '*.md' 2>/dev/null | while read f; do echo "project memory: $f ($(wc -l < "$f") lines, $(wc -c < "$f") chars)"; done
-find "$GLOBAL_MEM_DIR" -maxdepth 1 -name '*.md' 2>/dev/null | while read f; do echo "global memory: $f ($(wc -l < "$f") lines, $(wc -c < "$f") chars)"; done
+find "$PROJECT_MEM_DIR" -maxdepth 1 -name '*.md' 2>/dev/null | while IFS= read -r f; do echo "project memory: $f ($(wc -l < "$f") lines, $(wc -c < "$f") chars)"; done
+find "$GLOBAL_MEM_DIR" -maxdepth 1 -name '*.md' 2>/dev/null | while IFS= read -r f; do echo "global memory: $f ($(wc -l < "$f") lines, $(wc -c < "$f") chars)"; done
 ```
 
 If the user selected project-only, exclude all global files from targets. If no files exist within the selected scope, say so and stop.
@@ -93,7 +93,7 @@ Apply structural and compression findings without asking the user. Routing:
 |---|---|
 | Tightening (CLAUDE.md) | `Edit`: replace `before` with `after` (empty string if `after` is `(remove)`) |
 | Compression (CLAUDE.md or memory file) | `Edit`: replace `before` with `after` |
-| Move-out to co-located memory dir | (1) Check if snippet already exists in target; skip if duplicate. (2) Append with a leading newline (create if absent). (3) If the memory directory has an index file (MEMORY.md), add a one-line entry pointing to the new file. (4) Edit: remove from CLAUDE.md. |
+| Move-out to co-located memory dir | (1) Check if snippet already exists in target; skip if duplicate. (2) Append with a leading newline (create if absent). (3) If the memory directory has an index file (MEMORY.md), add a one-line entry in the format `**filename**: description` (using the description from the reviewer). (4) Edit: remove from CLAUDE.md. |
 | Move-out, any other target | Carry forward to Step 5 as advice. |
 | Cross-reviewer finding | Carry forward to Step 5 as advice. |
 | Scope-transfer finding | Carry forward to Step 5 as advice. |
@@ -130,7 +130,7 @@ If any verifier flagged losses, evaluate each item:
 
 For **ambiguous** items only: present each with a one-line judgment (why you are unsure) and call `AskUserQuestion` with one option per item plus `All` and `None`. Apply selected restorations. If no items are ambiguous, skip the question.
 
-On any restoration: restore the affected text via inverse `Edit` (re-insert `before`, remove `after`). For memory move-outs, also remove the appended snippet from the memory file (best effort).
+On any restoration: restore the affected text via inverse `Edit` (re-insert `before`, remove `after`). For memory move-outs, also remove the appended snippet from the memory file and its corresponding entry from MEMORY.md (best effort).
 
 Once complete, delete caches and show the compression metric:
 
