@@ -62,12 +62,21 @@ If all reviewers return zero findings (and no tightenings were noted for the bri
 
 ## Step 3: Cache and apply
 
-Cache each CLAUDE.md target before writing:
+Cache each target before writing:
 
 ```bash
 test -f "$(pwd)/CLAUDE.md"       && cp "$(pwd)/CLAUDE.md"       /tmp/restructure-claude-files-project-orig.md
 test -f "$HOME/.claude/CLAUDE.md" && cp "$HOME/.claude/CLAUDE.md" /tmp/restructure-claude-files-global-orig.md
 ```
+
+For each memory file that will receive a move-out, hash its absolute path and cache it before appending:
+
+```bash
+hash=$(python3 -c "import hashlib,sys; print(hashlib.md5(sys.argv[1].encode()).hexdigest())" "$path")
+cp "$path" /tmp/restructure-claude-files-aux-$hash.md
+```
+
+Track each `<path> -> /tmp/restructure-claude-files-aux-<hash>.md` mapping for Step 5 restoration.
 
 Apply move-outs whose suggested target is a memory file in the co-located memory directory. Routing:
 
@@ -110,12 +119,12 @@ If any verifier flagged losses, evaluate each item:
 
 For **ambiguous** items only: present each with a one-line judgment and call `AskUserQuestion` with one option per item plus `All` and `None` (split into multiple questions if the 4-option limit is exceeded). Apply selected restorations.
 
-On any restoration: restore the affected text via inverse `Edit` (re-insert `before`, remove `after`). For memory move-outs, also remove the appended snippet from the memory file and its corresponding entry from MEMORY.md (best effort).
+On any restoration: restore the affected text via inverse `Edit` (re-insert `before`, remove `after`). For memory move-outs, restore the original memory file from its `/tmp/restructure-claude-files-aux-<hash>.md` cache (use `cp` to overwrite); if no cache exists, remove the appended snippet and its MEMORY.md index entry best-effort.
 
 Once complete, delete caches:
 
 ```bash
-rm -f /tmp/restructure-claude-files-project-orig.md /tmp/restructure-claude-files-global-orig.md
+rm -f /tmp/restructure-claude-files-project-orig.md /tmp/restructure-claude-files-global-orig.md /tmp/restructure-claude-files-aux-*.md
 ```
 
 End with a one-line summary: `Applied: N items. Advice: M items.`
