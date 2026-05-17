@@ -24,7 +24,7 @@
 | `plugins/luca-dev-kit/skills/targeted-review/SKILL.md` | `/luca-dev-kit:targeted-review` skill |
 | `plugins/luca-dev-kit/skills/triple-review/SKILL.md` | `/luca-dev-kit:triple-review` skill |
 
-## Plugin: luca-kit (v0.4.3)
+## Plugin: luca-kit (v0.5.0)
 
 | Path | Role |
 |---|---|
@@ -64,9 +64,6 @@
 | `plugins/luca-ops-kit/hooks/hedge-scan.py` | Hook script |
 | `plugins/luca-ops-kit/hooks/hooks.json` | Hook registry |
 | `plugins/luca-ops-kit/hooks/stop-apology-check.py` | Hook script |
-| `plugins/luca-ops-kit/skills/audit-claude/DESIGN.md` | Design decisions: `/luca-ops-kit:audit-claude` |
-| `plugins/luca-ops-kit/skills/audit-claude/HELP.md` |  |
-| `plugins/luca-ops-kit/skills/audit-claude/SKILL.md` | `/luca-ops-kit:audit-claude` skill |
 | `plugins/luca-ops-kit/skills/audit-skill/DESIGN.md` | Design decisions: `/luca-ops-kit:audit-skill` |
 | `plugins/luca-ops-kit/skills/audit-skill/HELP.md` |  |
 | `plugins/luca-ops-kit/skills/audit-skill/SKILL.md` | `/luca-ops-kit:audit-skill` skill |
