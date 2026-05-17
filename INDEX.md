@@ -24,7 +24,7 @@
 | `plugins/luca-dev-kit/skills/targeted-review/SKILL.md` | `/luca-dev-kit:targeted-review` skill |
 | `plugins/luca-dev-kit/skills/triple-review/SKILL.md` | `/luca-dev-kit:triple-review` skill |
 
-## Plugin: luca-kit (v0.6.0)
+## Plugin: luca-kit (v0.6.1)
 
 | Path | Role |
 |---|---|
@@ -131,7 +131,10 @@
 | `.claude/memory/MEMORY.md` | Agent memory index |
 | `.claude/memory/luca-reflection-kit-authoring-notes.md` |  |
 | `.claude/rules/design-md.md` |  |
+| `.claude/rules/hooks.md` |  |
+| `.claude/rules/plugin-agent-md.md` |  |
 | `.claude/rules/plugin-content.md` |  |
+| `.claude/rules/skill-md.md` |  |
 | `.claude/settings.json` | Claude Code settings |
 | `.github/workflows/DESIGN.md` | GitHub Actions design decisions |
 | `.gitignore` | Git ignore rules |
