@@ -6,7 +6,7 @@ description: >
   content between files; for cross-file reorganization use
   /luca-kit:restructure-claude-files. Applies changes automatically and
   verifies no load-bearing content was lost.
-version: 0.1.0
+version: 0.1.1
 ---
 
 # Compact Claude Files
@@ -47,7 +47,7 @@ Send all Agent calls in a single message. Each reviewer reads the file itself; t
 - `subagent_type: "luca-kit:claude-md-structural-reviewer"`: prompt is the absolute path. Use only `tighten` findings; record any `move` findings for the bridge in Step 5.
 - `subagent_type: "luca-kit:claude-md-compression-reviewer"`: prompt is the absolute path.
 
-**Per memory file target and per rule file target**:
+**Per memory file target and per rule file target** (skip files under 500 chars; short tight files rarely have meaningful redundancy and the reviewer spawn costs more than the find rate justifies):
 
 - `subagent_type: "luca-kit:claude-md-compression-reviewer"`: prompt is the absolute path.
 
@@ -85,7 +85,7 @@ If any `Edit` fails because the `before` snippet is gone (a prior edit overlappe
 
 ## Step 4: Verify
 
-Send one Agent call per target that was modified:
+Send one Agent call per target that meets either condition: (a) is a CLAUDE.md file that was modified, or (b) received a structural tightening or 3+ compressions. Skip verification for files that received only 1-2 simple compressions; loss in single-clause edits is rare and triaging verifier output (with frequent false positives on illustrative-detail removals) costs more than the catch rate justifies.
 
 - `subagent_type: "luca-kit:claude-md-loss-verifier"`
 

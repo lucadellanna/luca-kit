@@ -8,7 +8,7 @@ description: >
   global CLAUDE.md. Memory move-outs apply automatically; other findings
   are surfaced as advice. For within-file shortening use
   /luca-kit:compact-claude-files.
-version: 0.1.0
+version: 0.1.2
 ---
 
 # Restructure Claude Files
@@ -106,7 +106,7 @@ The verifier returns either `No meaningful content lost.` or a bulleted list of 
 Show per target (skip a target section if it had no findings):
 
 1. **Applied**: one line per change in plain English (e.g., "Moved Authoring notes section to .claude/memory/authoring-notes.md"). Include skipped/duplicate notes. Do not use reviewer-internal identifiers (M1, S1, etc.) -- the user has not seen the raw reviewer output.
-2. **Advice**: non-memory move-outs (snippet + suggested destination), cross-reviewer findings (memory-to-CLAUDE.md candidates, path-rule suggestions), scope-transfer recommendations (promote, demote, duplicate). Empty section omitted.
+2. **Advice (requires your judgment)**: non-memory move-outs (snippet + suggested destination), cross-reviewer findings (memory-to-CLAUDE.md candidates, path-rule suggestions), scope-transfer recommendations (promote, demote, duplicate). Each item needs a decision from the user to be actioned; the skill deliberately does not auto-apply because the right scope, path, or destination depends on context the skill cannot reliably infer. Empty section omitted.
 3. **Verifier result**: verbatim, per modified file.
 
 If all verifiers returned `No meaningful content lost.`: proceed to Step 6.
@@ -127,7 +127,7 @@ Once complete, delete caches:
 rm -f /tmp/restructure-claude-files-project-orig.md /tmp/restructure-claude-files-global-orig.md /tmp/restructure-claude-files-aux-*.md
 ```
 
-End with a one-line summary: `Applied: N items. Advice: M items.`
+If advice items exist, end with an explicit prompt so the user knows action is requested: `Applied: N. Advice: M items needing your judgment to action. Want me to apply all, walk through them in batches, or leave for later?` If no advice items, end with: `Applied: N items.`
 
 ## Step 6: Bridge to compact
 

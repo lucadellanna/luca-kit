@@ -31,4 +31,4 @@ The bar is **functional**: would a reader applying the rule make a different dec
 Output:
 
 - If nothing was lost: return exactly `No meaningful content lost.`
-- Otherwise: a bulleted list. Each bullet quotes the original (≤200 chars) and states what was lost or weakened. Be specific.
+- Otherwise: a bulleted list. Each bullet must quote BOTH the original snippet AND the revised snippet (each ≤200 chars, copy verbatim from the files you read), then state what was lost or weakened. If the text was removed entirely with no replacement, say `revised: (removed)`. This quote-both-sides rule prevents hallucinated findings where a phrase claimed lost is actually still present in the revised file with different surrounding context.

@@ -85,7 +85,7 @@
 | `plugins/luca-ops-kit/skills/list-skills/HELP.md` |  |
 | `plugins/luca-ops-kit/skills/list-skills/SKILL.md` | `/luca-ops-kit:list-skills` skill |
 
-## Plugin: luca-reflection-kit (v0.8.0)
+## Plugin: luca-reflection-kit (v0.8.1)
 
 | Path | Role |
 |---|---|
@@ -96,6 +96,7 @@
 | `plugins/luca-reflection-kit/agents/user-flow-reviewer.md` |  |
 | `plugins/luca-reflection-kit/commands/accept-terms.md` | `/luca-reflection-kit:accept-terms` command |
 | `plugins/luca-reflection-kit/commands/luca-reflection-recommended-setup.md` | `/luca-reflection-kit:luca-reflection-recommended-setup` command |
+| `plugins/luca-reflection-kit/hooks/consolidate-reflect-queue.py` | Hook script |
 | `plugins/luca-reflection-kit/hooks/hooks.json` | Hook registry |
 | `plugins/luca-reflection-kit/hooks/optimization-hint.sh` | Hook script |
 | `plugins/luca-reflection-kit/hooks/terms-acceptance-check.sh` | Hook script |
