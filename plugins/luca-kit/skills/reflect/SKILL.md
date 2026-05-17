@@ -5,7 +5,7 @@ description: >
   or asks what could be improved about how the current conversation has
   gone. Surfaces a few concrete improvements to how the user and Claude
   work together, so the next conversation goes better.
-version: 0.1.1
+version: 0.1.2
 ---
 
 # Reflect
@@ -67,7 +67,7 @@ And also, these suggestions for you:
 
 Rules:
 - Claude-side improvements are numbered (1, 2, 3, ...). User-side suggestions use dashes.
-- Each item has a bold title followed by a colon, then a plain-language description in the same line.
+- Each item: **bold title**, colon, then the description in normal (non-bold) weight on the same line.
 - Omit a section entirely if there are no findings for that side. Do not invent findings to balance.
 - Avoid jargon. If a technical term is unavoidable, explain it in the same sentence.
 - Each item stands on its own. The reader should understand it in one pass.

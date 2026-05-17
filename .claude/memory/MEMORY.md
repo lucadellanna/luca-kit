@@ -51,6 +51,8 @@
 
 **Plugin layout decisions invoke `plugin-dev:plugin-structure`**: when deciding where files live in a plugin (agents/, commands/, skills/), invoke that skill before asserting; inferring from intra-skill patterns is unreliable.
 
+**SKILL.md orchestrator steps must live outside bash blocks**: write orchestrator action steps as prose outside code blocks; use the block only for the bash syntax example. Instructions inside `#` comments in a bash block may be treated as inactive by the orchestrator.
+
 ## luca-reflection-kit artifacts
 
 **reflect**: conversational analysis skill; no durable artifacts beyond user-approved session logs and memory writes.
@@ -66,3 +68,5 @@
 **Stating principles**: state the underlying condition the rule applies to, not example phrases that match it. If you find yourself listing trigger phrases, the underlying condition is what to write.
 
 **Version bump rule**: bump the SKILL.md frontmatter version after every meaningful change: patch (0.x.y → 0.x.y+1) for fixes or additions to existing steps; minor (0.x.0 → 0.x+1.0) for new steps added. The version field is what the Claude plugin system uses to signal an update to cached users.
+
+**Plugin vs. skill versioning are independent**: `plugin.json` version follows semver for the plugin as a whole (patch: bug fixes; minor: new skills/agents/steps; major: breaking changes). Skill versions track individual skill changes. The two numbers do not need to match and should not be kept in sync by convention.
