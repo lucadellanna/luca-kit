@@ -39,13 +39,13 @@ GLOBAL_MEM_DIR="$HOME/.claude/memory"
 
 test -f "$PROJECT_CLAUDE" && echo "project CLAUDE.md: $(wc -l < "$PROJECT_CLAUDE") lines, $(wc -c < "$PROJECT_CLAUDE") chars" || echo "project CLAUDE.md: missing"
 test -f "$GLOBAL_CLAUDE" && echo "global CLAUDE.md: $(wc -l < "$GLOBAL_CLAUDE") lines, $(wc -c < "$GLOBAL_CLAUDE") chars" || echo "global CLAUDE.md: missing"
-find "$PROJECT_MEM_DIR" -maxdepth 1 -name '*.md' ! -name 'MEMORY.md' 2>/dev/null | while read f; do echo "project memory: $f ($(wc -l < "$f") lines, $(wc -c < "$f") chars)"; done
-find "$GLOBAL_MEM_DIR" -maxdepth 1 -name '*.md' ! -name 'MEMORY.md' 2>/dev/null | while read f; do echo "global memory: $f ($(wc -l < "$f") lines, $(wc -c < "$f") chars)"; done
+find "$PROJECT_MEM_DIR" -maxdepth 1 -name '*.md' 2>/dev/null | while read f; do echo "project memory: $f ($(wc -l < "$f") lines, $(wc -c < "$f") chars)"; done
+find "$GLOBAL_MEM_DIR" -maxdepth 1 -name '*.md' 2>/dev/null | while read f; do echo "global memory: $f ($(wc -l < "$f") lines, $(wc -c < "$f") chars)"; done
 ```
 
 If the user selected project-only, exclude all global files from targets. If no files exist within the selected scope, say so and stop.
 
-Label existing files as **targets**. Record the total character count of all targets (sum of `wc -c` outputs) as **chars_before** for the compression metric. `MEMORY.md` index files are excluded from all review passes (they are auto-managed pointer lists, not content).
+Label existing files as **targets**. Record the total character count of all targets (sum of `wc -c` outputs) as **chars_before** for the compression metric.
 
 ## Step 2: Run reviewers in parallel
 
@@ -56,7 +56,7 @@ Send all Agent calls in a single message. Each reviewer reads the file itself; t
 - `subagent_type: "luca-kit:claude-md-structural-reviewer"`: prompt is the absolute path.
 - `subagent_type: "luca-kit:claude-md-compression-reviewer"`: prompt is the absolute path.
 
-**Per memory file target** (each `.md` file in the memory dirs within scope, excluding `MEMORY.md`):
+**Per memory file target** (each `.md` file in the memory dirs within scope):
 
 - `subagent_type: "luca-kit:claude-md-compression-reviewer"`: prompt is the absolute path.
 
@@ -82,8 +82,8 @@ Cache each target before writing:
 test -f "$PROJECT_CLAUDE" && cp "$PROJECT_CLAUDE" /tmp/audit-claude-project-orig.md
 test -f "$GLOBAL_CLAUDE"  && cp "$GLOBAL_CLAUDE"  /tmp/audit-claude-global-orig.md
 # For each memory file, cache to /tmp/ with a unique name derived from its absolute path:
-# python3 -c "import hashlib,sys; print(hashlib.md5(sys.argv[1].encode()).hexdigest())" <path>
-# cp <path> /tmp/audit-claude-mem-<hash>.md
+# hash=$(python3 -c "import hashlib,sys; print(hashlib.md5(sys.argv[1].encode()).hexdigest())" "$path")
+# cp "$path" /tmp/audit-claude-mem-$hash.md
 # Track each <path> -> /tmp/audit-claude-mem-<hash>.md mapping for Step 4.
 ```
 
