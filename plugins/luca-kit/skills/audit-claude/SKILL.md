@@ -98,7 +98,7 @@ Apply structural and compression findings without asking the user. Routing:
 |---|---|
 | Tightening (CLAUDE.md) | `Edit`: replace `before` with `after` (empty string if `after` is `(remove)`) |
 | Compression (CLAUDE.md or memory file) | `Edit`: replace `before` with `after` |
-| Move-out to co-located memory dir | (1) Check if snippet already exists in target; skip if duplicate. (2) Append with a leading newline (create if absent). (3) If the memory directory has an index file (MEMORY.md), add a one-line entry in the format `**topic**: one-line summary` where topic is the content's subject (not the filename) and summary is the content distilled to one line, matching the style of existing entries. (4) Edit: remove from CLAUDE.md. |
+| Move-out to co-located memory dir | (1) Check if snippet already exists in target; skip if duplicate. (2) **If target IS MEMORY.md**: append a one-line `**topic**: summary` entry (no separate file; skip step 3). **If target is a separate file**: append the snippet with a leading newline (create if absent), then if the memory directory has a MEMORY.md index, add a one-line entry in the format `**topic**: [summary](relative-path-to-file)` linking to the file. (3) Edit: remove from CLAUDE.md. |
 | Move-out, any other target | Carry forward to Step 5 as advice. |
 | Cross-reviewer finding | Carry forward to Step 5 as advice. |
 | Scope-transfer finding | Carry forward to Step 5 as advice. |
@@ -143,6 +143,6 @@ Once complete, delete caches and show the compression metric:
 rm -f /tmp/audit-claude-project-orig.md /tmp/audit-claude-global-orig.md /tmp/audit-claude-mem-*.md
 ```
 
-Measure the final character count (`wc -c`) of each modified target. Compute total chars before (recorded in Step 1) and after (sum of current counts). Show:
+Measure the final character count (`wc -c`) of all targets (modified and unmodified). Compute total chars before (recorded in Step 1) and after (sum of current counts). Show:
 
 > **Reduction:** X% (integer), where X = round((chars_before - chars_after) / chars_before * 100). One line, all targets combined.
