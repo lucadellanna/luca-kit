@@ -81,11 +81,16 @@ Cache each target before writing:
 ```bash
 test -f "$PROJECT_CLAUDE" && cp "$PROJECT_CLAUDE" /tmp/audit-claude-project-orig.md
 test -f "$GLOBAL_CLAUDE"  && cp "$GLOBAL_CLAUDE"  /tmp/audit-claude-global-orig.md
-# For each memory file, cache to /tmp/ with a unique name derived from its absolute path:
-# hash=$(python3 -c "import hashlib,sys; print(hashlib.md5(sys.argv[1].encode()).hexdigest())" "$path")
-# cp "$path" /tmp/audit-claude-mem-$hash.md
-# Track each <path> -> /tmp/audit-claude-mem-<hash>.md mapping for Step 4.
 ```
+
+For each memory file target, compute a hash of its absolute path and cache it:
+
+```bash
+hash=$(python3 -c "import hashlib,sys; print(hashlib.md5(sys.argv[1].encode()).hexdigest())" "$path")
+cp "$path" /tmp/audit-claude-mem-$hash.md
+```
+
+Track each `<path> -> /tmp/audit-claude-mem-<hash>.md` mapping for Step 4.
 
 Apply structural and compression findings without asking the user. Routing:
 
@@ -93,7 +98,7 @@ Apply structural and compression findings without asking the user. Routing:
 |---|---|
 | Tightening (CLAUDE.md) | `Edit`: replace `before` with `after` (empty string if `after` is `(remove)`) |
 | Compression (CLAUDE.md or memory file) | `Edit`: replace `before` with `after` |
-| Move-out to co-located memory dir | (1) Check if snippet already exists in target; skip if duplicate. (2) Append with a leading newline (create if absent). (3) If the memory directory has an index file (MEMORY.md), add a one-line entry in the format `**filename**: description` (using the description from the reviewer). (4) Edit: remove from CLAUDE.md. |
+| Move-out to co-located memory dir | (1) Check if snippet already exists in target; skip if duplicate. (2) Append with a leading newline (create if absent). (3) If the memory directory has an index file (MEMORY.md), add a one-line entry in the format `**topic**: one-line summary` where topic is the content's subject (not the filename) and summary is the content distilled to one line, matching the style of existing entries. (4) Edit: remove from CLAUDE.md. |
 | Move-out, any other target | Carry forward to Step 5 as advice. |
 | Cross-reviewer finding | Carry forward to Step 5 as advice. |
 | Scope-transfer finding | Carry forward to Step 5 as advice. |
@@ -128,7 +133,7 @@ If any verifier flagged losses, evaluate each item:
 - **Restore**: the loss is clearly accidental -- load-bearing content removed by mistake. Restore immediately without asking.
 - **Ambiguous**: you cannot confidently determine whether the loss matters in this project's context.
 
-For **ambiguous** items only: present each with a one-line judgment (why you are unsure) and call `AskUserQuestion` with one option per item plus `All` and `None`. Apply selected restorations. If no items are ambiguous, skip the question.
+For **ambiguous** items only: present each with a one-line judgment (why you are unsure) and call `AskUserQuestion` with one option per item plus `All` and `None` (split into multiple questions if the 4-option limit is exceeded). Apply selected restorations. If no items are ambiguous, skip the question.
 
 On any restoration: restore the affected text via inverse `Edit` (re-insert `before`, remove `after`). For memory move-outs, also remove the appended snippet from the memory file and its corresponding entry from MEMORY.md (best effort).
 
