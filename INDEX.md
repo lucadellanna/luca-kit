@@ -39,10 +39,13 @@
 | `plugins/luca-kit/hooks/hooks.json` | Hook registry |
 | `plugins/luca-kit/hooks/optimization-hint.sh` | Hook script |
 | `plugins/luca-kit/hooks/workflow-hint.sh` | Hook script |
-| `plugins/luca-kit/skills/audit-claude/DESIGN.md` | Design decisions: `/luca-kit:audit-claude` |
-| `plugins/luca-kit/skills/audit-claude/HELP.md` |  |
-| `plugins/luca-kit/skills/audit-claude/SKILL.md` | `/luca-kit:audit-claude` skill |
+| `plugins/luca-kit/skills/compact-claude-files/DESIGN.md` | Design decisions: `/luca-kit:compact-claude-files` |
+| `plugins/luca-kit/skills/compact-claude-files/HELP.md` |  |
+| `plugins/luca-kit/skills/compact-claude-files/SKILL.md` | `/luca-kit:compact-claude-files` skill |
 | `plugins/luca-kit/skills/reflect/SKILL.md` | `/luca-kit:reflect` skill |
+| `plugins/luca-kit/skills/restructure-claude-files/DESIGN.md` | Design decisions: `/luca-kit:restructure-claude-files` |
+| `plugins/luca-kit/skills/restructure-claude-files/HELP.md` |  |
+| `plugins/luca-kit/skills/restructure-claude-files/SKILL.md` | `/luca-kit:restructure-claude-files` skill |
 
 ## Plugin: luca-ops-kit (v0.5.1)
 
