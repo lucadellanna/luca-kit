@@ -32,6 +32,11 @@
 
 ## luca-dev-kit authoring
 
+**luca-dev-kit cache dir**: `.claude/cache/` is gitignored; contains `review-loop-state.json`, `pre-commit-prefs.json`, and `typecheck-timing.json`. Created by `review-loop`.
+
+**pre-commit security gate**: `scripts/pre-commit` is installed into `.git/hooks/`; any changes must pass the Opus security gate before merging.
+**code-review-checklist**: `~/.claude/code-review-checklist.md` is auto-accumulated by `review-loop`; not shipped with the plugin, created on first run.
+
 **install-pre-commit-hooks audience**: target non-technical users who may not know git. No tool names (gitleaks, tsc, Husky), no file paths, no technical jargon in any user-facing messages. Applies to any luca-dev-kit skill invoked via `luca-dev-recommended-setup`. Use plain English: "saves code" not "commits", "automated checks" not "pre-commit hooks".
 
 ## Plugin development
@@ -46,6 +51,16 @@
 
 **Plugin layout decisions invoke `plugin-dev:plugin-structure`**: when deciding where files live in a plugin (agents/, commands/, skills/), invoke that skill before asserting; inferring from intra-skill patterns is unreliable.
 
+**SKILL.md orchestrator steps must live outside bash blocks**: write orchestrator action steps as prose outside code blocks; use the block only for the bash syntax example. Instructions inside `#` comments in a bash block may be treated as inactive by the orchestrator.
+
+## luca-reflection-kit artifacts
+
+**reflect**: conversational analysis skill; no durable artifacts beyond user-approved session logs and memory writes.
+**dream**: cross-session pattern mining; reads reflect logs, writes nothing without user approval.
+**optimization-hint hook**: stateless UserPromptSubmit; scoped to Claude-side improvements (memory entries, edits to existing skills).
+**workflow-hint hook**: stateless UserPromptSubmit; scoped to user-side automation (new skills, automating workflows, removing friction).
+**terms-acceptance-check hook**: SessionStart; checks `~/.claude/luca-ops-kit/terms-accepted-v1.json`; silent when `$CLAUDE_CODE_REMOTE` set or no controlling terminal.
+
 ## CLAUDE.md authoring
 
 **Rule removal**: when a rule is removed because its content migrates elsewhere, delete the entry entirely; never leave a stub line pointing to the new location. The absence is the signal.
@@ -53,3 +68,5 @@
 **Stating principles**: state the underlying condition the rule applies to, not example phrases that match it. If you find yourself listing trigger phrases, the underlying condition is what to write.
 
 **Version bump rule**: bump the SKILL.md frontmatter version after every meaningful change: patch (0.x.y → 0.x.y+1) for fixes or additions to existing steps; minor (0.x.0 → 0.x+1.0) for new steps added. The version field is what the Claude plugin system uses to signal an update to cached users.
+
+**Plugin vs. skill versioning are independent**: `plugin.json` version follows semver for the plugin as a whole (patch: bug fixes; minor: new skills/agents/steps; major: breaking changes). Skill versions track individual skill changes. The two numbers do not need to match and should not be kept in sync by convention.

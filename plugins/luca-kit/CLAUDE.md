@@ -24,7 +24,7 @@ Claude Code users of any technical level. Skills and hooks must use plain langua
 | Skill | Trigger | What it does |
 |---|---|---|
 | **reflect** | "reflect", "let's reflect", "/reflect" | Highlights what to improve in how you and Claude work together, so the next conversation goes better |
-| **audit-claude** | "/audit-claude", "audit my CLAUDE.md" | Tightens your project and global CLAUDE.md files by removing redundancy, content that belongs elsewhere, and scope mismatches |
+| **audit-claude** | "/audit-claude", "audit my CLAUDE.md" | Tightens your CLAUDE.md and memory files by removing redundancy, surfacing cross-type mismatches (CLAUDE.md vs memory, path-rule candidates), and flagging scope mismatches between project and global |
 
 ## Agents
 
@@ -34,3 +34,4 @@ Claude Code users of any technical level. Skills and hooks must use plain langua
 | **claude-md-compression-reviewer** | audit-claude | Returns sentence-level micro-compressions (Haiku, `tools: [Read]`) |
 | **claude-md-loss-verifier** | audit-claude | Reads pre- and post-edit versions and reports any meaningful content lost (Haiku, `tools: [Read]`) |
 | **claude-md-scope-reviewer** | audit-claude | Reads both project and global CLAUDE.md, returns promote/demote/duplicate recommendations for scope mismatches (Sonnet, `tools: [Read]`) |
+| **claude-md-cross-reviewer** | audit-claude | Reads all discovered CLAUDE.md and memory files, returns memory-to-CLAUDE.md candidates and path-rule suggestions (Sonnet, `tools: [Read]`) |

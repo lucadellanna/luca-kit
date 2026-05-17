@@ -5,7 +5,7 @@ description: >
   or asks what could be improved about how the current conversation has
   gone. Surfaces a few concrete improvements to how the user and Claude
   work together, so the next conversation goes better.
-version: 0.1.0
+version: 0.1.2
 ---
 
 # Reflect
@@ -67,13 +67,14 @@ And also, these suggestions for you:
 
 Rules:
 - Claude-side improvements are numbered (1, 2, 3, ...). User-side suggestions use dashes.
-- Each item has a bold title followed by a colon, then a plain-language description in the same line.
+- Each item: **bold title**, colon, then the description in normal (non-bold) weight on the same line.
 - Omit a section entirely if there are no findings for that side. Do not invent findings to balance.
 - Avoid jargon. If a technical term is unavoidable, explain it in the same sentence.
 - Each item stands on its own. The reader should understand it in one pass.
 
 **Closing:**
-- If there are numbered improvements: call `AskUserQuestion` with one option per numbered item (e.g. "1", "2", "3") plus an "All" option. Question text: "What changes should I implement?"
+- If there is exactly one numbered improvement: implement it immediately after presenting it. No question needed.
+- If there are two or more numbered improvements: call `AskUserQuestion` with one option per numbered item (e.g. "1", "2", "3") plus an "All" option. Question text: "What changes should I implement?"
 - If there are only user-side suggestions: end with "Does any of this resonate, or would you push back on anything?"
 - If there are no findings at all: say so briefly and stop.
 

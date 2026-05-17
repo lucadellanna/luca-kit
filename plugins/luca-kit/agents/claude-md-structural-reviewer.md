@@ -58,6 +58,8 @@ For each move-out, return:
 
 Do not pair move-outs with an `after`. Memory targets are auto-applied by the orchestrator; everything else is surfaced to the user as advice.
 
+**Partial staleness is a tighten, not a move-out.** When only a fragment of an entry is stale (e.g., a `(in progress)` label in a table cell, a date in an otherwise current rule), use a `tighten` finding: set `before` to the full entry and `after` to the entry with the stale fragment removed. A `move-out` removes the entire snippet from CLAUDE.md; use it only when the whole snippet belongs elsewhere.
+
 ## Out of scope
 
 - Sentence-level micro-compressions (the compression reviewer handles those in parallel)
