@@ -24,7 +24,7 @@
 | `plugins/luca-dev-kit/skills/targeted-review/SKILL.md` | `/luca-dev-kit:targeted-review` skill |
 | `plugins/luca-dev-kit/skills/triple-review/SKILL.md` | `/luca-dev-kit:triple-review` skill |
 
-## Plugin: luca-kit (v0.4.2)
+## Plugin: luca-kit (v0.4.3)
 
 | Path | Role |
 |---|---|
@@ -32,6 +32,7 @@
 | `plugins/luca-kit/CLAUDE.md` | Runtime instructions (ships with plugin) |
 | `plugins/luca-kit/README.md` |  |
 | `plugins/luca-kit/agents/claude-md-compression-reviewer.md` |  |
+| `plugins/luca-kit/agents/claude-md-cross-reviewer.md` |  |
 | `plugins/luca-kit/agents/claude-md-loss-verifier.md` |  |
 | `plugins/luca-kit/agents/claude-md-scope-reviewer.md` |  |
 | `plugins/luca-kit/agents/claude-md-structural-reviewer.md` |  |
