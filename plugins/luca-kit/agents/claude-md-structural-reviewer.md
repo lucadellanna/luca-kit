@@ -4,8 +4,9 @@ description: >
   Reviews a single CLAUDE.md (project or global) for two things:
   tightenings (within-file edits that preserve meaning) and move-outs
   (content that belongs elsewhere: memory, path rule, skill, hook, or a
-  referenced template file). Returns structured findings. Used only by
-  /luca-kit:audit-claude.
+  referenced template file). Returns structured findings. Used by
+  /luca-kit:compact-claude-files (tightenings) and
+  /luca-kit:restructure-claude-files (move-outs).
 model: sonnet
 tools: [Read]
 ---

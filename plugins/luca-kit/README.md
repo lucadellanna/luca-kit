@@ -14,4 +14,5 @@ Self-reflection and productivity hooks for Claude Code.
 | Skill | Trigger | Effect |
 |---|---|---|
 | `reflect` | "reflect", "let's reflect", "/reflect" | Highlights what to improve in how you and Claude work together, so the next conversation goes better |
-| `audit-claude` | "/audit-claude", "audit my CLAUDE.md" | Tightens your project and global CLAUDE.md files by removing redundancy, content that belongs elsewhere, and scope mismatches |
+| `compact-claude-files` | "/compact-claude-files", "compact my CLAUDE.md" | Shortens your CLAUDE.md, memory, and path-rule files by applying within-file tightenings and compressions |
+| `restructure-claude-files` | "/restructure-claude-files", "restructure my CLAUDE.md" | Moves content out of CLAUDE.md to memory, surfaces cross-type transfer candidates, and flags scope mismatches between project and global |
