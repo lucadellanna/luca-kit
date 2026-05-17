@@ -52,6 +52,7 @@ Installed automatically with the plugin (no setup needed):
 | **optimization-hint** | UserPromptSubmit | On every prompt, reminds Claude to append a one-sentence Optimization hint at the end of the current response if it involves 8+ tool calls (memory-worthy pattern / skill to edit or improve) |
 | **workflow-hint** | UserPromptSubmit | On every prompt, reminds Claude to append a one-sentence Workflow hint at the end of the current response if it involves 8+ tool calls (skill to codify / user judgement or workflow to automate / friction to remove) |
 | **terms-acceptance-check** | SessionStart | Reminds the user (via Claude) to run `/luca-reflection-kit:accept-terms` if no acknowledgment is recorded yet. Silent once acknowledged, and silent in non-interactive sessions (`claude -p`, agent SDK, CI). |
+| **consolidate-reflect-queue** | PreToolUse | Before any claude-reflect skill runs in a Conductor workspace, merges queued learnings from all sibling workspace folders into the current one so /reflect sees the full history. No-op outside Conductor. |
 
 ## Commands
 

@@ -20,6 +20,8 @@ rule: /absolute/path/to/rule-file.md
 
 Read every file at the paths listed. Return two categories of findings. All findings are advice-only; none are auto-applied by the orchestrator.
 
+**Sweep method (required to avoid missing candidates):** enumerate every memory entry (each bullet, section, or one-liner) and every CLAUDE.md section (each `##` or `###` heading and each top-level bullet under it). For each enumerated unit, apply BOTH tests below (memory-to-CLAUDE.md AND path-rule). Do not stop at the first match per file; a single file may have multiple candidates of either type.
+
 ## (1) Memory-to-CLAUDE.md candidates
 
 Look for memory entries that function as standing rules -- instructions the model should apply on every session -- rather than one-off context or past decisions.

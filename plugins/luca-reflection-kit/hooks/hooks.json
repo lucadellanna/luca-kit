@@ -1,6 +1,18 @@
 {
-  "description": "Reflection plugin hooks: terms-acceptance reminder on SessionStart; optimization-hint and workflow-hint reminders on UserPromptSubmit.",
+  "description": "Reflection plugin hooks: terms-acceptance reminder on SessionStart; optimization-hint and workflow-hint reminders on UserPromptSubmit; queue consolidation before reflect in Conductor workspaces.",
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/consolidate-reflect-queue.py\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
     "SessionStart": [
       {
         "matcher": "*",
