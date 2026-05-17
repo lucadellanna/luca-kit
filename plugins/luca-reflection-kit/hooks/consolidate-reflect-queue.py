@@ -30,13 +30,13 @@ def _current_queue(cwd: Path) -> Path:
     return _projects_root() / folder / "learnings-queue.json"
 
 
-def _conductor_prefix(cwd: Path) -> Optional[str]:
-    """Return encoded project-root prefix for a Conductor workspace, or None.
+def _conductor_info(cwd: Path) -> Optional[tuple]:
+    """Return (encoded_prefix, project_root_path) for a Conductor workspace, or None.
 
     Conductor paths: .../conductor/workspaces/<project>/<workspace>/
-    Prefix encodes .../conductor/workspaces/<project> and is used to match
-    sibling workspace folders via startswith, avoiding substring false-positives
-    on short project names.
+    Returns both the encoded prefix and the real Path so callers can verify
+    that a candidate sibling dir actually maps to a child of project_root,
+    preventing false positives from projects sharing a hyphenated name prefix.
     """
     parts = cwd.parts
     try:
@@ -45,10 +45,11 @@ def _conductor_prefix(cwd: Path) -> Optional[str]:
         return None
     if c_idx + 3 > len(parts) or parts[c_idx + 1] != "workspaces":
         return None
-    project_root = str(Path(*parts[: c_idx + 3])).replace("/", "-").replace("\\", "-")
-    if not project_root.startswith("-"):
-        project_root = "-" + project_root
-    return project_root
+    project_root = Path(*parts[: c_idx + 3])
+    encoded = str(project_root).replace("/", "-").replace("\\", "-")
+    if not encoded.startswith("-"):
+        encoded = "-" + encoded
+    return encoded, project_root
 
 
 def _is_under_projects(path: Path) -> bool:
@@ -75,9 +76,10 @@ def main() -> None:
         sys.exit(0)
 
     cwd = Path.cwd()
-    prefix = _conductor_prefix(cwd)
-    if not prefix:
+    info = _conductor_info(cwd)
+    if not info:
         sys.exit(0)
+    prefix, project_root = info
 
     projects_dir = _projects_root()
     if not projects_dir.is_dir():
@@ -99,6 +101,7 @@ def main() -> None:
         if d.is_dir()
         and d.name.startswith(prefix + "-")
         and d != current_queue.parent
+        and (project_root / d.name[len(prefix) + 1:]).is_dir()
     ]
 
     sibling_queues_to_clear = []
