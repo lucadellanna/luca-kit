@@ -1,16 +1,20 @@
 ---
 name: audit-skills
 description: Audit the full skill library: detect overlapping skills across scopes and run a rotating quality review. Trigger on "audit skills", "review all skills", or "check skill library".
-version: 0.1.0
+version: 0.1.1
 ---
 
 # Audit Skills
 
 Scan all installed skills for overlaps, then run a quality audit on a rotating subset so every skill gets reviewed over time without exhausting a single session.
 
+**Prerequisite:** Requires `luca-kit` to be installed (`/plugin install luca-kit@lucadellanna`). Step 1 will fail and report a clear error if it is absent.
+
 ## Step 1: Collect skill data
 
-Invoke `luca-kit:list-skills` with `mode: raw` in the opening message. The output begins with a `TOTAL:N` header line (e.g. `TOTAL:5`); skip it. Parse each remaining line as a TSV row: `(skill_name, attribution, description, line_count, path)`. `path` is the absolute path to the skill's `SKILL.md` and is the unique identifier used throughout this skill.
+Invoke `luca-kit:list-skills` with `mode: raw` in the opening message. If `luca-kit:list-skills` is unavailable, tell the user: "audit-skills requires luca-kit. Install it with `/plugin install luca-kit@lucadellanna`." Stop.
+
+The output begins with a `TOTAL:N` header line (e.g. `TOTAL:5`); skip it. Parse each remaining line as a TSV row: `(skill_name, attribution, description, line_count, path)`. `path` is the absolute path to the skill's `SKILL.md` and is the unique identifier used throughout this skill.
 
 If zero rows returned: tell the user "No skills found. Check that skills are installed under `skills/`, `plugins/`, or `~/.claude/`." Stop.
 

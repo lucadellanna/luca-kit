@@ -24,7 +24,7 @@
 | `plugins/luca-dev-kit/skills/targeted-review/SKILL.md` | `/luca-dev-kit:targeted-review` skill |
 | `plugins/luca-dev-kit/skills/triple-review/SKILL.md` | `/luca-dev-kit:triple-review` skill |
 
-## Plugin: luca-kit (v0.6.1)
+## Plugin: luca-kit (v0.7.0)
 
 | Path | Role |
 |---|---|
@@ -43,12 +43,15 @@
 | `plugins/luca-kit/skills/compact-claude-files/DESIGN.md` | Design decisions: `/luca-kit:compact-claude-files` |
 | `plugins/luca-kit/skills/compact-claude-files/HELP.md` |  |
 | `plugins/luca-kit/skills/compact-claude-files/SKILL.md` | `/luca-kit:compact-claude-files` skill |
+| `plugins/luca-kit/skills/list-skills/DESIGN.md` | Design decisions: `/luca-kit:list-skills` |
+| `plugins/luca-kit/skills/list-skills/HELP.md` |  |
+| `plugins/luca-kit/skills/list-skills/SKILL.md` | `/luca-kit:list-skills` skill |
 | `plugins/luca-kit/skills/reflect/SKILL.md` | `/luca-kit:reflect` skill |
 | `plugins/luca-kit/skills/restructure-claude-files/DESIGN.md` | Design decisions: `/luca-kit:restructure-claude-files` |
 | `plugins/luca-kit/skills/restructure-claude-files/HELP.md` |  |
 | `plugins/luca-kit/skills/restructure-claude-files/SKILL.md` | `/luca-kit:restructure-claude-files` skill |
 
-## Plugin: luca-ops-kit (v0.5.1)
+## Plugin: luca-ops-kit (v0.6.0)
 
 | Path | Role |
 |---|---|
@@ -81,9 +84,6 @@
 | `plugins/luca-ops-kit/skills/create-skill/HELP.md` |  |
 | `plugins/luca-ops-kit/skills/create-skill/REQUIREMENTS.md` |  |
 | `plugins/luca-ops-kit/skills/create-skill/SKILL.md` | `/luca-ops-kit:create-skill` skill |
-| `plugins/luca-ops-kit/skills/list-skills/DESIGN.md` | Design decisions: `/luca-ops-kit:list-skills` |
-| `plugins/luca-ops-kit/skills/list-skills/HELP.md` |  |
-| `plugins/luca-ops-kit/skills/list-skills/SKILL.md` | `/luca-ops-kit:list-skills` skill |
 
 ## Plugin: luca-reflection-kit (v0.8.1)
 
