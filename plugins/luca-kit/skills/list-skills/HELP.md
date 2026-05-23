@@ -1,1 +1,1 @@
-**`list-skills`** shows every installed skill across all plugins with its description and file size in a single table. **Example:** "What Claude workflows do I have available?" → `/luca-kit:list-skills`.
+**`list-skills`** shows every installed skill across all plugins with its description and line count in a single table. **Example:** "What Claude workflows do I have available?" → `/luca-kit:list-skills`.

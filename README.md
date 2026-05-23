@@ -123,7 +123,7 @@ Requires [Claude Code](https://claude.ai/code).
 
 | Skill | What it does |
 |-------|-------------|
-| **list-skills** | Lists every installed skill across all plugins with its plugin, one-line description, and file size in a single table |
+| **list-skills** | Lists every installed skill across all plugins with its plugin, one-line description, and line count in a single table |
 | **reflect** | Highlights what to improve in how you and Claude work together, so the next conversation goes better |
 | **compact-claude-files** | Tightens your CLAUDE.md, memory, and path-rule files with within-file compressions and a loss-verifier safety net |
 | **restructure-claude-files** | Moves content out of CLAUDE.md to memory, surfaces cross-type transfer candidates, and flags scope mismatches between project and global |
