@@ -2,10 +2,11 @@
 
 > **Status: Early access / Pre-release.** These plugins are under active development. Features may change, break, or be removed without notice. Not ready for production use.
 
-This marketplace ships three Claude plugins:
+This marketplace ships four Claude plugins:
 
 | Plugin | Audience | Purpose |
 |--------|----------|---------|
+| **luca-kit** | Anyone | Skill discovery, self-reflection, CLAUDE.md auditing, and productivity hooks |
 | **luca-reflection-kit** | Anyone | Self-reflection and cross-session learning: scan conversations for improvement points and mine recurring patterns |
 | **luca-ops-kit** | Organizations and individuals | Craft reusable skills, maintain a self-improving setup, and govern your Claude skill library |
 | **luca-dev-kit** | Developers | Pre-PR quality gates, autonomous Gemini review loop, and pre-commit hook management |
@@ -15,6 +16,28 @@ Most companies and people using AI are stuck at the "clever individual prompts" 
 ## Installation
 
 Install in Claude Code, Cowork, or both; if you use both apps, follow each procedure separately.
+
+### luca-kit
+
+#### Claude Code
+
+Requires [Claude Code](https://claude.ai/code).
+
+1. `/plugin marketplace add lucadellanna/luca-kit`
+2. `/plugin install luca-kit@lucadellanna`
+3. Enable auto-updates: type `/plugin`, press Tab twice to open the Marketplaces tab, select `luca-kit`, and select **Enable updates**.
+
+#### Claude Cowork
+
+1. Left sidebar → Customize → Plugins → Personal → **+** → Add marketplace → `lucadellanna/luca-kit`
+2. Click **+** next to `luca-kit`
+3. Enable auto-updates: Browse Plugins → Personal → luca-kit → **···** → Sync automatically
+
+**To uninstall:**
+
+```
+/plugin uninstall luca-kit@lucadellanna/luca-kit
+```
 
 ### luca-ops-kit
 
@@ -91,11 +114,17 @@ Requires [Claude Code](https://claude.ai/code).
 | **undo-setup** | Reverses everything /luca-ops-recommended-setup added so you can cleanly uninstall the plugin |
 | **build-work-context** | Interviews you about your company and role, then saves a persistent profile so Claude doesn't need to ask "who do you work for?" every session |
 | **create-skill** | Turns a procedure, SOP, checklist, or verbal description into a ready-to-use skill file, scoring and improving it before saving |
-| **list-skills** | Lists every installed skill with its plugin, one-line description, and file size in a single table |
 | **audit-skill** | Scores a single skill against 7 quality dimensions (clarity, security, instruction explicitness, and more), proposes improvements, and iterates until the bar is met |
-| **audit-skills** | Scans your whole skill library for overlapping skills, then audits a rotating batch of 3 so every skill gets reviewed over time |
-| **compact-claude-files** | Shortens your CLAUDE.md, memory, and path-rule files by removing redundancy and verbose phrasing, with a loss verifier safety net |
-| **restructure-claude-files** | Moves content out of CLAUDE.md to memory, surfaces cross-type transfer candidates (memory↔CLAUDE.md, path-rule extractions), and flags scope mismatches between project and global |
+| **audit-skills** | Scans your whole skill library for overlapping skills, then audits a rotating batch of 3 so every skill gets reviewed over time *(requires luca-kit)* |
+
+### luca-kit
+
+| Skill | What it does |
+|-------|-------------|
+| **list-skills** | Lists every installed skill across all plugins with its plugin, one-line description, and line count in a single table |
+| **reflect** | Highlights what to improve in how you and Claude work together, so the next conversation goes better |
+| **compact-claude-files** | Tightens your CLAUDE.md, memory, and path-rule files with within-file compressions and a loss-verifier safety net |
+| **restructure-claude-files** | Moves content out of CLAUDE.md to memory, surfaces cross-type transfer candidates, and flags scope mismatches between project and global |
 
 ### luca-dev-kit
 

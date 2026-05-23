@@ -54,7 +54,7 @@ If no matches, say briefly "No overlap with existing skills detected; proceeding
 
 If neither `plugins/` nor `skills/` exists or the grep produces no output, skip the check silently.
 
-(This check is intentionally a 1-line grep, not a call to the `list-skills` skill. Reasoning is in `DESIGN.md`. It will migrate to a shared script when `list-skills` exposes one.)
+(This check is intentionally a 1-line grep, not a call to the `luca-kit:list-skills` skill. Reasoning is in `DESIGN.md`. It will migrate to a shared script when `list-skills` exposes one.)
 
 ## Step 3: Confirm scoring criteria
 
