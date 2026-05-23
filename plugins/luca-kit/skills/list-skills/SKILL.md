@@ -1,7 +1,7 @@
 ---
 name: list-skills
 description: List all installed skills with plugin, description, and line count. Trigger on "what skills do I have?", "list skills", or "show available workflows".
-version: 0.2.0
+version: 0.2.1
 ---
 
 # List Skills
@@ -88,7 +88,13 @@ if os.path.isdir(cache):
             plugin_path = os.path.join(mkt_path, plugin_dir)
             if not os.path.isdir(plugin_path):
                 continue
-            versions = sorted([d for d in os.listdir(plugin_path) if os.path.isdir(os.path.join(plugin_path, d))])
+            def semver_key(v):
+                parts = v.split('.')
+                try:
+                    return tuple(int(p) for p in parts)
+                except ValueError:
+                    return (0,)
+            versions = sorted([d for d in os.listdir(plugin_path) if os.path.isdir(os.path.join(plugin_path, d))], key=semver_key)
             if not versions:
                 continue
             base = os.path.join(plugin_path, versions[-1])

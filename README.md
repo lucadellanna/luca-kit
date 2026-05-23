@@ -116,8 +116,6 @@ Requires [Claude Code](https://claude.ai/code).
 | **create-skill** | Turns a procedure, SOP, checklist, or verbal description into a ready-to-use skill file, scoring and improving it before saving |
 | **audit-skill** | Scores a single skill against 7 quality dimensions (clarity, security, instruction explicitness, and more), proposes improvements, and iterates until the bar is met |
 | **audit-skills** | Scans your whole skill library for overlapping skills, then audits a rotating batch of 3 so every skill gets reviewed over time *(requires luca-kit)* |
-| **compact-claude-files** | Shortens your CLAUDE.md, memory, and path-rule files by removing redundancy and verbose phrasing, with a loss verifier safety net |
-| **restructure-claude-files** | Moves content out of CLAUDE.md to memory, surfaces cross-type transfer candidates (memory↔CLAUDE.md, path-rule extractions), and flags scope mismatches between project and global |
 
 ### luca-kit
 
