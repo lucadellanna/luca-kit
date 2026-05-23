@@ -97,7 +97,7 @@ Then present the full skill overview:
 > | `/undo-setup` | Reverses everything `/luca-ops-recommended-setup` added |
 > | `/build-work-context` | Interviews you about your company and role, then saves a persistent profile so Claude doesn't need to ask "who do you work for?" every session |
 > | `/create-skill` | Turns a procedure, SOP, checklist, or verbal description into a ready-to-use skill file, scoring and improving it before saving |
-> | `/list-skills` | Lists every installed skill with its plugin, one-line description, and file size in a single table |
+> | `/luca-kit:list-skills` | Lists every installed skill with its plugin, one-line description, and file size in a single table |
 > | `/audit-skill` | Scores a single skill against 7 quality dimensions, proposes improvements, and iterates until the bar is met |
 > | `/audit-skills` | Scans your whole skill library for overlapping skills, then audits a rotating batch of 3 so every skill gets reviewed over time |
 >

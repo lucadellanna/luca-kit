@@ -10,7 +10,7 @@ Scan all installed skills for overlaps, then run a quality audit on a rotating s
 
 ## Step 1: Collect skill data
 
-Invoke list-skills with `mode: raw` in the opening message. The output begins with a `TOTAL:N` header line (e.g. `TOTAL:5`); skip it. Parse each remaining line as a TSV row: `(skill_name, attribution, description, line_count, path)`. `path` is the absolute path to the skill's `SKILL.md` and is the unique identifier used throughout this skill.
+Invoke `luca-kit:list-skills` with `mode: raw` in the opening message. The output begins with a `TOTAL:N` header line (e.g. `TOTAL:5`); skip it. Parse each remaining line as a TSV row: `(skill_name, attribution, description, line_count, path)`. `path` is the absolute path to the skill's `SKILL.md` and is the unique identifier used throughout this skill.
 
 If zero rows returned: tell the user "No skills found. Check that skills are installed under `skills/`, `plugins/`, or `~/.claude/`." Stop.
 
