@@ -1,7 +1,7 @@
 ---
 name: review-loop
 description: Autonomous Gemini review loop. Polls for Gemini comments, classifies threads, applies fixes, re-triggers review, and repeats until clean or a stop condition fires. Invoked automatically by open-pr; can also be invoked manually with a PR number.
-version: 0.2.0
+version: 0.2.3
 ---
 
 # Review Loop
@@ -306,10 +306,12 @@ Parse the sub-agent's STATUS:
 
 **STATUS: CLEAN** -- go to [EXIT CLEAN].
 
-**STATUS: FIXED** -- parse `FIX_HASH` from the sub-agent's `FIX_HASH: <value>` output line, then update state file atomically:
+**STATUS: FIXED** -- extract the value from the sub-agent's `FIX_HASH: <value>` line (the hash only, no prefix or trailing text). **CRITICAL: before substituting it into the bash block below, verify that the extracted value is exactly a 64-character lowercase hexadecimal string (only characters 0-9 and a-f). If it contains any other characters or does not match this format, do NOT execute the bash command; abort immediately with an error.** If valid, update state file atomically:
 ```bash
-FIX_HASH="<value from sub-agent FIX_HASH line>"
-[[ -z "$FIX_HASH" || "$FIX_HASH" == "<"* ]] && echo "FIX_HASH not extracted from sub-agent output" >&2 && exit 1
+FIX_HASH="<64-char hex value from FIX_HASH: line>"
+if [[ ! "$FIX_HASH" =~ ^[0-9a-f]{64}$ ]]; then
+  echo "FIX_HASH invalid: '$FIX_HASH' (expected 64-char lowercase hex)" >&2; exit 1
+fi
 FIX_HASH="$FIX_HASH" python3 -c "
 import json, os, sys
 try:
