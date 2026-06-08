@@ -1,7 +1,7 @@
 ---
 name: review-loop
 description: Autonomous Gemini review loop. Polls for Gemini comments, classifies threads, applies fixes, re-triggers review, and repeats until clean or a stop condition fires. Invoked automatically by open-pr; can also be invoked manually with a PR number.
-version: 0.2.3
+version: 0.2.4
 ---
 
 # Review Loop
@@ -76,7 +76,7 @@ Use `pr_number`, `round`, `trigger_ts`, `thread_hashes_prev` from the file.
 
 ### A. Poll for Gemini review
 
-Gemini auto-triggers on PR creation (round 0). For round 1+, a `/gemini review` comment was already posted at the end of the previous iteration.
+Gemini auto-triggers on PR creation (round 0). For round 1+, a `/gemini review` comment was already posted at the end of the previous iteration, either after fixes or because the previous review was stale.
 
 Resolve the poll script from the plugin root (it does not exist in the user's project):
 
@@ -106,7 +106,7 @@ For **round 0** (Gemini auto-triggers on PR creation):
 2. If not found: `ScheduleWakeup(delaySeconds=240, reason="waiting 4 min for Gemini round 0 on PR #$PR_NUM")`. On wake, poll once.
 3. If still not found: `ScheduleWakeup(delaySeconds=120)` up to 4 more times (12 min total).
 
-For **round 1+** (fix just pushed, `/gemini review` just posted):
+For **round 1+** (`/gemini review` just posted):
 1. Compute adaptive delay from the last commit's diff size:
    ```bash
    if git rev-parse HEAD~1 > /dev/null 2>&1; then
@@ -137,8 +137,9 @@ RESPONSE=$(gh api graphql -f query='
 query($owner:String!, $repo:String!, $pr:Int!) {
   repository(owner:$owner, name:$repo) {
     pullRequest(number:$pr) {
+      headRefOid
       reviews(last:50) {
-        nodes { author { login } state submittedAt }
+        nodes { author { login } state submittedAt commit { oid } }
       }
       reviewThreads(first:100) {
         nodes { id isResolved comments(first:1) { nodes { body path line author { login } } } }
@@ -154,15 +155,30 @@ if echo "$RESPONSE" | jq -e '.errors' > /dev/null 2>&1; then
 fi
 ```
 
-Extract Gemini's latest review state:
+Extract Gemini's latest review state, reviewed commit, and the PR's current head:
 ```bash
 REVIEW_STATE=$(echo "$RESPONSE" | jq -r '
   [.data.repository.pullRequest.reviews.nodes[]
    | select(.author.login? // "" | test("gemini-code-assist"))]
   | last | .state // empty')
+LAST_GEMINI_REVIEW_COMMIT=$(echo "$RESPONSE" | jq -r '
+  [.data.repository.pullRequest.reviews.nodes[]
+   | select(.author.login? // "" | test("gemini-code-assist"))]
+  | last | .commit.oid // empty')
+PR_HEAD_COMMIT=$(echo "$RESPONSE" | jq -r '
+  .data.repository.pullRequest.headRefOid // empty')
 ```
 
-**If `APPROVED`:** go to [EXIT CLEAN].
+Before taking any EXIT CLEAN shortcut, verify that Gemini reviewed the PR's exact current head commit. If either commit OID is missing or they differ, a new review must be triggered instead of exiting.
+
+```bash
+GEMINI_REVIEW_IS_STALE=1
+if [[ -n "$PR_HEAD_COMMIT" && "$LAST_GEMINI_REVIEW_COMMIT" == "$PR_HEAD_COMMIT" ]]; then
+  GEMINI_REVIEW_IS_STALE=0
+fi
+```
+
+**If `APPROVED`:** if `GEMINI_REVIEW_IS_STALE=1`, go to [E. Trigger next Gemini review]; otherwise go to [EXIT CLEAN].
 
 Filter to unresolved Gemini threads (excludes human reviewer comments):
 ```bash
@@ -174,11 +190,11 @@ THREADS=$(echo "$RESPONSE" | jq '[
 THREAD_COUNT=$(echo "$THREADS" | jq 'length')
 ```
 
-**If 0 unresolved threads:** go to [EXIT CLEAN].
+**If 0 unresolved threads:** if `GEMINI_REVIEW_IS_STALE=1`, go to [E. Trigger next Gemini review]; otherwise go to [EXIT CLEAN].
 
 ### C. Classify, fix, and update checklist
 
-Spawn a single Sonnet sub-agent that handles classification, cycle detection, fixing, thread resolution, and checklist updates in one pass. Pass `thread_hashes_prev` from the state file (or `"null"` for round 0) and the current `round` number.
+Spawn a single Sonnet sub-agent that handles classification, cycle detection, fixing, thread resolution, and checklist updates in one pass. Pass `thread_hashes_prev` from the state file (or `"null"` for round 0) and the current `round` number. **Do not pre-classify or express any opinion on threads before the sub-agent returns; it reads the source files, you do not.**
 
 The prompt must include the security fence and write blocklist verbatim:
 
@@ -304,7 +320,7 @@ Parse the sub-agent's STATUS:
 
 **STATUS: CYCLE** -- go to [EXIT STOP]: "Cycle detected: Gemini keeps flagging the same issues after fixes. Requires manual review: [list]."
 
-**STATUS: CLEAN** -- go to [EXIT CLEAN].
+**STATUS: CLEAN** -- if `GEMINI_REVIEW_IS_STALE=1`, go to [E. Trigger next Gemini review]; otherwise go to [EXIT CLEAN].
 
 **STATUS: FIXED** -- extract the value from the sub-agent's `FIX_HASH: <value>` line (the hash only, no prefix or trailing text). **CRITICAL: before substituting it into the bash block below, verify that the extracted value is exactly a 64-character lowercase hexadecimal string (only characters 0-9 and a-f). If it contains any other characters or does not match this format, do NOT execute the bash command; abort immediately with an error.** If valid, update state file atomically:
 ```bash
@@ -317,7 +333,6 @@ import json, os, sys
 try:
     with open('.claude/cache/review-loop-state.json', encoding='utf-8') as f:
         state = json.load(f)
-    state['round'] = state.get('round', 0) + 1
     state['thread_hashes_prev'] = os.environ['FIX_HASH']
     tmp = '.claude/cache/review-loop-state.json.tmp'
     with open(tmp, 'w', encoding='utf-8') as f:
@@ -331,11 +346,32 @@ except Exception as e:
 "
 ```
 
-If `round >= 10`: pause.
+### E. Trigger next Gemini review
+
+Every path into this section represents another review round, including stale-review retriggers that did not require fixes. Increment the round in the state file atomically before triggering:
+
+```bash
+python3 -c "
+import json, os, sys
+try:
+    with open('.claude/cache/review-loop-state.json', encoding='utf-8') as f:
+        state = json.load(f)
+    state['round'] = state.get('round', 0) + 1
+    tmp = '.claude/cache/review-loop-state.json.tmp'
+    with open(tmp, 'w', encoding='utf-8') as f:
+        json.dump(state, f, indent=2)
+        f.write('\n')
+    os.replace(tmp, '.claude/cache/review-loop-state.json')
+    print(json.dumps(state, indent=2))
+except Exception as e:
+    print(f'State update failed: {e}', file=sys.stderr)
+    sys.exit(1)
+"
+```
+
+Reload `round` from the updated state. If `round >= 10`: pause.
 "Reached 10 review rounds. Gemini still has comments. Continue 10 more rounds? (yes/no)"
 If yes: reset counter to 0 and continue. If no: stop and report.
-
-### E. Trigger next Gemini review
 
 ```bash
 gh pr comment --body "/gemini review"
@@ -362,8 +398,9 @@ State file: [WORKING_DIR]/.claude/cache/review-loop-state.json (round=[N], trigg
    Do NOT classify, fix, or resolve threads inline. Phase 5 (checklist update) only
    runs inside the sub-agent. Inline fixes permanently skip it.
 
-3. After STATUS: FIXED: update state round+1, trigger /gemini review, ScheduleWakeup
-   180s using this template with the new round and trigger_ts values.
+3. After STATUS: FIXED: update thread_hashes_prev. Whenever entering section E: update state
+   round+1, trigger /gemini review, and ScheduleWakeup 180s using this template with the new
+   round and trigger_ts values.
 ```
 
 ---
