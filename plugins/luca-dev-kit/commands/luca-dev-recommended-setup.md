@@ -26,9 +26,14 @@ This installs a git hook that checks for em-dashes, potential secrets (via gitle
 
 ```bash
 CODEX_BIN=""
-for candidate in /opt/homebrew/bin/codex /usr/local/bin/codex "$(command -v codex 2>/dev/null)"; do
-  if [[ -n "$candidate" && -x "$candidate" ]]; then CODEX_BIN="$candidate"; break; fi
-done
+PATH_CANDIDATE="$(command -v codex 2>/dev/null)"
+if [[ "$PATH_CANDIDATE" == /* && -x "$PATH_CANDIDATE" ]]; then
+  CODEX_BIN="$PATH_CANDIDATE"
+else
+  for candidate in /opt/homebrew/bin/codex /usr/local/bin/codex; do
+    if [[ -x "$candidate" ]]; then CODEX_BIN="$candidate"; break; fi
+  done
+fi
 
 if [[ -z "$CODEX_BIN" ]]; then
   echo missing-install
@@ -39,10 +44,12 @@ else
 fi
 ```
 
-If `missing-install`: tell the user to install it (`npm install -g @openai/codex`) then run `codex login`.
-If `missing-auth`: tell the user Codex is installed but not authenticated; run `codex login` before using `/open-pr`.
+If `missing-install`: tell the user to install it (`npm install -g @openai/codex`) then run `codex login`, then re-run this step's check before continuing. Do not proceed to Step 4 until it prints `present`.
+If `missing-auth`: tell the user Codex is installed but not authenticated; have them run `codex login`, then re-run this step's check before continuing. Do not proceed to Step 4 until it prints `present`.
 
 ## Step 4: Write marker and summarize
+
+Only reached once Step 3 printed `present` (skip this step entirely, and do not write the marker, if the user chose to stop at Step 3 without fixing the install/auth issue).
 
 ```bash
 touch "$(git rev-parse --git-dir)/.luca-dev-kit-setup"
