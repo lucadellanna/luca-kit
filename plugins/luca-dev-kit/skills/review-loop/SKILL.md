@@ -1,7 +1,7 @@
 ---
 name: review-loop
 description: Autonomous Codex CLI review loop. Runs an adversarial correctness review against the base branch, classifies findings, applies fixes, commits and pushes, and repeats until no novel finding needs action or a stop condition fires. Invoked automatically by open-pr; can also be invoked manually with a PR number and base branch.
-version: 1.0.4
+version: 1.0.5
 ---
 
 # Review Loop
@@ -62,10 +62,11 @@ except Exception as e:
 ```
 Use `pr_number`, `base_branch`, `round`, `finding_hashes_prev`, `codex_thread_id`, `last_classification_table` from the file. If `round > 0` and resuming into step C's `$ROUND_N_PROMPT`, `last_classification_table` (not conversation memory) is what fills `<PRIOR_FINDINGS>` -- conversation memory may not exist if this is a fresh session picking up an interrupted loop.
 
-Loaded state is not automatically trusted: the local checkout may have moved on (new commits, or a branch/checkout switch) since the state file was written, and this loop always reviews the local working tree. Re-fetch the PR's current head and verify it before running Codex, exactly as the reconstruction path below does:
+Loaded state is not automatically trusted: the local checkout may have moved on (new commits, or a branch/checkout switch) since the state file was written, and this loop always reviews the local working tree. A PR's base can also be retargeted after the state file was written even while its head stays the same, so `headRefOid` matching alone does not prove the cached `base_branch` is still correct -- refetch and reconcile both before running Codex, exactly as the reconstruction path below does:
 ```bash
-PR_META=$(gh pr view "$(python3 -c "import json; print(json.load(open('.claude/cache/review-loop-state.json'))['pr_number'])")" --json headRefOid)
+PR_META=$(gh pr view "$(python3 -c "import json; print(json.load(open('.claude/cache/review-loop-state.json'))['pr_number'])")" --json baseRefName,headRefOid)
 [[ -z "$PR_META" ]] && { echo "Failed to fetch PR metadata for loaded state" >&2; exit 1; }
+PR_BASE=$(printf '%s' "$PR_META" | python3 -c "import json,sys; print(json.load(sys.stdin)['baseRefName'])")
 PR_HEAD_OID=$(printf '%s' "$PR_META" | python3 -c "import json,sys; print(json.load(sys.stdin)['headRefOid'])")
 LOCAL_HEAD=$(git rev-parse HEAD)
 if [[ "$LOCAL_HEAD" != "$PR_HEAD_OID" ]]; then
@@ -73,7 +74,23 @@ if [[ "$LOCAL_HEAD" != "$PR_HEAD_OID" ]]; then
   echo "Run: gh pr checkout <PR_NUM>, or delete .claude/cache/review-loop-state.json to reconstruct." >&2
   exit 1
 fi
+CACHED_BASE=$(python3 -c "import json; print(json.load(open('.claude/cache/review-loop-state.json'))['base_branch'])")
+if [[ "$CACHED_BASE" != "$PR_BASE" ]]; then
+  echo "PR's base branch changed ($CACHED_BASE -> $PR_BASE); updating cached state." >&2
+  PR_BASE="$PR_BASE" python3 -c "
+import json, os
+with open('.claude/cache/review-loop-state.json', encoding='utf-8') as f:
+    state = json.load(f)
+state['base_branch'] = os.environ['PR_BASE']
+tmp = '.claude/cache/review-loop-state.json.tmp'
+with open(tmp, 'w', encoding='utf-8') as f:
+    json.dump(state, f, indent=2)
+    f.write('\n')
+os.replace(tmp, '.claude/cache/review-loop-state.json')
+"
+fi
 ```
+Use `$PR_BASE` (not the on-disk value read before this reconciliation) as `base_branch` for the rest of this round.
 
 **If state file is absent or invalid (manual invocation or session resumed):**
 - Ask user: "Which PR number should I monitor?" (a PR must already exist; this loop reports against it in EXIT CLEAN/EXIT STOP)
@@ -127,7 +144,7 @@ if [[ ! -f "$SCHEMA" ]]; then
 fi
 ```
 
-**Building `$ROUND_0_PROMPT` / `$ROUND_N_PROMPT` safely.** `<PRIOR_FINDINGS>` embeds the previous round's classification table verbatim -- untrusted content that round 0 itself proved can carry a working shell-injection payload (see the `CLASSIFICATION_TABLE` fix in Phase E). Never build the final prompt text via a bash variable assignment that splices `<PRIOR_FINDINGS>` (or `<CHANGED_TARGETS>`) into a double-quoted string in shell source -- that reintroduces the exact bug just fixed elsewhere. Instead: perform the `<BASE>`/`<CALL_SITE_CHECK>`/`<CHANGED_TARGETS>`/`<PRIOR_FINDINGS>` substitutions yourself and write the final prompt text to `.claude/cache/round-${ROUND}-prompt.txt` using the Write tool (not a shell heredoc or assignment), then reference it as `"$(cat .claude/cache/round-${ROUND}-prompt.txt)"` in the command below -- command substitution captures `cat`'s output as a literal argument value without re-parsing it for embedded `$(...)` or backticks.
+**Building `$ROUND_0_PROMPT` / `$ROUND_N_PROMPT` safely.** `<PRIOR_FINDINGS>` embeds the previous round's classification table verbatim -- untrusted content that round 0 itself proved can carry a working shell-injection payload (see the `CLASSIFICATION_TABLE` fix in Phase E), and that can grow large enough (many findings, or findings quoting long code blocks) to blow past the platform's argv-length limit. Never build the final prompt text via a bash variable assignment that splices `<PRIOR_FINDINGS>` (or `<CHANGED_TARGETS>`) into a double-quoted string in shell source -- that reintroduces the exact bug just fixed elsewhere. Instead: perform the `<BASE>`/`<CALL_SITE_CHECK>`/`<CHANGED_TARGETS>`/`<PRIOR_FINDINGS>` substitutions yourself and write the final prompt text to `.claude/cache/round-${ROUND}-prompt.txt` using the Write tool (not a shell heredoc or assignment), then pass `-` as the `PROMPT` argument in the command below and redirect the file into stdin (`< ".claude/cache/round-${ROUND}-prompt.txt"`) -- Codex reads the prompt from stdin whenever `-` is given, so the prompt content never becomes a shell argv value (avoiding both re-parsing of embedded `$(...)`/backticks and the argv-length ceiling that a large `<PRIOR_FINDINGS>` table could otherwise hit).
 
 **Round 0 (no `codex_thread_id` yet):** fresh session, full prompt, read access to global rule files granted once via `--add-dir` (this access persists for every later `resume` call on this same session -- it cannot be re-granted per round):
 
@@ -137,8 +154,8 @@ fi
   --add-dir "$HOME/.claude" \
   --output-schema "$SCHEMA" \
   -o ".claude/cache/codex-findings-round-${ROUND}.json" \
-  "$(cat ".claude/cache/round-${ROUND}-prompt.txt")" \
-  < /dev/null > ".claude/cache/codex-events-round-${ROUND}.jsonl" 2> ".claude/cache/codex-stderr-round-${ROUND}.txt"
+  - \
+  < ".claude/cache/round-${ROUND}-prompt.txt" > ".claude/cache/codex-events-round-${ROUND}.jsonl" 2> ".claude/cache/codex-stderr-round-${ROUND}.txt"
 ```
 
 Extract the session id for later resumes:
@@ -166,8 +183,8 @@ Save `CODEX_THREAD_ID` into the state file's `codex_thread_id` field (same atomi
 "$CODEX_BIN" exec resume "$CODEX_THREAD_ID" --json \
   --output-schema "$SCHEMA" \
   -o ".claude/cache/codex-findings-round-${ROUND}.json" \
-  "$(cat ".claude/cache/round-${ROUND}-prompt.txt")" \
-  < /dev/null >> ".claude/cache/codex-events-round-${ROUND}.jsonl" 2> ".claude/cache/codex-stderr-round-${ROUND}.txt"
+  - \
+  < ".claude/cache/round-${ROUND}-prompt.txt" >> ".claude/cache/codex-events-round-${ROUND}.jsonl" 2> ".claude/cache/codex-stderr-round-${ROUND}.txt"
 ```
 
 **Timing:** a full-repo first pass can take several minutes. Run in the foreground if it's likely to finish within ~5 minutes; otherwise start it with `run_in_background: true` and wait for the completion notification -- never `sleep` to wait for it.
@@ -185,19 +202,27 @@ needed for the gate itself:
 
 ```bash
 CHANGED_TARGETS=$(git diff --diff-filter=MR -w --ignore-blank-lines --name-only <DIFF_RANGE>)
+RENAMED_TARGETS=$(git diff --diff-filter=R -w --ignore-blank-lines --name-status <DIFF_RANGE> \
+  | awk -F'\t' '{print $2" -> "$3}')
 ```
 `--diff-filter=MR` keeps only files that were **m**odified in place or **r**enamed -- excludes
 pure additions (`A`) and pure deletions (`D`), which by definition have no pre-existing external
 callers. `-w --ignore-blank-lines` excludes files whose only "modification" is whitespace, so a
 reformatting-only diff doesn't trigger it either. `<DIFF_RANGE>` is `origin/<BASE>...HEAD` for
 round 0 (the full PR diff), or `HEAD~<N>...HEAD` for round 1+ (only this round's fix commit(s),
-normally `N=1` -- not the whole PR diff again).
+normally `N=1` -- not the whole PR diff again). `RENAMED_TARGETS` re-runs the renamed subset with
+`--name-status` instead of `--name-only`: `--name-only` reports only the new path for a rename, so
+a stale reference to the old path elsewhere in the repo (a config file, an import, a doc) would
+never be surfaced to Codex; `--name-status` reports both old and new paths so the old path can
+still be grepped for even though the file no longer exists there.
 
 If `CHANGED_TARGETS` is empty: omit `<CALL_SITE_CHECK>` from the prompt entirely.
 
 If `CHANGED_TARGETS` is non-empty: set `<CALL_SITE_CHECK>` to this exact text, with
-`<CHANGED_TARGETS>` substituted as a literal list (handing Codex the precomputed scope directly,
-rather than having it re-derive which files were modified vs. added -- that's already known):
+`<CHANGED_TARGETS>` substituted as a literal list and `<RENAMED_TARGETS>` substituted as the
+literal `old -> new` pairs (handing Codex the precomputed scope directly, rather than having it
+re-derive which files were modified, renamed, or added -- that's already known). Omit the second
+paragraph entirely if `RENAMED_TARGETS` is empty:
 ```
 These files were modified in place or renamed, not newly added, in this diff:
 <CHANGED_TARGETS>
@@ -206,6 +231,12 @@ files whose name, signature, shape, or location actually changed, grep the repos
 specific identifier's or path's other usages and read only the files where it actually matches.
 This is a targeted lookup per changed identifier, not a general invitation to explore the wider
 codebase or to re-check files outside this list.
+
+These files were renamed in this diff (old path -> new path):
+<RENAMED_TARGETS>
+For each renamed file, also grep the repository for the literal old path string -- a reference to
+the old path that was not updated (e.g. in a config file, import, or doc) is a real bug even
+though the old path itself no longer exists to read.
 ```
 
 ### B. Round 0 prompt (`$ROUND_0_PROMPT`)
@@ -402,18 +433,24 @@ If all findings are REJECT or ALREADY_FIXED:
 
 ## Phase 3: Cycle detection
 
-Build a JSON array of {"id": ..., "summary": ..., "failure_scenario": ...} for each FIX finding
-(in order). Write this array to `.claude/cache/fix-findings-round-<N>.json` using the Write tool
--- never splice untrusted finding text (summary, failure_scenario) directly into a shell command
-line as a quoted literal or env var assignment; it can contain characters (a stray `'`, a `$(...)`)
-that the shell would interpret before Python ever sees it. Then hash the file's bytes directly:
+Build a JSON array of {"id": ..., "file": ..., "line": ..., "summary": ..., "failure_scenario": ...}
+for each FIX finding (in order) -- file and line are included, not just summary and
+failure_scenario, so that two unrelated findings in different files with coincidentally similar
+wording are never hashed identically and mistaken for the same recurring issue. Do not write this
+array to disk: `.claude/` is off-limits to you under the write blocklist above (no exception exists
+for it), and so is any path outside the git working tree. Instead, pipe the JSON straight into a
+hash command over stdin using a quoted heredoc -- a quoted delimiter (`<<'FIXFINDINGSEOF'`) disables
+all shell expansion of the body, so untrusted finding text (which can contain a stray `'`, a
+`$(...)`, or backticks) is never re-parsed by the shell or spliced into a command line:
 ```bash
 CURRENT_HASH=$(python3 -c "
-import hashlib
-with open('.claude/cache/fix-findings-round-<N>.json', 'rb') as f:
-    data = f.read()
+import hashlib, sys
+data = sys.stdin.buffer.read()
 print(hashlib.sha256(data).hexdigest())
-")
+" <<'FIXFINDINGSEOF'
+<the JSON array built above, verbatim>
+FIXFINDINGSEOF
+)
 ```
 
 Previous hash: <FINDING_HASHES_PREV>
