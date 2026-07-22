@@ -3,7 +3,7 @@
 | Plugin | Path | Audience | Purpose |
 |---|---|---|---|
 | `luca-ops-kit` | `plugins/luca-ops-kit/` | Non-technical business users | Meta-skills for turning SOPs and procedures into reusable Claude workflows |
-| `luca-dev-kit` | `plugins/luca-dev-kit/` | Developers | Pre-PR quality gates, autonomous Gemini review loop, pre-commit hook management |
+| `luca-dev-kit` | `plugins/luca-dev-kit/` | Developers | Pre-PR quality gates, autonomous Codex CLI review loop, pre-commit hook management |
 | `luca-reflection-kit` | `plugins/luca-reflection-kit/` | All Claude Code users | Self-reflection and cross-session learning: reflect, dream, and optimization-hint / workflow-hint hooks |
 | `luca-kit` | `plugins/luca-kit/` | All Claude Code users | Distributable plugin: simplified reflect skill and productivity hooks |
 
@@ -64,7 +64,7 @@ In this repo, use TaskCreate/TaskUpdate/TaskList for any 3+ action sequence (ski
 - **Incremental-edit Sonnet gate.** When a complex skill receives 3+ incremental edits in one session, run one final Sonnet pass on the complete file before committing; in-context review misses bugs and edge cases that accumulate.
 - **Pre-write review gate.** When a skill generates content for the user's system (scripts, config, files), run the code-reviewer sub-agent on the planned content before writing. Apply fixes in-context, then write the corrected version; post-write review creates inconsistent state with unspecified rollback.
 - **Opus security gate.** Fires when implementing any feature that: (a) writes to the user's global environment (settings.json, CLAUDE.md, hook scripts, global config), (b) adds or modifies shell scripts executed in the user's environment, or (c) rewrites security-sensitive logic (input validation, secret handling, auth). Run an Opus review pass on the full plan before writing code (fresh context catches what in-context review misses). This gate precedes the inline Sonnet review.
-- **Pre-push proactive scan for any .md files with embedded code.** Before the first git push on any PR adding or modifying .md files with Python or Bash code blocks, spawn an Opus sub-agent to review added/modified code blocks against ~/.claude/code-review-checklist.md. This catches most issues in one pass instead of across multiple Gemini rounds.
+- **Pre-push proactive scan for any .md files with embedded code.** Before the first git push on any PR adding or modifying .md files with Python or Bash code blocks, spawn an Opus sub-agent to review added/modified code blocks against ~/.claude/code-review-checklist.md. This catches most issues in one pass instead of across multiple Codex review rounds.
 - **README row for every new artifact.** When adding a hook to hooks.json, a skill to skills/, or a command to commands/, add a corresponding row to the README.md table (## Hooks or ## Skills as appropriate) in the same commit. An artifact without a README entry is an incomplete change.
 - **Transformation-skill safety check measures IMPORTANT loss, not any change.** When a skill removes or transforms content, flag only accidental loss of load-bearing info, not deliberate removals. Calibrate to: would a reader make a different decision because of the change? If no, do not flag. The claude-md-loss-verifier (`plugins/luca-kit/agents/claude-md-loss-verifier.md`) is the reference implementation.
 

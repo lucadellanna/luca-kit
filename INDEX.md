@@ -9,8 +9,11 @@
 | `plugins/luca-dev-kit/.claude-plugin/plugin.json` | Plugin manifest |
 | `plugins/luca-dev-kit/CLAUDE.md` | Runtime instructions (ships with plugin) |
 | `plugins/luca-dev-kit/DISCLAIMER.md` | Disclaimer |
+| `plugins/luca-dev-kit/archive/gemini-review-loop/DESIGN.md` |  |
+| `plugins/luca-dev-kit/archive/gemini-review-loop/SKILL.md` |  |
+| `plugins/luca-dev-kit/archive/gemini-review-loop/poll-gemini.sh` |  |
 | `plugins/luca-dev-kit/commands/luca-dev-recommended-setup.md` | `/luca-dev-kit:luca-dev-recommended-setup` command |
-| `plugins/luca-dev-kit/scripts/poll-gemini.sh` | Script: poll-gemini.sh |
+| `plugins/luca-dev-kit/scripts/codex-review-schema.json` |  |
 | `plugins/luca-dev-kit/scripts/pre-commit` |  |
 | `plugins/luca-dev-kit/skills/install-pre-commit-hooks/SKILL.md` | `/luca-dev-kit:install-pre-commit-hooks` skill |
 | `plugins/luca-dev-kit/skills/open-pr/DESIGN.md` | Design decisions: `/luca-dev-kit:open-pr` |

@@ -1,7 +1,7 @@
 ---
 name: open-pr
 description: Pre-PR quality gates + PR creation + autonomous review-loop handoff. Trigger: "open pr", "create pr", "/open-pr", or "ship". After invocation, no further user input is needed until review-loop exits or hits a stop condition.
-version: 0.1.0
+version: 0.1.2
 ---
 
 # Open PR
@@ -146,19 +146,19 @@ Capture PR number from output: `gh pr view --json number -q '.number'`
 Write `.claude/cache/review-loop-state.json` atomically (tmp + os.replace to prevent partial writes):
 
 ```bash
-PR_CREATED_AT=$(gh pr view --json createdAt -q '.createdAt')
 PR_NUM=$(gh pr view --json number -q '.number')
 
 # All values passed via env vars: never interpolated into Python source.
-PR_NUM="$PR_NUM" BASE="$BASE" PR_CREATED_AT="$PR_CREATED_AT" python3 -c "
+PR_NUM="$PR_NUM" BASE="$BASE" python3 -c "
 import json, os
 
 state = {
     'pr_number': int(os.environ['PR_NUM']),
     'base_branch': os.environ['BASE'],
     'round': 0,
-    'trigger_ts': os.environ['PR_CREATED_AT'],
-    'thread_hashes_prev': None
+    'finding_hashes_prev': None,
+    'codex_thread_id': None,
+    'last_classification_table': None
 }
 
 os.makedirs('.claude/cache', exist_ok=True)
@@ -189,7 +189,7 @@ fi
 
 Then immediately invoke `luca-dev-kit:review-loop`. Pass the PR number. The loop runs autonomously from here: no further user input expected until a stop condition fires.
 
-**Prerequisite:** `review-loop` requires the Gemini Code Assist GitHub App. If not installed: `https://github.com/$OWNER/$REPO/settings/installations`
+**Prerequisite:** `review-loop` requires the Codex CLI (`@openai/codex`) installed and authenticated locally. No GitHub App or repo installation is needed.
 
 ## Design decisions
 
