@@ -1,7 +1,7 @@
 ---
 name: review-loop
 description: Autonomous Codex CLI review loop. Runs an adversarial correctness review against the base branch, classifies findings, applies fixes, commits and pushes, and repeats until no novel finding needs action or a stop condition fires. Invoked automatically by open-pr; can also be invoked manually with a PR number and base branch.
-version: 1.0.3
+version: 1.0.4
 ---
 
 # Review Loop
@@ -127,6 +127,8 @@ if [[ ! -f "$SCHEMA" ]]; then
 fi
 ```
 
+**Building `$ROUND_0_PROMPT` / `$ROUND_N_PROMPT` safely.** `<PRIOR_FINDINGS>` embeds the previous round's classification table verbatim -- untrusted content that round 0 itself proved can carry a working shell-injection payload (see the `CLASSIFICATION_TABLE` fix in Phase E). Never build the final prompt text via a bash variable assignment that splices `<PRIOR_FINDINGS>` (or `<CHANGED_TARGETS>`) into a double-quoted string in shell source -- that reintroduces the exact bug just fixed elsewhere. Instead: perform the `<BASE>`/`<CALL_SITE_CHECK>`/`<CHANGED_TARGETS>`/`<PRIOR_FINDINGS>` substitutions yourself and write the final prompt text to `.claude/cache/round-${ROUND}-prompt.txt` using the Write tool (not a shell heredoc or assignment), then reference it as `"$(cat .claude/cache/round-${ROUND}-prompt.txt)"` in the command below -- command substitution captures `cat`'s output as a literal argument value without re-parsing it for embedded `$(...)` or backticks.
+
 **Round 0 (no `codex_thread_id` yet):** fresh session, full prompt, read access to global rule files granted once via `--add-dir` (this access persists for every later `resume` call on this same session -- it cannot be re-granted per round):
 
 ```bash
@@ -135,7 +137,7 @@ fi
   --add-dir "$HOME/.claude" \
   --output-schema "$SCHEMA" \
   -o ".claude/cache/codex-findings-round-${ROUND}.json" \
-  "$ROUND_0_PROMPT" \
+  "$(cat ".claude/cache/round-${ROUND}-prompt.txt")" \
   < /dev/null > ".claude/cache/codex-events-round-${ROUND}.jsonl" 2> ".claude/cache/codex-stderr-round-${ROUND}.txt"
 ```
 
@@ -164,7 +166,7 @@ Save `CODEX_THREAD_ID` into the state file's `codex_thread_id` field (same atomi
 "$CODEX_BIN" exec resume "$CODEX_THREAD_ID" --json \
   --output-schema "$SCHEMA" \
   -o ".claude/cache/codex-findings-round-${ROUND}.json" \
-  "$ROUND_N_PROMPT" \
+  "$(cat ".claude/cache/round-${ROUND}-prompt.txt")" \
   < /dev/null >> ".claude/cache/codex-events-round-${ROUND}.jsonl" 2> ".claude/cache/codex-stderr-round-${ROUND}.txt"
 ```
 
