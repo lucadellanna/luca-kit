@@ -1,7 +1,7 @@
 ---
 name: review-loop
 description: Autonomous Codex CLI review loop. Runs an adversarial correctness review against the base branch, classifies findings, applies fixes, commits and pushes, and repeats until no novel finding needs action or a stop condition fires. Invoked automatically by open-pr; can also be invoked manually with a PR number and base branch.
-version: 1.0.6
+version: 1.0.7
 ---
 
 # Review Loop
@@ -54,13 +54,16 @@ try:
     assert isinstance(s.get('pr_number'), int)
     assert isinstance(s.get('base_branch'), str) and s['base_branch']
     assert isinstance(s.get('round'), int) and s['round'] >= 0
+    if s['round'] > 0:
+        assert isinstance(s.get('last_reviewed_commit_oid'), str) and s['last_reviewed_commit_oid'], \
+            'round > 0 requires a non-empty last_reviewed_commit_oid'
     print(json.dumps(s, indent=2))
 except Exception as e:
     print(f'State file invalid: {e}', file=sys.stderr)
     sys.exit(1)
 "
 ```
-Use `pr_number`, `base_branch`, `round`, `finding_hashes_prev`, `codex_thread_id`, `last_classification_table`, `last_reviewed_commit_oid` from the file. If `round > 0` and resuming into step C's `$ROUND_N_PROMPT`, `last_classification_table` (not conversation memory) is what fills `<PRIOR_FINDINGS>` -- conversation memory may not exist if this is a fresh session picking up an interrupted loop. `last_reviewed_commit_oid` is the commit that was actually reviewed as of the end of the previous round -- it defines the incremental diff range for this round (never assume "the previous round was exactly one commit ago"; rounds can include more than one commit, e.g. an auto-committing helper script running as part of a fix).
+Use `pr_number`, `base_branch`, `round`, `finding_hashes_prev`, `codex_thread_id`, `last_classification_table`, `last_reviewed_commit_oid` from the file. If `round > 0` and resuming into step C's `$ROUND_N_PROMPT`, `last_classification_table` (not conversation memory) is what fills `<PRIOR_FINDINGS>` -- conversation memory may not exist if this is a fresh session picking up an interrupted loop. `last_reviewed_commit_oid` is the commit that was actually reviewed as of the end of the previous round -- it defines the incremental diff range for this round (never assume "the previous round was exactly one commit ago"; rounds can include more than one commit, e.g. an auto-committing helper script running as part of a fix). A `round > 0` state file with a missing or empty `last_reviewed_commit_oid` would silently build a broken range (e.g. `None..HEAD`); the load above rejects such a file as invalid instead, forcing reconstruction.
 
 Loaded state is not automatically trusted: the local checkout may have moved on (new commits, or a branch/checkout switch) since the state file was written, and this loop always reviews the local working tree. A PR's base can also be retargeted after the state file was written even while its head stays the same, so `headRefOid` matching alone does not prove the cached `base_branch` is still correct -- refetch and reconcile both before running Codex, exactly as the reconstruction path below does:
 ```bash
@@ -76,12 +79,13 @@ if [[ "$LOCAL_HEAD" != "$PR_HEAD_OID" ]]; then
 fi
 CACHED_BASE=$(python3 -c "import json; print(json.load(open('.claude/cache/review-loop-state.json'))['base_branch'])")
 if [[ "$CACHED_BASE" != "$PR_BASE" ]]; then
-  echo "PR's base branch changed ($CACHED_BASE -> $PR_BASE); updating cached state." >&2
+  echo "PR's base branch changed ($CACHED_BASE -> $PR_BASE); updating cached state and forcing a full re-review against the new base." >&2
   PR_BASE="$PR_BASE" python3 -c "
 import json, os
 with open('.claude/cache/review-loop-state.json', encoding='utf-8') as f:
     state = json.load(f)
 state['base_branch'] = os.environ['PR_BASE']
+state['last_reviewed_commit_oid'] = None
 tmp = '.claude/cache/review-loop-state.json.tmp'
 with open(tmp, 'w', encoding='utf-8') as f:
     json.dump(state, f, indent=2)
@@ -90,6 +94,8 @@ os.replace(tmp, '.claude/cache/review-loop-state.json')
 "
 fi
 ```
+A retarget changes what the PR's diff is against, so a `last_reviewed_commit_oid` recorded against the old base no longer defines a valid incremental range against the new one; nulling it here means the migration guard above (`round > 0` requires a non-empty `last_reviewed_commit_oid`) forces reconstruction on the next load instead of silently continuing with a stale range. Treat `last_reviewed_commit_oid` as unset for the rest of this round too, even though `round` itself is not reset: build this round's `<DIFF_RANGE>` and `<INCREMENTAL_RANGE>` as the full `origin/$PR_BASE...HEAD` diff (as if this were round 0), not `<the stale value>..HEAD` -- continuing to use the value loaded before this reconciliation would review against a range computed for a base that no longer applies.
+
 Use `$PR_BASE` (not the on-disk value read before this reconciliation) as `base_branch` for the rest of this round.
 
 **If state file is absent or invalid (manual invocation or session resumed):**
@@ -149,8 +155,16 @@ fi
 **Before either branch:** capture the commit this round is actually about to review, so the *next* round can compute an exact incremental diff instead of guessing how many commits have landed since the last one:
 ```bash
 REVIEWED_COMMIT_OID=$(git rev-parse HEAD)
+printf '%s' "$REVIEWED_COMMIT_OID" > ".claude/cache/reviewed-commit-round-${ROUND}.txt"
 ```
-Persist this as `last_reviewed_commit_oid` once this round's classify/fix completes (Phase F) -- never derive next round's range from an assumption like "the previous round was exactly one commit ago" (a fix round can include more than one commit, e.g. an auto-committing helper script running as a side effect of a fix).
+Write it to a file in this same bash block, not just the `$REVIEWED_COMMIT_OID` shell variable:
+per `.claude/rules/skill-md.md`, shell variables do not survive to a later, separate Bash tool
+call, and Phase F (which persists this value into the state file) runs in exactly such a later,
+separate call. Persist this as `last_reviewed_commit_oid` once this round's classify/fix completes
+(Phase F, reading it back from the file above, not from this shell variable) -- never derive next
+round's range from an assumption like "the previous round was exactly one commit ago" (a fix round
+can include more than one commit, e.g. an auto-committing helper script running as a side effect of
+a fix).
 
 **Round 0 (no `codex_thread_id` yet):** fresh session, full prompt, read access to global rule files granted once via `--add-dir` (this access persists for every later `resume` call on this same session -- it cannot be re-granted per round):
 
@@ -459,25 +473,40 @@ If all findings are REJECT or ALREADY_FIXED:
 
 ## Phase 3: Cycle detection
 
-Build a JSON array of {"id": ..., "file": ..., "line": ..., "summary": ..., "failure_scenario": ...}
-for each FIX finding (in order) -- file and line are included, not just summary and
-failure_scenario, so that two unrelated findings in different files with coincidentally similar
-wording are never hashed identically and mistaken for the same recurring issue. Do not write this
-array to disk: `.claude/` is off-limits to you under the write blocklist above (no exception exists
-for it), and so is any path outside the git working tree. Instead, pipe the JSON straight into a
-hash command over stdin using a quoted heredoc -- a quoted delimiter (`<<'FIXFINDINGSEOF'`) disables
-all shell expansion of the body, so untrusted finding text (which can contain a stray `'`, a
-`$(...)`, or backticks) is never re-parsed by the shell or spliced into a command line:
+Compute the hash from the on-disk findings file by its fixed path, never by re-typing or piping
+finding text through shell syntax of any kind -- a quoted heredoc included. A heredoc terminates
+early if the untrusted body contains a line matching its own delimiter, which is a real,
+exploitable early-termination bug, not just a theoretical one. The file at
+`.claude/cache/codex-findings-round-${ROUND}.json` was already written by the orchestrator (via
+Codex's own `-o` flag) before you were invoked, so reading it *by path* never requires embedding
+untrusted finding text in shell source -- only the literal, trusted path string appears in the
+command:
 ```bash
-CURRENT_HASH=$(python3 -c "
-import hashlib, sys
-data = sys.stdin.buffer.read()
+CURRENT_HASH=$(FIX_IDS="<comma-separated FIX-classified ids from Phase 1, e.g. F1,F3>" python3 -c "
+import json, hashlib, os
+with open('.claude/cache/codex-findings-round-${ROUND}.json', encoding='utf-8') as f:
+    all_findings = json.load(f)['findings']
+fix_ids = set(os.environ['FIX_IDS'].split(','))
+fix_findings = []
+for i, finding in enumerate(all_findings, 1):
+    fid = f'F{i}'
+    if fid in fix_ids:
+        fix_findings.append({
+            'id': fid,
+            'file': finding['file'],
+            'line': finding['line'],
+            'summary': finding['summary'],
+            'failure_scenario': finding['failure_scenario'],
+        })
+data = json.dumps(fix_findings, sort_keys=True).encode()
 print(hashlib.sha256(data).hexdigest())
-" <<'FIXFINDINGSEOF'
-<the JSON array built above, verbatim>
-FIXFINDINGSEOF
-)
+")
 ```
+`file` and `line` are included, not just `summary` and `failure_scenario`, so that two unrelated
+findings in different files with coincidentally similar wording are never hashed identically and
+mistaken for the same recurring issue. This does not write anything to disk (`.claude/` remains
+off-limits to you under the write blocklist above) -- it only reads a file the orchestrator already
+wrote, by its fixed path.
 
 Previous hash: <FINDING_HASHES_PREV>
 
@@ -511,7 +540,7 @@ or ALREADY_FIXED findings. Verify the file was updated (or confirm no new entrie
 ## Output format
 
 STATUS: MANUAL | CYCLE | CLEAN | FIXED
-FIX_HASH: <sha256 of FIX findings, or "none">
+FIX_HASH: <CURRENT_HASH computed in Phase 3, verbatim -- do not recompute it a second time, or "none">
 CLASSIFICATION:
 FINDING_ID | CLASSIFICATION | REASON
 ...
@@ -539,12 +568,13 @@ Parse the sub-agent's STATUS:
 
 **STATUS: CLEAN** -- go to [EXIT CLEAN].
 
-**STATUS: FIXED** -- extract the value from the sub-agent's `FIX_HASH: <value>` line (the hash only, no prefix or trailing text). **CRITICAL: before substituting it into the bash block below, verify that the extracted value is exactly a 64-character lowercase hexadecimal string (only characters 0-9 and a-f). If it contains any other characters or does not match this format, do NOT execute the bash command; abort immediately with an error.** If valid, write the sub-agent's verbatim `CLASSIFICATION:` table text to `.claude/cache/classification-table-round-${ROUND}.txt` using the Write tool -- never splice this untrusted text (it can contain finding content copied verbatim, including shell metacharacters like `$(...)`) directly into a shell command line as a quoted literal or env var assignment; the shell would evaluate it before Python ever reads it. Then update the state file atomically: increment `round`, store the hash, persist `$REVIEWED_COMMIT_OID` (captured in step A before this round's Codex call) as `last_reviewed_commit_oid` -- this defines next round's incremental diff range -- and **persist the full `CLASSIFICATION:` table verbatim** (read back from the file just written, not retyped) as `last_classification_table` -- this is the only copy of prior-round outcomes that survives a session interruption, since `<PRIOR_FINDINGS>` for the next round is built from this field, not from conversation memory:
+**STATUS: FIXED** -- extract the value from the sub-agent's `FIX_HASH: <value>` line (the hash only, no prefix or trailing text). **CRITICAL: before substituting it into the bash block below, verify that the extracted value is exactly a 64-character lowercase hexadecimal string (only characters 0-9 and a-f). If it contains any other characters or does not match this format, do NOT execute the bash command; abort immediately with an error.** If valid, write the sub-agent's verbatim `CLASSIFICATION:` table text to `.claude/cache/classification-table-round-${ROUND}.txt` using the Write tool -- never splice this untrusted text (it can contain finding content copied verbatim, including shell metacharacters like `$(...)`) directly into a shell command line as a quoted literal or env var assignment; the shell would evaluate it before Python ever reads it. Then update the state file atomically: increment `round`, store the hash, persist `last_reviewed_commit_oid` read back from `.claude/cache/reviewed-commit-round-${ROUND}.txt` (written in step A before this round's Codex call -- read back from that file, not from a `$REVIEWED_COMMIT_OID` shell variable, which does not survive from step A's Bash tool call to this one) -- this defines next round's incremental diff range -- and **persist the full `CLASSIFICATION:` table verbatim** (read back from the file just written, not retyped) as `last_classification_table` -- this is the only copy of prior-round outcomes that survives a session interruption, since `<PRIOR_FINDINGS>` for the next round is built from this field, not from conversation memory:
 ```bash
 FIX_HASH="<64-char hex value from FIX_HASH: line>"
 if [[ ! "$FIX_HASH" =~ ^[0-9a-f]{64}$ ]]; then
   echo "FIX_HASH invalid: '$FIX_HASH' (expected 64-char lowercase hex)" >&2; exit 1
 fi
+REVIEWED_COMMIT_OID=$(cat ".claude/cache/reviewed-commit-round-${ROUND}.txt")
 # The classification table text was written to disk via the Write tool (never interpolated into
 # this shell command), since it can contain untrusted content copied from finding bodies.
 FIX_HASH="$FIX_HASH" REVIEWED_COMMIT_OID="$REVIEWED_COMMIT_OID" python3 -c "
