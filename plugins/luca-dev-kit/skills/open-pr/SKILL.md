@@ -1,7 +1,7 @@
 ---
 name: open-pr
 description: Pre-PR quality gates + PR creation + autonomous review-loop handoff. Trigger: "open pr", "create pr", "/open-pr", or "ship". After invocation, no further user input is needed until review-loop exits or hits a stop condition.
-version: 0.1.2
+version: 0.1.3
 ---
 
 # Open PR
@@ -158,7 +158,8 @@ state = {
     'round': 0,
     'finding_hashes_prev': None,
     'codex_thread_id': None,
-    'last_classification_table': None
+    'last_classification_table': None,
+    'last_reviewed_commit_oid': None
 }
 
 os.makedirs('.claude/cache', exist_ok=True)
