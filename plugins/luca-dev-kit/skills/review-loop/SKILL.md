@@ -1,7 +1,7 @@
 ---
 name: review-loop
 description: Autonomous Codex CLI review loop. Runs an adversarial correctness review against the base branch, classifies findings, applies fixes, commits and pushes, and repeats until no novel finding needs action or a stop condition fires. Invoked automatically by open-pr; can also be invoked manually with a PR number and base branch.
-version: 1.0.7
+version: 1.0.8
 ---
 
 # Review Loop
@@ -51,12 +51,14 @@ import json, sys
 try:
     with open('.claude/cache/review-loop-state.json', encoding='utf-8') as f:
         s = json.load(f)
-    assert isinstance(s.get('pr_number'), int)
-    assert isinstance(s.get('base_branch'), str) and s['base_branch']
-    assert isinstance(s.get('round'), int) and s['round'] >= 0
-    if s['round'] > 0:
-        assert isinstance(s.get('last_reviewed_commit_oid'), str) and s['last_reviewed_commit_oid'], \
-            'round > 0 requires a non-empty last_reviewed_commit_oid'
+    if not isinstance(s.get('pr_number'), int):
+        raise ValueError('pr_number missing or not an int')
+    if not (isinstance(s.get('base_branch'), str) and s['base_branch']):
+        raise ValueError('base_branch missing or empty')
+    if not (isinstance(s.get('round'), int) and s['round'] >= 0):
+        raise ValueError('round missing or negative')
+    if s['round'] > 0 and not (isinstance(s.get('last_reviewed_commit_oid'), str) and s['last_reviewed_commit_oid']):
+        raise ValueError('round > 0 requires a non-empty last_reviewed_commit_oid')
     print(json.dumps(s, indent=2))
 except Exception as e:
     print(f'State file invalid: {e}', file=sys.stderr)
@@ -483,10 +485,15 @@ untrusted finding text in shell source -- only the literal, trusted path string 
 command:
 ```bash
 CURRENT_HASH=$(FIX_IDS="<comma-separated FIX-classified ids from Phase 1, e.g. F1,F3>" python3 -c "
-import json, hashlib, os
+import json, hashlib, os, sys
 with open('.claude/cache/codex-findings-round-${ROUND}.json', encoding='utf-8') as f:
     all_findings = json.load(f)['findings']
-fix_ids = set(os.environ['FIX_IDS'].split(','))
+fix_ids = {x.strip() for x in os.environ['FIX_IDS'].split(',') if x.strip()}
+valid_ids = {f'F{i}' for i in range(1, len(all_findings) + 1)}
+unknown = fix_ids - valid_ids
+if unknown:
+    print(f'Unknown FIX_IDS not present in this round\'s findings: {sorted(unknown)}', file=sys.stderr)
+    sys.exit(1)
 fix_findings = []
 for i, finding in enumerate(all_findings, 1):
     fid = f'F{i}'
@@ -504,9 +511,11 @@ print(hashlib.sha256(data).hexdigest())
 ```
 `file` and `line` are included, not just `summary` and `failure_scenario`, so that two unrelated
 findings in different files with coincidentally similar wording are never hashed identically and
-mistaken for the same recurring issue. This does not write anything to disk (`.claude/` remains
-off-limits to you under the write blocklist above) -- it only reads a file the orchestrator already
-wrote, by its fixed path.
+mistaken for the same recurring issue. IDs are stripped and empty entries dropped before matching
+(`FIX_IDS="F1, F2"` with a stray space must still hash both, not silently drop `F2` from cycle
+detection), and any id not present among this round's findings aborts rather than being silently
+ignored. This does not write anything to disk (`.claude/` remains off-limits to you under the
+write blocklist above) -- it only reads a file the orchestrator already wrote, by its fixed path.
 
 Previous hash: <FINDING_HASHES_PREV>
 
@@ -574,7 +583,14 @@ FIX_HASH="<64-char hex value from FIX_HASH: line>"
 if [[ ! "$FIX_HASH" =~ ^[0-9a-f]{64}$ ]]; then
   echo "FIX_HASH invalid: '$FIX_HASH' (expected 64-char lowercase hex)" >&2; exit 1
 fi
-REVIEWED_COMMIT_OID=$(cat ".claude/cache/reviewed-commit-round-${ROUND}.txt")
+REVIEWED_COMMIT_FILE=".claude/cache/reviewed-commit-round-${ROUND}.txt"
+if [[ ! -s "$REVIEWED_COMMIT_FILE" ]]; then
+  echo "Missing or empty $REVIEWED_COMMIT_FILE -- cannot persist last_reviewed_commit_oid" >&2; exit 1
+fi
+REVIEWED_COMMIT_OID=$(cat "$REVIEWED_COMMIT_FILE")
+if ! git cat-file -e "${REVIEWED_COMMIT_OID}^{commit}" 2>/dev/null; then
+  echo "$REVIEWED_COMMIT_FILE does not name a valid commit: '$REVIEWED_COMMIT_OID'" >&2; exit 1
+fi
 # The classification table text was written to disk via the Write tool (never interpolated into
 # this shell command), since it can contain untrusted content copied from finding bodies.
 FIX_HASH="$FIX_HASH" REVIEWED_COMMIT_OID="$REVIEWED_COMMIT_OID" python3 -c "
