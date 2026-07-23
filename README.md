@@ -9,7 +9,7 @@ This marketplace ships four Claude plugins:
 | **luca-kit** | Anyone | Skill discovery, self-reflection, CLAUDE.md auditing, and productivity hooks |
 | **luca-reflection-kit** | Anyone | Self-reflection and cross-session learning: scan conversations for improvement points and mine recurring patterns |
 | **luca-ops-kit** | Organizations and individuals | Craft reusable skills, maintain a self-improving setup, and govern your Claude skill library |
-| **luca-dev-kit** | Developers | Pre-PR quality gates, autonomous Gemini review loop, and pre-commit hook management |
+| **luca-dev-kit** | Developers | Pre-PR quality gates, autonomous Codex CLI review loop, and pre-commit hook management |
 
 Most companies and people using AI are stuck at the "clever individual prompts" stage: useful experiments, inconsistent execution, little reuse, and no lasting memory. These plugins provide guided workflows to make good procedures explicit and reusable, so know-how doesn't stay trapped in individual heads or chat histories.
 
@@ -67,12 +67,12 @@ Requires [Claude Code](https://claude.ai/code).
 
 #### Claude Code
 
-Requires GitHub CLI (`gh`) and [Gemini Code Assist](https://codeassist.google/) installed on the repo.
+Requires GitHub CLI (`gh`) and the [Codex CLI](https://github.com/openai/codex) (`@openai/codex`), installed and authenticated (`codex login`).
 
 1. `/plugin marketplace add lucadellanna/luca-kit`
 2. `/plugin install luca-dev-kit@lucadellanna`
 3. Enable auto-updates: type `/plugin`, press Tab twice to open the Marketplaces tab, select `luca-dev-kit`, and select **Enable updates**.
-4. Run `/luca-dev-recommended-setup` to install pre-commit hooks and review the Gemini Code Assist requirement for `review-loop` (persistent local checkout only, not needed in Conductor).
+4. Run `/luca-dev-recommended-setup` to install pre-commit hooks and verify the Codex CLI requirement for `review-loop` (persistent local checkout only, not needed in Conductor).
 
 **To uninstall:**
 
@@ -130,9 +130,9 @@ Requires [Claude Code](https://claude.ai/code).
 
 | Skill | Trigger | What it does |
 |---|---|---|
-| **luca-dev-recommended-setup** | `/luca-dev-recommended-setup` | One-time setup: installs pre-commit hooks, notes Gemini Code Assist requirement. Run once per machine in persistent local checkouts. |
+| **luca-dev-recommended-setup** | `/luca-dev-recommended-setup` | One-time setup: installs pre-commit hooks, verifies Codex CLI is installed and authenticated. Run once per machine in persistent local checkouts. |
 | **open-pr** | "open pr", "create pr", "/open-pr" | Triple review, fix findings, typecheck, push, create PR, hand off to review-loop |
-| **review-loop** | Auto-invoked by open-pr; or "review loop" | Polls Gemini, classifies threads, applies fixes, re-triggers review, repeats until clean |
+| **review-loop** | Auto-invoked by open-pr; or "review loop" | Runs Codex CLI reviews, classifies findings, applies fixes, repeats until clean |
 | **triple-review** | "triple review" | Three-lens parallel review: principles, recurring bug patterns, structural integrity |
 | **targeted-review** | "/targeted-review", "targeted review", "focused review of <file>" | Single-file ad-hoc review with a derived (or user-supplied) checklist; bug-only findings via a structural FINDINGS marker. Catches bugs broad reviews miss |
 | **specs-adherence-review** | "check specs", "adheres to principles?" | Checks changed code against CLAUDE.md rules |
@@ -184,7 +184,7 @@ The plugin ships **meta-skills**: structured workflows for building, auditing, a
 
 ### luca-dev-kit
 
-Write "open pr" and Claude handles the rest: pre-PR quality gates (triple-review against principles, recurring bug patterns, and structural integrity), PR creation, and an autonomous Gemini review loop that fixes comments and re-triggers review until the PR is clean.
+Write "open pr" and Claude handles the rest: pre-PR quality gates (triple-review against principles, recurring bug patterns, and structural integrity), PR creation, and an autonomous Codex CLI review loop that fixes findings and re-reviews until the PR is clean.
 
 ### luca-reflection-kit
 

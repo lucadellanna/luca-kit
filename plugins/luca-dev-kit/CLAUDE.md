@@ -7,7 +7,7 @@ Runtime instructions active in every session where this plugin is installed.
 | Skill | Trigger | Purpose |
 |---|---|---|
 | `luca-dev-kit:open-pr` | "open pr", "create pr", "/open-pr" | Pre-PR quality gates + PR creation + hands off to review-loop |
-| `luca-dev-kit:review-loop` | Auto-invoked by open-pr, or "review loop", "/review-loop" | Autonomous Gemini fix loop: no user input after start |
+| `luca-dev-kit:review-loop` | Auto-invoked by open-pr, or "review loop", "/review-loop" | Autonomous Codex CLI fix loop: no user input after start |
 | `luca-dev-kit:triple-review` | "triple review", or invoked by open-pr | Three-lens parallel code review (standalone or as part of open-pr) |
 | `luca-dev-kit:targeted-review` | "/targeted-review", "targeted review", "focused review of <file>" | Single-file ad-hoc review: derives a file-specific checklist (or accepts one), spawns a subagent with bug-only output contract |
 | `luca-dev-kit:specs-adherence-review` | "check specs", "adheres to principles?", or invoked as Lens A | Principles check vs ~/.claude/CLAUDE.md + local CLAUDE.md/AGENTS.md |
@@ -24,5 +24,5 @@ Runtime instructions active in every session where this plugin is installed.
 
 ## Code review checklist
 
-`review-loop` reads from `~/.claude/code-review-checklist.md` (Lens B). This is a personal, per-user corpus that accumulates over time as Gemini flags new bug classes. It is not shipped with the plugin. If the file does not exist, `review-loop` creates it empty on first use. Format: one line per pattern, `- <what to check>: <why it matters>`.
+`review-loop` reads from `~/.claude/code-review-checklist.md` (Lens B). This is a personal, per-user corpus that accumulates over time as Codex flags new bug classes. It is not shipped with the plugin. If the file does not exist, `review-loop` creates it empty on first use. Format: one line per pattern, `- <what to check>: <why it matters>`.
 

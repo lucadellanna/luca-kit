@@ -12,7 +12,7 @@
     {
       "name": "luca-dev-kit",
       "source": "./plugins/luca-dev-kit",
-      "description": "Developer workflow automation: pre-PR quality gates, autonomous Gemini review loop, and pre-commit hook management"
+      "description": "Developer workflow automation: pre-PR quality gates, autonomous Codex CLI review loop, and pre-commit hook management"
     },
     {
       "name": "luca-reflection-kit",
