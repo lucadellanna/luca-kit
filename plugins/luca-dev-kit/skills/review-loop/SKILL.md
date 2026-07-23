@@ -1,7 +1,7 @@
 ---
 name: review-loop
 description: Autonomous Codex CLI review loop. Runs an adversarial correctness review against the base branch, classifies findings, applies fixes, commits and pushes, and repeats until no novel finding needs action or a stop condition fires. Invoked automatically by open-pr; can also be invoked manually with a PR number and base branch.
-version: 1.0.8
+version: 1.0.9
 ---
 
 # Review Loop
@@ -616,6 +616,26 @@ except Exception as e:
 "
 ```
 
+**Diminishing-returns check.** This loop exists to catch bugs that would actually break the change,
+not to iterate until Codex runs out of things to say -- once a round's findings stop including
+anything `critical`, further rounds concentrate full-file-review rigor onto an ever-shrinking diff
+and reliably surface findings of decreasing real-world consequence (environment-variable edge
+cases, formatting quirks, contrived preconditions) rather than more genuine bugs. Check this
+round's findings (already fixed above) for severity, using the same findings file, not a re-read of
+Codex's free-text output:
+```bash
+HAS_CRITICAL=$(python3 -c "
+import json
+with open('.claude/cache/codex-findings-round-${ROUND}.json', encoding='utf-8') as f:
+    findings = json.load(f).get('findings', [])
+print('yes' if any(f.get('severity') == 'critical' for f in findings) else 'no')
+")
+```
+If `HAS_CRITICAL` is `no`: go to [EXIT CLEAN] instead of looping back -- this round's important/minor
+findings are already fixed and pushed, so stopping here does not leave known issues unaddressed.
+
+If `HAS_CRITICAL` is `yes`: continue below.
+
 Reload `round` from the updated state. If `round >= 10`: pause.
 "Reached 10 review rounds. Codex still has findings. Continue 10 more rounds? (yes/no)"
 If yes: reset counter to 0 and continue. If no: stop and report.
@@ -630,9 +650,16 @@ Loop back to [A. Run Codex review] using `codex exec resume "$CODEX_THREAD_ID"` 
 gh pr checks --watch --interval 10
 ```
 
-Use the `PushNotification` tool to notify: "PR #N is ready. Codex review is clean and CI is green."
+Reached either because a round found zero findings (or only REJECT/ALREADY_FIXED), or because the
+diminishing-returns check above stopped the loop after a round with no `critical` findings (whose
+important/minor findings were already fixed and pushed). Report which case this is -- do not call
+it "clean" if findings were actually fixed this round, since the user should know what changed:
 
-Report: "PR #N is ready. Codex review is clean and CI is green."
+- **Zero/no-op findings:** notify and report "PR #N is ready. Codex review is clean and CI is
+  green."
+- **Diminishing-returns stop:** notify and report "PR #N is ready. Round <N> found no remaining
+  critical issues (only important/minor, already fixed and pushed) -- stopping here rather than
+  chasing further rounds of decreasing value. CI is green."
 
 ## EXIT STOP
 
