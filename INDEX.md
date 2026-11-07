@@ -54,7 +54,7 @@
 | `plugins/luca-kit/skills/restructure-claude-files/HELP.md` |  |
 | `plugins/luca-kit/skills/restructure-claude-files/SKILL.md` | `/luca-kit:restructure-claude-files` skill |
 
-## Plugin: luca-ops-kit (v0.6.1)
+## Plugin: luca-ops-kit (v0.6.2)
 
 | Path | Role |
 |---|---|
