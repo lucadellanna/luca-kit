@@ -47,11 +47,17 @@ with open(transcript_path, encoding="utf-8") as f:
 cleaned = re.sub(r"```[\s\S]*?```", "", last_text)
 cleaned = re.sub(r"```[\s\S]*$", "", cleaned)  # strip unclosed fences
 cleaned = "\n".join(l for l in cleaned.split("\n") if not l.lstrip().startswith(">"))
+# A phrase that is quoted or in inline code is being mentioned, not said (e.g. discussing this hook).
+cleaned = re.sub(r"`[^`\n]*`", "", cleaned)
+cleaned = re.sub(r"\"[^\"\n]*\"|\u201c[^\u201d\n]*\u201d", "", cleaned)
 
+# "You're right" only counts as agreement when it ends the clause or introduces what the user
+# said ("you're right, ...", "you're right that ..."), not as an assessment ("right at the limit").
 apology_re = re.compile(
-    r"\b(you'?re right|good catch|my mistake|i shouldn'?t have|"
+    r"\b(you'?re (?:absolutely |completely |totally )?right(?=\s*(?:[,.!:;\u2014-]|$)|\s+(?:to|that|about)\b)|"
+    r"good catch|my mistake|i shouldn'?t have|"
     r"i should have|i missed|i apologi[sz]e|the issue was)\b",
-    re.IGNORECASE,
+    re.IGNORECASE | re.MULTILINE,
 )
 if not apology_re.search(cleaned):
     sys.exit(0)
